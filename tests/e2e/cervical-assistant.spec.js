@@ -60,6 +60,20 @@ test.describe('cervical observation assistant', () => {
     expect(requests).toEqual([]);
   });
 
+
+  test('offers visual comparison without requiring category knowledge', async ({ page }) => {
+    await resetApp(page);
+    await expect(page.locator('.assistant-visual')).toHaveCount(4);
+    await page.locator('.assistant-visual').filter({ hasText: 'Blanc / opaque' }).click();
+    await expect(page.locator('.assistant-visual').filter({ hasText: 'Blanc / opaque' })).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('#ca-sensation').selectOption('moist');
+    await page.locator('#ca-texture').selectOption('creamy');
+    await page.locator('#ca-extensibility').selectOption('absent');
+    await page.locator('#ca-stretch-length').selectOption('0');
+    await page.locator('#cervical-assistant-analyze').click();
+    await expect(page.locator('#cervical-assistant-result')).toContainText('crémeuse');
+  });
+
   test('reset clears the observation assistant', async ({ page }) => {
     await resetApp(page);
 
