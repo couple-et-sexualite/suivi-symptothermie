@@ -124,7 +124,10 @@
   examples.forEach(([value,title,desc,bg]) => {
     const button=document.createElement('button');
     button.type='button'; button.className='rps02-visual'; button.dataset.value=value; button.setAttribute('aria-pressed','false');
-    button.innerHTML='<div class="rps02-swatch"></div><strong>'+escapeHtml(title)+'</strong><div class="learn-meta">'+escapeHtml(desc)+'</div>';
+    const swatch=document.createElement('div'); swatch.className='rps02-swatch';
+    const strong=document.createElement('strong'); strong.textContent=title;
+    const meta=document.createElement('div'); meta.className='learn-meta'; meta.textContent=desc;
+    button.append(swatch,strong,meta);
     button.querySelector('.rps02-swatch').style.background=bg;
     button.addEventListener('click',()=>{grid.querySelectorAll('.rps02-visual').forEach(b=>b.setAttribute('aria-pressed','false'));button.setAttribute('aria-pressed','true');});
     grid.appendChild(button);
@@ -185,7 +188,12 @@
     Object.entries(values).forEach(([key,value])=>{if(value!=='unknown'&&labels[key][value])parts.push(escapeHtml(labels[key][value]));});
     const visual=getSelectedVisual();
     const visualText=visual?(String(visual).startsWith('real-')||String(visual).includes('justisse-')||String(visual).includes('wikimedia-')?'une photographie réelle du corpus':({opaque:'repère visuel opaque / blanc',translucent:'repère visuel translucide',transparent:'repère visuel transparent',stretchy:'repère visuel étirable'}[visual]||'un exemple du corpus')):'aucun repère visuel retenu';
-    result.innerHTML='<strong>Votre description actuelle</strong><p>'+(parts.length?parts.join(' · '):'Vous n’avez pas encore retenu de caractéristique précise.')+'</p><p class="learn-meta">Repère visuel choisi : '+escapeHtml(visualText)+'.</p><p class="learn-meta">Ce résultat reprend uniquement vos choix. Il ne transforme pas ces caractéristiques en diagnostic, fertilité, ovulation ou catégorie méthodologique.</p>';
+    result.replaceChildren();
+    const resultTitle=document.createElement('strong'); resultTitle.textContent='Votre description actuelle';
+    const resultText=document.createElement('p'); resultText.textContent=parts.length?parts.join(' · '):'Vous n’avez pas encore retenu de caractéristique précise.';
+    const visualMeta=document.createElement('p'); visualMeta.className='learn-meta'; visualMeta.textContent='Repère visuel choisi : '+visualText+'.';
+    const limitMeta=document.createElement('p'); limitMeta.className='learn-meta'; limitMeta.textContent='Ce résultat reprend uniquement vos choix. Il ne transforme pas ces caractéristiques en diagnostic, fertilité, ovulation ou catégorie méthodologique.';
+    result.append(resultTitle,resultText,visualMeta,limitMeta);
     result.hidden=false; result.focus();
   });
 
