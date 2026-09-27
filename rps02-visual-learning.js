@@ -165,8 +165,8 @@
     data.records.forEach(record=>{
       const button=document.createElement('button');
       button.type='button'; button.className='rps02-real'; button.setAttribute('aria-pressed','false');
-      const safeSource=escapeHtml(record.sourceName);
-      const safeLabel=escapeHtml(record.referenceLabel||'Exemple réel');
+      const safeSource=record.sourceName;
+      const safeLabel=record.referenceLabel||'Exemple réel';
       button.innerHTML='<img loading="lazy" alt="Exemple photographique réel de sécrétion cervicale" src="'+escapeHtml(record.assetUrl)+'"><strong>Exemple réel</strong><span class="learn-meta">'+safeSource+' · '+safeLabel+'</span><span class="learn-meta">Licence : '+escapeHtml(record.license)+'</span>';
       button.addEventListener('click',()=>{
         realGrid.querySelectorAll('.rps02-real').forEach(b=>b.setAttribute('aria-pressed','false'));
