@@ -184,7 +184,7 @@
     const parts=[];
     Object.entries(values).forEach(([key,value])=>{if(value!=='unknown'&&labels[key][value])parts.push(escapeHtml(labels[key][value]));});
     const visual=getSelectedVisual();
-    const visualText=visual?(String(visual).startsWith('real-')||String(visual).includes('justisse-')||String(visual.includes('wikimedia-'))?'une photographie réelle du corpus':({opaque:'repère visuel opaque / blanc',translucent:'repère visuel translucide',transparent:'repère visuel transparent',stretchy:'repère visuel étirable'}[visual]||'un exemple du corpus')):'aucun repère visuel retenu';
+    const visualText=visual?(String(visual).startsWith('real-')||String(visual).includes('justisse-')||String(visual).includes('wikimedia-')?'une photographie réelle du corpus':({opaque:'repère visuel opaque / blanc',translucent:'repère visuel translucide',transparent:'repère visuel transparent',stretchy:'repère visuel étirable'}[visual]||'un exemple du corpus')):'aucun repère visuel retenu';
     result.innerHTML='<strong>Votre description actuelle</strong><p>'+(parts.length?parts.join(' · '):'Vous n’avez pas encore retenu de caractéristique précise.')+'</p><p class="learn-meta">Repère visuel choisi : '+escapeHtml(visualText)+'.</p><p class="learn-meta">Ce résultat reprend uniquement vos choix. Il ne transforme pas ces caractéristiques en diagnostic, fertilité, ovulation ou catégorie méthodologique.</p>';
     result.hidden=false; result.focus();
   });
