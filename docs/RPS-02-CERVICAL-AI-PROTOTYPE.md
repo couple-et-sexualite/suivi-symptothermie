@@ -34,6 +34,21 @@ Il ne produit pas :
 - recommandation contraceptive ;
 - diagnostic ou interprétation d’infection.
 
+## Principe de contribution volontaire
+
+Le fonctionnement retenu est **local par défaut** : une photo utilisée pour aider l’utilisatrice à décrire son observation ne quitte pas son appareil dans le prototype.
+
+Après validation méthodologique, éthique et scientifique du dispositif, une fonction séparée pourra permettre aux utilisatrices qui le souhaitent de contribuer volontairement une ou plusieurs images au corpus de recherche. Cette contribution sera :
+
+- facultative et sans impact sur l’utilisation de SymRella ;
+- déclenchée par une action explicite de l’utilisatrice ;
+- précédée d'une information claire sur les finalités, la conservation, l’annotation, l’évaluation et, si applicable, l’entraînement de modèles ;
+- couverte par un consentement spécifique avant tout transfert ;
+- révocable selon une procédure définie par le protocole et la gouvernance du corpus ;
+- séparée des données ordinaires du journal de cycle.
+
+Aucune photo ne sera envoyée simplement parce qu’elle a été utilisée dans l’assistant local. Une intention de contribuer exprimée antérieurement ne vaut pas autorisation de transfert ou d’utilisation d’une image déterminée.
+
 ## Évolution prévue
 
 Le prototype est conçu pour être remplacé par un moteur validé sans modifier l’interface générale :
@@ -52,6 +67,10 @@ Cette séparation suit le principe d’une tâche d’IA de santé clairement d�
 Aucune photo de l’utilisatrice n’est persistée par ce prototype. L’URL d’objet utilisée pour l’aperçu est révoquée lorsque l’image est remplacée, réinitialisée ou lorsque la page est quittée.
 
 Les données descriptives saisies dans ce module ne sont pas automatiquement ajoutées au journal du cycle : l’utilisatrice conserve le contrôle de ce qu’elle enregistre comme observation.
+
+## Stockage et transfert
+
+Le prototype actuel ne possède aucun mécanisme d’envoi de photo. Une future fonction de contribution ne sera activée qu’après le passage des gates de gouvernance applicables et la mise en place du consentement et de l’infrastructure correspondants.
 
 ## Statut de validation
 
