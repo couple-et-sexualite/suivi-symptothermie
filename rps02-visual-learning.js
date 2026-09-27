@@ -102,6 +102,12 @@
     #rps02-visual-workshop .rps02-swatch{height:72px;border-radius:8px;border:1px solid var(--border);margin-bottom:7px}
     #rps02-visual-workshop .rps02-photo-preview{display:block;max-width:100%;max-height:280px;margin-top:10px;border:1px solid var(--border);border-radius:12px;object-fit:contain;background:var(--bg)}
     #rps02-visual-workshop .rps02-result{margin-top:12px}
+    #rps02-visual-workshop .rps02-real-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+    #rps02-visual-workshop .rps02-real{border:1px solid var(--border);border-radius:10px;padding:8px;background:var(--bg);text-align:left;cursor:pointer;color:var(--text)}
+    #rps02-visual-workshop .rps02-real[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:1px}
+    #rps02-visual-workshop .rps02-real img{display:block;width:100%;height:150px;object-fit:contain;background:#f4f4f4;border-radius:8px;margin-bottom:7px}
+    #rps02-visual-workshop .rps02-image-fallback{height:150px;display:grid;place-items:center;border-radius:8px;background:var(--bg);margin-bottom:7px;font-size:.85rem;text-align:center}
+    @media(min-width:760px){#rps02-visual-workshop .rps02-real-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
     @media(min-width:620px){#rps02-visual-workshop .rps02-grid{grid-template-columns:1fr 1fr}}
     @media(min-width:760px){#rps02-visual-workshop .rps02-visual-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
   `;
@@ -145,6 +151,30 @@
     preview.src=objectUrl; preview.hidden=false;
     photoStatus.textContent='Photo affichée localement uniquement. Elle n’est pas analysée ni sauvegardée.';
   });
+
+  const corpusSection=document.createElement('div');
+  corpusSection.className='rps02-real-corpus';
+  corpusSection.innerHTML='<h4>Exemples photographiques réels — corpus sous licence</h4><p class="learn-meta">Ces photographies proviennent de sources dont les conditions de réutilisation ont été documentées. Elles servent à apprendre à observer ; les notations propres aux méthodes sources ne sont pas des catégories SymRella.</p><div class="rps02-real-grid" id="rps02-real-grid"><p class="learn-meta">Chargement du corpus…</p></div>';
+  card.querySelector('.rps02-step:nth-of-type(2)').appendChild(corpusSection);
+  const realGrid=corpusSection.querySelector('#rps02-real-grid');
+  fetch('./data/rps02-visual-corpus.json',{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('corpus');return response.json();}).then(data=>{
+    realGrid.innerHTML='';
+    data.records.forEach(record=>{
+      const button=document.createElement('button');
+      button.type='button'; button.className='rps02-real'; button.setAttribute('aria-pressed','false');
+      const safeSource=escapeHtml(record.sourceName);
+      const safeLabel=escapeHtml(record.referenceLabel||'Exemple réel');
+      button.innerHTML='<img loading="lazy" alt="Exemple photographique réel de sécrétion cervicale" src="'+escapeHtml(record.assetUrl)+'"><strong>Exemple réel</strong><span class="learn-meta">'+safeSource+' · '+safeLabel+'</span><span class="learn-meta">Licence : '+escapeHtml(record.license)+'</span>';
+      button.addEventListener('click',()=>{
+        realGrid.querySelectorAll('.rps02-real').forEach(b=>b.setAttribute('aria-pressed','false'));
+        button.setAttribute('aria-pressed','true');
+        clearVisual();
+        button.dataset.selectedId=record.imageId;
+      });
+      button.querySelector('img').addEventListener('error',()=>{button.querySelector('img').replaceWith(Object.assign(document.createElement('div'),{className:'rps02-image-fallback',textContent:'Image indisponible — consulter la source'}));});
+      realGrid.appendChild(button);
+    });
+  }).catch(()=>{realGrid.innerHTML='<p class="learn-meta">Le registre est présent, mais les images externes ne sont pas disponibles dans cet environnement. La source et la licence restent consultables.</p>';});
 
   const getSelectedVisual=()=>grid.querySelector('.rps02-visual[aria-pressed="true"]')?.dataset.value||null;
   const labels={sensation:{dry:'sèche',moist:'humide',wet:'mouillée',slippery:'glissante'},texture:{sticky:'collante',creamy:'épaisse / crémeuse',watery:'très fluide',gel:'gélatineuse',mixed:'mélangée / difficile à décrire'},transparency:{opaque:'opaque / blanche',translucent:'translucide',transparent:'claire / transparente'},stretch:{none:'non étirable',little:'peu étirable',clear:'nettement étirable',uncertain:'étirement indéterminé'}};
