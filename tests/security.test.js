@@ -7,7 +7,8 @@ const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const manifest = fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8');
 const serviceWorker = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
-const source = page + '\n' + app;
+const source = page + '
+' + app;
 
 test('user-controlled text is escaped before being inserted into HTML', () => {
   assert.match(app, /function escapeHtml\(value\)\s*\{/);
@@ -178,13 +179,16 @@ test('editing an observation respects the selected Fahrenheit display unit', () 
 test('PWA declares an installable icon and caches it', () => {
   assert.match(manifest, /icons/);
   assert.match(manifest, /\.\/icons\/icon\.svg/);
-  assert.match(serviceWorker, /\.\/app\.js/);\n  assert.match(serviceWorker, /\.\/icons\/icon\.svg/);
+  assert.match(serviceWorker, /\.\/app\.js/);
+  assert.match(serviceWorker, /\.\/icons\/icon\.svg/);
 });
 
 test('privacy and terms documentation are linked and local-first claims remain explicit', () => {
   assert.match(source, /href="PRIVACY\.md"/);
   assert.match(source, /href="TERMS\.md"/);
-  assert.match(source, /<meta http-equiv="Content-Security-Policy" content="[^"]*script-src 'self'/i);\n  assert.match(source, /<script src="\\.\\/app\\.js"><\\/script>/i);\n  assert.doesNotMatch(source, /<script(?![^>]*src=)[^>]*>/i);
+  assert.match(page, /<meta http-equiv="Content-Security-Policy" content="[^"]*script-src 'self'/i);
+  assert.match(page, /<script src="\\.\\/app\\.js"><\\/script>/i);
+  assert.doesNotMatch(page, /<script(?![^>]*src=)[^>]*>/i);
   assert.doesNotMatch(source, /\bfetch\s*\(/);
   assert.doesNotMatch(source, /\bsendBeacon\s*\(/);
 });
