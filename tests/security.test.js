@@ -4,14 +4,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const manifest = fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8');
 const serviceWorker = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 
 test('user-controlled text is escaped before being inserted into HTML', () => {
-  assert.match(page, /function escapeHtml\(value\)\s*\{/);
-  assert.match(page, /escapeHtml\(e\.notes\)/);
-  assert.match(page, /e\.factors\.map\(f => escapeHtml/);
-  assert.match(page, /escapeHtml\(e\.time\)/);
+  assert.match(app, /function escapeHtml\(value\)\s*\{/);
+  assert.match(app, /escapeHtml\\(e\\.notes\\)/);
+  assert.match(app, /e\\.factors\\.map\\(f => escapeHtml/);
+  assert.match(app, /escapeHtml\\(e\\.time\\)/);
 });
 
 test('backup import is versioned, validated and size-limited', () => {
@@ -32,9 +33,9 @@ test('stored observations validate dates, temperatures, mucus and time', () => {
 });
 
 test('dangerous script execution primitives are absent', () => {
-  assert.doesNotMatch(page, /\beval\s*\(/);
-  assert.doesNotMatch(page, /document\.write\s*\(/);
-  assert.doesNotMatch(page, /new Function\s*\(/);
+  assert.doesNotMatch(app, /(\beval\s*\(/);
+  assert.doesNotMatch(app, /(document\.write\s*\(/);
+  assert.doesNotMatch(app, /(new Function\s*\(/);
 });
 
 test('calendar weekday headings are localized', () => {
@@ -182,7 +183,7 @@ test('PWA declares an installable icon and caches it', () => {
 test('privacy and terms documentation are linked and local-first claims remain explicit', () => {
   assert.match(page, /href="PRIVACY\.md"/);
   assert.match(page, /href="TERMS\.md"/);
-  assert.doesNotMatch(page, /<script[^>]+src=/i);
+  assert.match(page, /<meta http-equiv="Content-Security-Policy" content="[^"]*script-src 'self'/i);\n  assert.match(page, /<script src="\\.\\/app\\.js"><\\/script>/i);\n  assert.doesNotMatch(page, /<script(?![^>]*src=)[^>]*>/i);
   assert.doesNotMatch(page, /\bfetch\s*\(/);
   assert.doesNotMatch(page, /\bsendBeacon\s*\(/);
 });
