@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://symrella.app/schemas/rps02-cervical-ai-corpus-record.schema.json",
+  "title":"RPS-02 Cervical AI Corpus Record",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["participantId","observationId","imageId","ontologyVersion","consentStatus","rightsStatus","qualityStatus","split"],
+  "properties":{
+    "participantId":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,64}$"},
+    "observationId":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,128}$"},
+    "imageId":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,128}$"},
+    "ontologyVersion":{"type":"string","minLength":1,"maxLength":64},
+    "consentStatus":{"type":"string","enum":["documented","withdrawn","pending"]},
+    "rightsStatus":{"type":"string","enum":["documented","restricted","pending","withdrawn"]},
+    "qualityStatus":{"type":"string","enum":["sufficient","insufficient","uncertain","not_assessed"]},
+    "split":{"type":"string","enum":["train","validation","test","unassigned"]},
+    "captureDeviceClass":{"type":"string","enum":["smartphone","tablet","camera","unknown"]},
+    "lightingClass":{"type":"string","enum":["good","acceptable","poor","unknown"]}
+  }
+}
