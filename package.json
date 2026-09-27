@@ -14,8 +14,8 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.2",
+    "@axe-core/playwright": "^4.13.0",
     "@lhci/cli": "^0.15.1",
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.63.0"
   }
 }
