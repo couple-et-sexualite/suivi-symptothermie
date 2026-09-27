@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
-const page = fs.readFileSync(require('node:path').join(__dirname, '..', 'index.html'), 'utf8');
+const page = fs.readFileSync(require('node:path').join(__dirname, '..', 'index.html'), 'utf8') + '\n' + fs.readFileSync(require('node:path').join(__dirname, '..', 'app.js'), 'utf8');
 
 test('the eight requested learning modules are available', () => {
   for (const title of [
