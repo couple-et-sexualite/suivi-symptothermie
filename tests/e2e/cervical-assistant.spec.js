@@ -54,8 +54,9 @@ test.describe('cervical observation assistant', () => {
       buffer: png1x1
     });
 
-    await expect(page.locator('#cervical-photo-status')).toContainText(/Photo chargée|Impossible|résolution/i);
-    await expect(page.locator('#cervical-photo')).toHaveValue('');
+    await expect(page.locator('#cervical-photo-status')).toContainText(/résolution est faible/i);
+    await expect(page.locator('#cervical-photo-preview')).toBeVisible();
+    await expect(page.locator('#cervical-photo')).toHaveValue(/observation\.png$/i);
     expect(requests).toEqual([]);
   });
 
