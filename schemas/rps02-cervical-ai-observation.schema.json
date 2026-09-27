@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symrella.app/schemas/rps02-cervical-ai-observation.schema.json",
+  "title": "RPS-02 Cervical AI Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "observationId", "source", "photo", "manualObservation"],
+  "properties": {
+    "schemaVersion": {"type": "string", "const": "RPS02-CM-AI-OBS-v0.1"},
+    "observationId": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source": {"type": "string", "enum": ["user_capture", "research_capture", "synthetic_test"]},
+    "photo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["imageId", "quality"],
+      "properties": {
+        "imageId": {"type": "string", "minLength": 1, "maxLength": 128},
+        "quality": {"type": "string", "enum": ["sufficient", "insufficient", "uncertain", "not_assessed"]},
+        "deviceClass": {"type": "string", "enum": ["smartphone", "tablet", "camera", "unknown"]},
+        "lighting": {"type": "string", "enum": ["good", "acceptable", "poor", "unknown"]}
+      }
+    },
+    "manualObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sensation", "visualFeatures", "stretchTest"],
+      "properties": {
+        "sensation": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "enum": ["dry", "moist", "wet", "slippery", "unknown"]}
+        },
+        "visualFeatures": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "enum": ["transparent", "translucent", "opaque", "white", "whitish", "creamy", "thick", "watery", "gel_like", "stretchy", "sticky", "mixed", "other", "unknown"]}
+        },
+        "stretchTest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["performed"],
+          "properties": {
+            "performed": {"type": "boolean"},
+            "lengthBand": {"type": "string", "enum": ["0", "lt_1cm", "1_2cm", "gt_2cm", "not_measurable", "unknown"]}
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "enum": ["normal", "bleeding", "postpartum", "breastfeeding", "post_hormonal", "medication", "infection_suspected", "other", "unknown"]}
+    }
+  }
+}
