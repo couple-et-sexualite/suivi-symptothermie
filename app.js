@@ -949,3 +949,207 @@ render();
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
+/* SymRella observation assistant v1
+ * Descriptive/local prototype only.
+ * Photo is used only for local preview/quality checks; it is NOT classified by AI.
+ */
+(() => {
+  const state = { objectUrl: null, photoQuality: 'none' };
+  const create = (tag, props = {}, children = []) => {
+    const el = document.createElement(tag);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key === 'text') el.textContent = value;
+      else if (key === 'className') el.className = value;
+      else if (key === 'htmlFor') el.htmlFor = value;
+      else if (key === 'hidden') el.hidden = Boolean(value);
+      else el.setAttribute(key, value);
+    });
+    children.forEach(child => el.appendChild(child));
+    return el;
+  };
+  const field = (id, label, options) => {
+    const wrapper = create('div', { className: 'observation-assistant-field' });
+    wrapper.appendChild(create('label', { htmlFor: id, text: label }));
+    const select = create('select', { id });
+    options.forEach(([value, text]) => select.appendChild(create('option', { value, text })));
+    wrapper.appendChild(select);
+    return wrapper;
+  };
+  const mount = document.querySelector('#accueil');
+  if (!mount || document.getElementById('cervical-observation-assistant')) return;
+
+  const style = create('style');
+  style.textContent =
+    '#cervical-observation-assistant .assistant-grid{display:grid;gap:12px}' +
+    '@media(min-width:620px){#cervical-observation-assistant .assistant-grid{grid-template-columns:1fr 1fr}}' +
+    '#cervical-observation-assistant .assistant-photo{display:grid;gap:10px}' +
+    '#cervical-observation-assistant .assistant-preview{max-width:100%;max-height:260px;border:1px solid var(--border);border-radius:12px;object-fit:contain;background:var(--bg)}' +
+    '#cervical-observation-assistant .assistant-result{margin-top:14px}' +
+    '#cervical-observation-assistant .assistant-result strong{font-size:1.05rem}' +
+    '#cervical-observation-assistant .assistant-muted{color:var(--text-muted);font-size:.84rem}';
+  document.head.appendChild(style);
+
+  const card = create('div', { id: 'cervical-observation-assistant', className: 'card no-print' });
+  card.appendChild(create('h2', { id: 'cervical-assistant-title', text: '🔎 M’aider à comprendre mon observation' }));
+  card.appendChild(create('p', {
+    className: 'learn-meta',
+    text: 'Outil d’apprentissage descriptif pour mieux caractériser une sécrétion cervicale. Il ne détermine ni fertilité ni ovulation et ne pose pas de diagnostic.'
+  }));
+
+  const photoSection = create('div', { className: 'assistant-photo' });
+  photoSection.appendChild(create('label', { htmlFor: 'cervical-photo', text: 'Photo (facultative)' }));
+  const photoInput = create('input', { id: 'cervical-photo', type: 'file', accept: 'image/jpeg,image/png,image/webp' });
+  photoInput.setAttribute('aria-describedby', 'cervical-photo-help');
+  photoSection.appendChild(photoInput);
+  photoSection.appendChild(create('div', {
+    id: 'cervical-photo-help',
+    className: 'assistant-muted',
+    text: 'La photo reste dans ce navigateur pour cette session. Elle n’est pas envoyée à un serveur et n’est pas enregistrée dans les données de suivi.'
+  }));
+  const photoStatus = create('div', { id: 'cervical-photo-status', className: 'learn-meta', role: 'status', 'aria-live': 'polite' });
+  photoSection.appendChild(photoStatus);
+  const preview = create('img', { id: 'cervical-photo-preview', className: 'assistant-preview', alt: 'Aperçu local de la photo', hidden: true });
+  photoSection.appendChild(preview);
+  card.appendChild(photoSection);
+
+  const assistantGrid = create('div', { className: 'assistant-grid', style: 'margin-top:14px;' });
+  assistantGrid.appendChild(field('ca-transparency', 'Aspect visuel', [
+    ['unknown', 'Je ne sais pas'], ['transparent', 'Transparent'], ['translucent', 'Translucide'], ['opaque', 'Opaque / blanc']
+  ]));
+  assistantGrid.appendChild(field('ca-texture', 'Texture qui ressemble le plus à ce que vous observez', [
+    ['unknown', 'Je ne sais pas'], ['creamy', 'Crémeuse / épaisse'], ['watery', 'Très fluide / aqueuse'],
+    ['stretchy', 'Gélatineuse / étirable'], ['sticky', 'Collante'], ['mixed', 'Mélangée / difficile à décrire']
+  ]));
+  assistantGrid.appendChild(field('ca-extensibility', 'Que se passe-t-il quand vous l’observez entre deux doigts ?', [
+    ['unknown', 'Je ne sais pas / je ne l’ai pas testé'], ['absent', 'Ne s’étire pas'], ['weak', 'S’étire très peu'],
+    ['clear', 'S’étire nettement'], ['indeterminate', 'Impossible à déterminer']
+  ]));
+  assistantGrid.appendChild(field('ca-sensation', 'Sensation ressentie au niveau vulvaire', [
+    ['unknown', 'Je ne sais pas'], ['dry', 'Sèche'], ['moist', 'Humide'], ['wet', 'Mouillée'], ['slippery', 'Glissante']
+  ]));
+  assistantGrid.appendChild(field('ca-stretch-length', 'Longueur approximative de l’étirement', [
+    ['unknown', 'Je ne sais pas'], ['0', 'Aucun'], ['lt_1cm', 'Moins de 1 cm'], ['1_2cm', 'Environ 1 à 2 cm'], ['gt_2cm', 'Plus de 2 cm']
+  ]));
+  card.appendChild(assistantGrid);
+
+  const actions = create('div', { className: 'row-actions', style: 'margin-top:14px;' });
+  actions.appendChild(create('button', { className: 'btn', type: 'button', id: 'cervical-assistant-analyze', text: 'Décrire mon observation' }));
+  actions.appendChild(create('button', { className: 'btn btn-secondary', type: 'button', id: 'cervical-assistant-reset', text: 'Réinitialiser' }));
+  card.appendChild(actions);
+
+  const result = create('div', {
+    id: 'cervical-assistant-result', className: 'notice assistant-result', role: 'status',
+    'aria-live': 'polite', tabindex: '-1', hidden: true
+  });
+  card.appendChild(result);
+
+  const formCard = mount.querySelector('.card.no-print:nth-of-type(2)');
+  if (formCard) formCard.insertAdjacentElement('afterend', card); else mount.appendChild(card);
+
+  const setResult = (title, details) => {
+    while (result.firstChild) result.removeChild(result.firstChild);
+    result.appendChild(create('strong', { text: title }));
+    details.forEach(item => result.appendChild(create('p', { className: 'assistant-muted', text: item })));
+    result.hidden = false;
+    result.focus();
+  };
+
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files && photoInput.files[0];
+    if (state.objectUrl) URL.revokeObjectURL(state.objectUrl);
+    state.objectUrl = null;
+    state.photoQuality = 'none';
+    preview.hidden = true;
+    photoStatus.textContent = '';
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 8 * 1024 * 1024) {
+      photoStatus.textContent = 'Format non pris en charge ou fichier supérieur à 8 Mo.';
+      photoInput.value = '';
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    state.objectUrl = url;
+    const image = new Image();
+    image.onload = () => {
+      const megapixels = (image.naturalWidth * image.naturalHeight) / 1000000;
+      state.photoQuality = image.naturalWidth < 640 || image.naturalHeight < 480 || megapixels < 0.3 ? 'uncertain' : 'sufficient';
+      preview.src = url;
+      preview.hidden = false;
+      photoStatus.textContent = state.photoQuality === 'sufficient'
+        ? 'Photo chargée localement. Résolution suffisante pour un aperçu ; aucune classification automatique de la photo n’est effectuée.'
+        : 'Photo chargée, mais sa résolution est faible pour une observation visuelle fiable.';
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      state.objectUrl = null;
+      photoStatus.textContent = 'Impossible de lire cette image.';
+      photoInput.value = '';
+    };
+    image.src = url;
+  });
+
+  document.getElementById('cervical-assistant-analyze').addEventListener('click', () => {
+    const t = document.getElementById('ca-transparency').value;
+    const x = document.getElementById('ca-texture').value;
+    const e = document.getElementById('ca-extensibility').value;
+    const s = document.getElementById('ca-sensation').value;
+    const l = document.getElementById('ca-stretch-length').value;
+    let creamy = 0, stretchy = 0;
+    if (t === 'opaque') creamy += 2;
+    if (t === 'transparent') stretchy += 2;
+    if (t === 'translucent') { creamy += 1; stretchy += 1; }
+    if (x === 'creamy') creamy += 3;
+    if (x === 'watery') stretchy += 2;
+    if (x === 'stretchy') stretchy += 3;
+    if (x === 'sticky') creamy += 2;
+    if (x === 'mixed') { creamy += 1; stretchy += 1; }
+    if (e === 'absent') creamy += 2;
+    if (e === 'weak') creamy += 1;
+    if (e === 'clear') stretchy += 3;
+    if (s === 'dry' || s === 'moist') creamy += 1;
+    if (s === 'wet') stretchy += 1;
+    if (s === 'slippery') stretchy += 3;
+    if (l === '0' || l === 'lt_1cm') creamy += 1;
+    if (l === '1_2cm') stretchy += 1;
+    if (l === 'gt_2cm') stretchy += 2;
+    const answered = [t, x, e, s, l].filter(v => v !== 'unknown' && v !== 'indeterminate').length;
+    const gap = Math.abs(creamy - stretchy);
+
+    if (answered < 2 || gap < 2 || x === 'mixed') {
+      setResult('Observation incertaine ou mixte', [
+        'Les caractéristiques renseignées ne permettent pas de rapprocher suffisamment l’observation d’une description unique.',
+        state.photoQuality === 'sufficient'
+          ? 'La photo est disponible uniquement comme aperçu local : elle n’est pas classée automatiquement.'
+          : 'Le résultat ne repose pas sur une interprétation automatique de la photo.',
+        'Vous pouvez conserver les caractéristiques brutes dans votre journal plutôt que forcer une catégorie.'
+      ]);
+      return;
+    }
+
+    setResult(creamy > stretchy ? 'Description la plus proche : crémeuse / épaisse' : 'Description la plus proche : transparente / étirable', [
+      'Ce résultat décrit uniquement les caractéristiques que vous avez renseignées. Il ne constitue pas une classification médicale.',
+      state.photoQuality === 'sufficient'
+        ? 'La photo a été vérifiée localement pour sa lisibilité, mais elle n’est pas utilisée par une IA pour décider de la catégorie.'
+        : 'Le résultat repose uniquement sur vos réponses descriptives.',
+      'SymRella ne déduit ici ni fertilité, ni ovulation, ni Peak, ni Peak+3 et ne fournit pas de conseil contraceptif.'
+    ]);
+  });
+
+  document.getElementById('cervical-assistant-reset').addEventListener('click', () => {
+    ['ca-transparency','ca-texture','ca-extensibility','ca-sensation','ca-stretch-length'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = 'unknown';
+    });
+    photoInput.value = '';
+    if (state.objectUrl) URL.revokeObjectURL(state.objectUrl);
+    state.objectUrl = null;
+    state.photoQuality = 'none';
+    preview.removeAttribute('src');
+    preview.hidden = true;
+    photoStatus.textContent = '';
+    result.hidden = true;
+  });
+
+  window.addEventListener('beforeunload', () => {
+    if (state.objectUrl) URL.revokeObjectURL(state.objectUrl);
+  });
+})();
