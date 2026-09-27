@@ -35,7 +35,7 @@ test('profile and privacy data are versioned and local', () => {
 test('personal backup export/import is available', () => {
   assert.match(page, /function exportData\(\)/);
   assert.match(page, /function importData\(event\)/);
-  assert.match(page, /SymRella-sauvegarde-\+dateLabel\+\.json/);
+  assert.match(page, /a\.download='SymRella-sauvegarde-'\+dateLabel\+'\.json'/);
   assert.match(page, /validEntryCollection\(value\.current\)/);
 });
 
