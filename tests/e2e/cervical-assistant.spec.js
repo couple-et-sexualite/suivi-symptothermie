@@ -23,7 +23,7 @@ test.describe('cervical observation assistant', () => {
 
     const result = page.locator('#cervical-assistant-result');
     await expect(result).toContainText('crémeuse');
-    await expect(result).not.toContainText(/fertile|ovulation|Peak \+?3|contracept/i);
+    await expect(result).toContainText(/ne déduit ici ni fertilité, ni ovulation, ni Peak, ni Peak\+3 et ne fournit pas de conseil contraceptif/i);
   });
 
   test('returns uncertainty when the observation is insufficient', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('cervical observation assistant', () => {
     });
 
     const png1x1 = Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC',
       'base64'
     );
     await page.locator('#cervical-photo').setInputFiles({
