@@ -75,3 +75,53 @@ Le prototype actuel ne possède aucun mécanisme d’envoi de photo. Une future 
 ## Statut de validation
 
 Ce prototype ne fait pas passer les gates G1 à G5. Il constitue uniquement une implémentation produit limitée permettant de tester l’ergonomie et le flux descriptif avant validation humaine et scientifique.
+
+
+## Spécification future — contribution volontaire de photos
+
+Cette fonction n'est pas activée dans le prototype actuel.
+
+### Déclenchement
+
+Une future version pourra proposer une action distincte, par exemple **« Contribuer à l’amélioration de SymRella »**, uniquement après les validations et autorisations requises.
+
+L'envoi devra toujours résulter d'une action explicite de l'utilisatrice. L'utilisation de l'assistant, la présence d'une photo locale ou l'enregistrement d'une observation ne devront jamais déclencher automatiquement un transfert.
+
+### Avant l'envoi
+
+L'interface devra afficher séparément :
+
+- la finalité exacte de la contribution ;
+- les catégories de personnes ayant accès aux images ;
+- la durée et le lieu de conservation ;
+- les usages autorisés : annotation, validation, recherche et, si prévu, entraînement de modèles ;
+- les éventuels usages futurs ;
+- la procédure de retrait ;
+- les conséquences éventuelles d'un retrait sur les dérivés déjà créés, selon le protocole applicable.
+
+L'utilisatrice devra pouvoir refuser sans perdre l'accès aux fonctions normales de SymRella.
+
+### Architecture technique prévue
+
+Le futur flux sera séparé du journal local :
+
+`photo locale → information/consentement → confirmation explicite → transfert sécurisé → identifiant pseudonyme → corpus gouverné`
+
+Il ne devra pas exister de chemin implicite :
+
+`photo locale → serveur`
+
+### Règles de sécurité
+
+- aucun transfert sans action explicite ;
+- aucun envoi en arrière-plan ;
+- aucune URL d'upload codée dans le prototype local ;
+- aucune photo dans le dépôt GitHub ;
+- suppression des métadonnées inutiles avant transfert si compatible avec le protocole ;
+- chiffrement en transit et au repos dans l'infrastructure future ;
+- journalisation des opérations de contribution ;
+- mécanisme de retrait et de traçabilité.
+
+### Condition d'activation
+
+La fonction restera désactivée tant que les gates de gouvernance, de consentement, de droits d'utilisation et de validation scientifique applicables ne sont pas franchies.
