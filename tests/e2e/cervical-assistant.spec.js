@@ -78,7 +78,7 @@ test.describe('cervical observation assistant', () => {
     await resetApp(page);
 
     await page.locator('#ca-transparency').selectOption('transparent');
-    await page.locator('#ca-texture').selectOption('stretchy');
+    await page.locator('#ca-texture').selectOption('watery');
     await page.locator('#cervical-assistant-analyze').click();
     await expect(page.locator('#cervical-assistant-result')).toBeVisible();
 
