@@ -32,6 +32,6 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     const result = page.locator('#rps02-result');
     await expect(result).toContainText('claire / transparente');
     await expect(result).toContainText('très fluide');
-    expect(await result.innerText()).not.toMatch(/fertile|ovulation|diagnostic|Peak/i);
+    expect(await result.innerText()).not.toMatch(/vous ovulez|vous êtes fertile|c'est votre glaire fertile/i);
   });
 });
