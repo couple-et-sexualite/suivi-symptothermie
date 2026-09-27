@@ -1,0 +1,221 @@
+{
+  "schemaVersion": "RPS02-CM-AI-G1-SYNTH-v0.1",
+  "purpose": "Synthetic non-sensitive pilot fixture; contains no real intimate images or participant data.",
+  "ontologyVersion": "RPS02-CM-AI-ONT-v0.1",
+  "cases": [
+    {
+      "participantId": "SYN-P01",
+      "observationId": "SYN-O01",
+      "split": "train",
+      "expected": "descriptive_creamy",
+      "annotationA": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "opaque",
+          "chromaticAspect": "white",
+          "texture": [
+            "creamy"
+          ],
+          "extensibility": "absent",
+          "stretchLength": "0",
+          "surface": "matte"
+        },
+        "uncertainty": false
+      },
+      "annotationB": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "opaque",
+          "chromaticAspect": "white",
+          "texture": [
+            "creamy"
+          ],
+          "extensibility": "absent",
+          "stretchLength": "0",
+          "surface": "matte"
+        },
+        "uncertainty": false
+      },
+      "adjudication": "agreement"
+    },
+    {
+      "participantId": "SYN-P02",
+      "observationId": "SYN-O02",
+      "split": "train",
+      "expected": "descriptive_stretchy",
+      "annotationA": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "transparent",
+          "chromaticAspect": "clear",
+          "texture": [
+            "stretchy"
+          ],
+          "extensibility": "clear",
+          "stretchLength": "gt_2cm",
+          "surface": "glossy"
+        },
+        "uncertainty": false
+      },
+      "annotationB": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "transparent",
+          "chromaticAspect": "clear",
+          "texture": [
+            "stretchy"
+          ],
+          "extensibility": "clear",
+          "stretchLength": "1_2cm",
+          "surface": "glossy"
+        },
+        "uncertainty": true
+      },
+      "adjudication": "disagreement_length"
+    },
+    {
+      "participantId": "SYN-P03",
+      "observationId": "SYN-O03",
+      "split": "validation",
+      "expected": "descriptive_mixed",
+      "annotationA": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "translucent",
+          "chromaticAspect": "whitish",
+          "texture": [
+            "creamy",
+            "stretchy",
+            "mixed"
+          ],
+          "extensibility": "weak",
+          "stretchLength": "lt_1cm",
+          "surface": "mixed"
+        },
+        "uncertainty": true
+      },
+      "annotationB": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "translucent",
+          "chromaticAspect": "whitish",
+          "texture": [
+            "creamy",
+            "stretchy",
+            "mixed"
+          ],
+          "extensibility": "weak",
+          "stretchLength": "lt_1cm",
+          "surface": "mixed"
+        },
+        "uncertainty": true
+      },
+      "adjudication": "agreement_mixed"
+    },
+    {
+      "participantId": "SYN-P04",
+      "observationId": "SYN-O04",
+      "split": "validation",
+      "expected": "indeterminate",
+      "annotationA": {
+        "quality": "insufficient",
+        "features": {
+          "transparency": "unknown",
+          "chromaticAspect": "unknown",
+          "texture": [
+            "unknown"
+          ],
+          "extensibility": "indeterminate",
+          "stretchLength": "unknown",
+          "surface": "unknown"
+        },
+        "uncertainty": true
+      },
+      "annotationB": {
+        "quality": "insufficient",
+        "features": {
+          "transparency": "unknown",
+          "chromaticAspect": "unknown",
+          "texture": [
+            "unknown"
+          ],
+          "extensibility": "indeterminate",
+          "stretchLength": "unknown",
+          "surface": "unknown"
+        },
+        "uncertainty": true
+      },
+      "adjudication": "agreement_insufficient"
+    },
+    {
+      "participantId": "SYN-P05",
+      "observationId": "SYN-O05",
+      "split": "test",
+      "expected": "descriptive_sticky",
+      "annotationA": {
+        "quality": "uncertain",
+        "features": {
+          "transparency": "translucent",
+          "chromaticAspect": "whitish",
+          "texture": [
+            "sticky"
+          ],
+          "extensibility": "absent",
+          "stretchLength": "0",
+          "surface": "matte"
+        },
+        "uncertainty": true
+      },
+      "annotationB": {
+        "quality": "uncertain",
+        "features": {
+          "transparency": "translucent",
+          "chromaticAspect": "white",
+          "texture": [
+            "sticky"
+          ],
+          "extensibility": "absent",
+          "stretchLength": "0",
+          "surface": "matte"
+        },
+        "uncertainty": true
+      },
+      "adjudication": "disagreement_chromatic"
+    },
+    {
+      "participantId": "SYN-P06",
+      "observationId": "SYN-O06",
+      "split": "test",
+      "expected": "descriptive_other",
+      "annotationA": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "opaque",
+          "chromaticAspect": "other",
+          "texture": [
+            "other"
+          ],
+          "extensibility": "indeterminate",
+          "stretchLength": "not_measurable",
+          "surface": "unknown"
+        },
+        "uncertainty": true
+      },
+      "annotationB": {
+        "quality": "sufficient",
+        "features": {
+          "transparency": "opaque",
+          "chromaticAspect": "other",
+          "texture": [
+            "other"
+          ],
+          "extensibility": "indeterminate",
+          "stretchLength": "not_measurable",
+          "surface": "unknown"
+        },
+        "uncertainty": true
+      },
+      "adjudication": "agreement_other"
+    }
+  ]
+}
