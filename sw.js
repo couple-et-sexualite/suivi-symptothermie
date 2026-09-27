@@ -1,8 +1,13 @@
-const CACHE_NAME = 'symptothermie-shell-v4';
-const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.svg', './icons/icon-512.svg'];
+const CACHE_NAME = 'symptothermie-shell-v5';
+const APP_SHELL = ['./', './index.html', './app.js', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.svg', './icons/icon-512.svg'];
+const CACHEABLE_PATHS = new Set(APP_SHELL);
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', event => {
@@ -17,6 +22,7 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  if (!CACHEABLE_PATHS.has(url.pathname === '/' ? './' : './' + url.pathname.replace(/^\//, ''))) return;
 
   event.respondWith(
     fetch(event.request)
