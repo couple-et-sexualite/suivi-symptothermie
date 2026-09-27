@@ -34,9 +34,9 @@ test('stored observations validate dates, temperatures, mucus and time', () => {
 });
 
 test('dangerous script execution primitives are absent', () => {
-  assert.doesNotMatch(app, /(\beval\s*\(/);
-  assert.doesNotMatch(app, /(document\.write\s*\(/);
-  assert.doesNotMatch(app, /(new Function\s*\(/);
+  assert.doesNotMatch(app, /\beval\s*\(/);
+  assert.doesNotMatch(app, /document\.write\s*\(/);
+  assert.doesNotMatch(app, /new Function\s*\(/);
 });
 
 test('calendar weekday headings are localized', () => {
