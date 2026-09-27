@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'));
 
 test('mobile viewport and responsive layout are present', () => {
