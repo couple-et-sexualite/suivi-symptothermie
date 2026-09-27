@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 
 test('V2 navigation exposes the six requested areas', () => {
   for (const item of ['Accueil','Graphique','Calendrier','Historique','Apprendre','Profil']) assert.match(page, new RegExp('>' + item + '<'));
