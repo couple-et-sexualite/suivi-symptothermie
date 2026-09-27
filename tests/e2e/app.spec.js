@@ -108,6 +108,7 @@ test.describe('professional end-to-end and mobile QA', () => {
   test('user-entered HTML is rendered as text, not executed', async ({ page }) => {
     await resetApp(page);
     const marker = '<img src=x onerror="alert(\'xss\')">';
+    await page.locator('#f-temp').fill('36.50');
     await page.locator('#f-notes').fill(marker);
     await page.locator('#save-entry-btn').click();
     await expect(page.locator('#table-container')).toContainText(marker);
