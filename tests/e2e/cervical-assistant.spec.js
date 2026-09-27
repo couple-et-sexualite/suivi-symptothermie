@@ -45,7 +45,7 @@ test.describe('cervical observation assistant', () => {
     });
 
     const png1x1 = Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC',
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
       'base64'
     );
     await page.locator('#cervical-photo').setInputFiles({
