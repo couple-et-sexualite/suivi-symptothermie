@@ -105,7 +105,7 @@ test.describe('professional end-to-end and mobile QA', () => {
     await expect(list).toBeHidden();
   });
 
-  test('backup export creates a JSON download after data exists', async ({ page }) => {
+  test('user-entered HTML is rendered as text, not executed', async ({ page }) => {\n    await resetApp(page);\n    const marker = '<img src=x onerror=alert(\'xss\')>';\n    await page.locator('#f-notes').fill(marker);\n    await page.locator('#save-entry-btn').click();\n    await expect(page.locator('#table-container')).toContainText(marker);\n    await expect(page.locator('#table-container img')).toHaveCount(0);\n  });\n\n  test('backup export creates a JSON download after data exists', async ({ page }) => {
     await resetApp(page);
     await page.locator('#f-temp').fill('36.50');
     await page.locator('#save-entry-btn').click();
