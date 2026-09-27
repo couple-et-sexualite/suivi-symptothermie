@@ -20,7 +20,7 @@
     <div class="rps02-step">
       <h3>1. Votre photo, si vous le souhaitez</h3>
       <p class="learn-meta">Elle reste dans ce navigateur pendant cette activité. Elle n'est pas téléversée, enregistrée dans le journal ni envoyée à SymRella.</p>
-      <input id="rps02-photo" type="file" accept="image/jpeg,image/png,image/webp">
+      <label for="rps02-photo"><strong>Choisir une photo à comparer</strong></label><input id="rps02-photo" type="file" accept="image/jpeg,image/png,image/webp">
       <div id="rps02-photo-status" class="learn-meta" role="status" aria-live="polite"></div>
       <img id="rps02-photo-preview" class="rps02-photo-preview" alt="Aperçu local de votre photo" hidden>
     </div>
@@ -167,10 +167,9 @@
       button.type='button'; button.className='rps02-real'; button.setAttribute('aria-pressed','false');
       const safeSource=record.sourceName;
       const safeLabel=record.referenceLabel||'Exemple réel';
-      const image=document.createElement('img');
-      image.loading='lazy';
-      image.alt='Exemple photographique réel de sécrétion cervicale';
-      image.src=record.assetUrl;
+      const fallback=document.createElement('div');
+      fallback.className='rps02-image-fallback';
+      fallback.textContent='Photo externe non embarquée — asset local requis avant publication';
       const title=document.createElement('strong');
       title.textContent='Exemple réel';
       const sourceMeta=document.createElement('span');
@@ -179,14 +178,13 @@
       const licenseMeta=document.createElement('span');
       licenseMeta.className='learn-meta';
       licenseMeta.textContent='Licence : '+record.license;
-      button.append(image,title,sourceMeta,licenseMeta);
+      button.append(fallback,title,sourceMeta,licenseMeta);
       button.addEventListener('click',()=>{
         realGrid.querySelectorAll('.rps02-real').forEach(b=>b.setAttribute('aria-pressed','false'));
         button.setAttribute('aria-pressed','true');
         clearVisual();
         button.dataset.selectedId=record.imageId;
       });
-      button.querySelector('img').addEventListener('error',()=>{button.querySelector('img').replaceWith(Object.assign(document.createElement('div'),{className:'rps02-image-fallback',textContent:'Image indisponible — consulter la source'}));});
       realGrid.appendChild(button);
     });
   }).catch(()=>{realGrid.innerHTML='<p class="learn-meta">Le registre est présent, mais les images externes ne sont pas disponibles dans cet environnement. La source et la licence restent consultables.</p>';});
