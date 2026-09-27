@@ -62,6 +62,17 @@ Définir avant collecte :
 - sauvegardes ;
 - procédure de révocation d'accès.
 
+## Contribution volontaire après validation
+
+Le projet distingue strictement deux phases :
+
+1. **Phase locale** : les photos restent sur l’appareil et ne sont pas transmises ;
+2. **Phase de contribution** : après les validations requises, une utilisatrice peut choisir de transmettre une photo à des fins de recherche, avec un consentement spécifique.
+
+Le consentement à une éventuelle contribution future doit être présenté comme un choix distinct et ne doit pas être déduit du simple fait d’avoir utilisé l’assistant. Le consentement devra préciser les finalités autorisées, notamment recherche, annotation, évaluation et, si prévu, entraînement de modèles. L’OMS recommande que les personnes gardent un contrôle significatif sur leurs données de santé et que les usages secondaires fassent l’objet d’un consentement explicite lorsque celui-ci est requis. citeturn1search12turn1search13
+
+Aucune transmission réelle ne doit être activée avant l’avis éthique approprié, la définition du responsable du traitement/corpus, les mesures de sécurité, la procédure de retrait et les droits d’utilisation applicables. L’OMS souligne en 2026 l’importance d’une supervision éthique adaptée aux recherches en IA impliquant des données de santé. citeturn1search0turn1search1
+
 ## Statut actuel
 
 | Gate | Statut |
