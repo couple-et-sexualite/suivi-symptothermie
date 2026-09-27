@@ -1,0 +1,58 @@
+# Prototype d’aide à la caractérisation cervicale
+
+Version : 0.1  
+Statut : expérimental, descriptif, non validé pour une interprétation de fertilité.
+
+## Objectif
+
+Le prototype aide l’utilisatrice à décrire une observation cervicale à partir de caractéristiques structurées :
+
+- aspect visuel ;
+- texture ;
+- extensibilité ;
+- sensation ;
+- longueur approximative de l’étirement.
+
+Une photo peut être ajoutée pour un aperçu local et un contrôle élémentaire de résolution.
+
+## Limites actuelles
+
+La photo n’est pas analysée par un modèle d’intelligence artificielle. Elle reste locale à la session et n’est pas envoyée à un serveur applicatif ni enregistrée dans les données de suivi.
+
+Le moteur actuel est une règle descriptive expérimentale basée sur les réponses de l’utilisatrice. Il peut produire :
+
+- une description principalement crémeuse/épaisse ;
+- une description principalement transparente/étirable ;
+- une observation incertaine ou mixte.
+
+Il ne produit pas :
+
+- fertile / infertile ;
+- ovulation ;
+- Peak ;
+- Peak+3 ;
+- recommandation contraceptive ;
+- diagnostic ou interprétation d’infection.
+
+## Évolution prévue
+
+Le prototype est conçu pour être remplacé par un moteur validé sans modifier l’interface générale :
+
+1. validation du référentiel cervical ;
+2. validation humaine des observations ;
+3. constitution d’un corpus gouverné et autorisé ;
+4. comparaison questionnaire seul / image seule / image + observations structurées ;
+5. validation interne puis externe ;
+6. seulement ensuite, extension éventuelle des sorties autorisées.
+
+Cette séparation suit le principe d’une tâche d’IA de santé clairement définie et évaluée pour son usage prévu. L’OMS souligne également la nécessité de transparence, de gouvernance, de sécurité et de supervision humaine pour les technologies d’IA en santé.
+
+## Données
+
+Aucune photo de l’utilisatrice n’est persistée par ce prototype. L’URL d’objet utilisée pour l’aperçu est révoquée lorsque l’image est remplacée, réinitialisée ou lorsque la page est quittée.
+
+Les données descriptives saisies dans ce module ne sont pas automatiquement ajoutées au journal du cycle : l’utilisatrice conserve le contrôle de ce qu’elle enregistre comme observation.
+
+## Statut de validation
+
+Ce prototype ne fait pas passer les gates G1 à G5. Il constitue uniquement une implémentation produit limitée permettant de tester l’ergonomie et le flux descriptif avant validation humaine et scientifique.
