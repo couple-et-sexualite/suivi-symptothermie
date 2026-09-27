@@ -107,7 +107,7 @@
     #rps02-visual-workshop .rps02-real[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:1px}
     #rps02-visual-workshop .rps02-real img{display:block;width:100%;height:150px;object-fit:contain;background:#f4f4f4;border-radius:8px;margin-bottom:7px}
     #rps02-visual-workshop .rps02-image-fallback{height:150px;display:grid;place-items:center;border-radius:8px;background:var(--bg);margin-bottom:7px;font-size:.85rem;text-align:center}
-    @media(min-width:760px){#rps02-visual-workshop .rps02-real-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media(min-width:760px){#rps02-visual-workshop .rps02-real-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media(min-width:620px){#rps02-visual-workshop .rps02-grid{grid-template-columns:1fr 1fr}}
     @media(min-width:760px){#rps02-visual-workshop .rps02-visual-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
   `;
