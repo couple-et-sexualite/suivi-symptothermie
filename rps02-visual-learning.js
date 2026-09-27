@@ -167,7 +167,19 @@
       button.type='button'; button.className='rps02-real'; button.setAttribute('aria-pressed','false');
       const safeSource=record.sourceName;
       const safeLabel=record.referenceLabel||'Exemple réel';
-      button.innerHTML='<img loading="lazy" alt="Exemple photographique réel de sécrétion cervicale" src="'+escapeHtml(record.assetUrl)+'"><strong>Exemple réel</strong><span class="learn-meta">'+safeSource+' · '+safeLabel+'</span><span class="learn-meta">Licence : '+escapeHtml(record.license)+'</span>';
+      const image=document.createElement('img');
+      image.loading='lazy';
+      image.alt='Exemple photographique réel de sécrétion cervicale';
+      image.src=record.assetUrl;
+      const title=document.createElement('strong');
+      title.textContent='Exemple réel';
+      const sourceMeta=document.createElement('span');
+      sourceMeta.className='learn-meta';
+      sourceMeta.textContent=safeSource+' · '+safeLabel;
+      const licenseMeta=document.createElement('span');
+      licenseMeta.className='learn-meta';
+      licenseMeta.textContent='Licence : '+record.license;
+      button.append(image,title,sourceMeta,licenseMeta);
       button.addEventListener('click',()=>{
         realGrid.querySelectorAll('.rps02-real').forEach(b=>b.setAttribute('aria-pressed','false'));
         button.setAttribute('aria-pressed','true');
@@ -185,7 +197,7 @@
   document.getElementById('rps02-check').addEventListener('click',()=>{
     const values={sensation:document.getElementById('rps02-sensation').value,texture:document.getElementById('rps02-texture').value,transparency:document.getElementById('rps02-transparency').value,stretch:document.getElementById('rps02-stretch').value};
     const parts=[];
-    Object.entries(values).forEach(([key,value])=>{if(value!=='unknown'&&labels[key][value])parts.push(escapeHtml(labels[key][value]));});
+    Object.entries(values).forEach(([key,value])=>{if(value!=='unknown'&&labels[key][value])parts.push(labels[key][value]);});
     const visual=getSelectedVisual();
     const visualText=visual?(String(visual).startsWith('real-')||String(visual).includes('justisse-')||String(visual).includes('wikimedia-')?'une photographie réelle du corpus':({opaque:'repère visuel opaque / blanc',translucent:'repère visuel translucide',transparent:'repère visuel transparent',stretchy:'repère visuel étirable'}[visual]||'un exemple du corpus')):'aucun repère visuel retenu';
     result.replaceChildren();
