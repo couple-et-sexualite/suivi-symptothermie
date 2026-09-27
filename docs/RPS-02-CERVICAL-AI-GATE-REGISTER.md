@@ -19,7 +19,9 @@ Version 0.1
 Le manuel, le protocole, les schémas et le plan d'analyse doivent être cohérents et versionnés.
 
 ### G1 → G2
-La faisabilité doit montrer que les caractéristiques retenues sont suffisamment compréhensibles et que les ambiguïtés sont documentées.
+La faisabilité doit montrer que les caractéristiques retenues sont suffisamment compréhensibles et que les ambiguïtés sont documentées. Le prototype peut rester entièrement local pendant cette étape.
+
+La transmission d’images réelles n’est autorisée qu’après mise en place de la gouvernance, du consentement spécifique et des protections prévues pour G2.
 
 ### G2 → G3
 Le corpus doit disposer d'une gouvernance, d'un consentement approprié, de droits d'utilisation documentés et d'un split par participante.
