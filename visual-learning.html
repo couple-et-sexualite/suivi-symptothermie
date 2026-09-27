@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>SymRella — Atelier d'observation</title>
+<style>
+:root{--bg:#fdf6f8;--card:#fff;--text:#2b2440;--muted:#6b6480;--blue:#3f6fd1;--border:#ecdfe6;--soft:#e6edfb;--danger:#d1453f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;padding:24px 16px 60px}.wrap{max-width:760px;margin:auto}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 4px 16px rgba(63,111,209,.08)}h1{color:var(--blue);font-size:1.55rem}h2{font-size:1.05rem}p{line-height:1.55}.muted{color:var(--muted)}.progress{height:10px;background:var(--soft);border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),#e85d8a)}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}button,select{font:inherit}button{border:1px solid var(--border);border-radius:11px;padding:11px 13px;background:var(--card);color:var(--text);cursor:pointer}button.primary{background:linear-gradient(90deg,var(--blue),#e85d8a);color:#fff;border:0}button.selected{outline:3px solid var(--blue);outline-offset:1px}.example{min-height:130px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--soft)}.swatch{width:76px;height:46px;border-radius:18px;border:2px solid var(--border);margin-bottom:10px}.dry{background:#eee}.creamy{background:#f4e5c5}.watery{background:linear-gradient(135deg,#dceff8,#fff)}.stretchy{background:linear-gradient(90deg,#dff5fb,#b8e3f0,#fff)}.notice{padding:12px;border-radius:11px;background:var(--soft)}.danger{color:var(--danger)}[hidden]{display:none!important}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Atelier d'observation</h1>
+<p class="muted">Un espace d'apprentissage : l'image sert à comparer, pas à décider à votre place.</p>
+<div class="card">
+<strong id="stepLabel">1 / 5 — Votre observation</strong>
+<div class="progress"><span id="bar"></span></div>
+</div>
+
+<section class="card step" data-step="1">
+<h2>Qu'avez-vous remarqué ?</h2>
+<p>Vous pouvez ne pas savoir. Cette réponse est normale.</p>
+<div class="grid">
+<button data-v="unknown" class="obs">Je ne sais pas</button>
+<button data-v="dry" class="obs">Plutôt sec</button>
+<button data-v="moist" class="obs">Humide</button>
+<button data-v="slippery" class="obs">Glissant</button>
+</div>
+<h2>Aspect observé</h2>
+<div class="grid">
+<button data-v="unknown" class="appearance">Je ne sais pas</button>
+<button data-v="sticky" class="appearance">Collant</button>
+<button data-v="creamy" class="appearance">Crémeux</button>
+<button data-v="watery" class="appearance">Fluide</button>
+<button data-v="stretchy" class="appearance">Filant</button>
+</div>
+<div class="actions"><button class="primary" id="compare">Comparer avec des exemples</button></div>
+</section>
+
+<section class="card step" data-step="2" hidden>
+<h2>Comparez sans chercher une « bonne réponse »</h2>
+<p>Choisissez l'exemple qui vous paraît le plus proche, ou dites que vous ne savez pas.</p>
+<div class="grid">
+<button class="example compare-card" data-example="creamy"><span class="swatch creamy"></span>Aspect plutôt crémeux</button>
+<button class="example compare-card" data-example="watery"><span class="swatch watery"></span>Aspect plutôt fluide</button>
+<button class="example compare-card" data-example="stretchy"><span class="swatch stretchy"></span>Aspect plutôt filant</button>
+<button class="example compare-card" data-example="unknown"><span class="swatch dry"></span>Je ne sais toujours pas</button>
+</div>
+<div class="actions"><button class="primary" id="explain">Voir l'explication</button></div>
+</section>
+
+<section class="card step" data-step="3" hidden>
+<h2>Ce que l'exemple permet — et ne permet pas — de voir</h2>
+<div id="explanation" class="notice"></div>
+<p class="muted">Une photographie ne reproduit pas votre sensation. Elle ne permet pas non plus, à elle seule, de déterminer une fertilité, une ovulation ou un diagnostic.</p>
+<div class="actions"><button class="primary" id="again">Faire une nouvelle observation</button></div>
+</section>
+
+<section class="card step" data-step="4" hidden>
+<h2>Nouvelle observation</h2>
+<p>Décrivez d'abord ce que vous observez vous-même, avant de regarder les exemples.</p>
+<div class="notice">Votre progression porte sur votre capacité à décrire une observation. Ce n'est pas un score médical.</div>
+<div class="actions"><button class="primary" id="finish">Enregistrer ma progression</button></div>
+</section>
+
+<section class="card step" data-step="5" hidden>
+<h2>Vous progressez par observation</h2>
+<p id="result"></p>
+<p class="muted">L'objectif est de pouvoir décrire progressivement vos propres observations, tout en sachant reconnaître les situations incertaines.</p>
+<div class="actions"><button id="restart">Recommencer</button></div>
+</section>
+
+<div class="card">
+<strong>Confidentialité</strong>
+<p class="muted">Cette démonstration n'utilise aucune photo réelle et n'envoie aucune donnée. Les exemples sont des représentations pédagogiques, pas des photographies cliniques.</p>
+</div>
+</main>
+<script>
+const state={sensation:null,appearance:null,example:null,progress:Number(localStorage.getItem('symrella_visual_learning_progress')||0)};
+const steps=[...document.querySelectorAll('.step')],bar=document.querySelector('#bar'),label=document.querySelector('#stepLabel');
+function show(n){steps.forEach((s,i)=>s.hidden=i!==n-1);bar.style.width=(n/5*100)+'%';label.textContent=n+' / 5 — '+['Votre observation','Comparaison','Explication','Nouvelle observation','Progression'][n-1]}
+document.querySelectorAll('.obs').forEach(b=>b.onclick=()=>{state.sensation=b.dataset.v;document.querySelectorAll('.obs').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
+document.querySelectorAll('.appearance').forEach(b=>b.onclick=()=>{state.appearance=b.dataset.v;document.querySelectorAll('.appearance').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
+document.querySelector('#compare').onclick=()=>show(2);
+document.querySelectorAll('.compare-card').forEach(b=>b.onclick=()=>{state.example=b.dataset.example;document.querySelectorAll('.compare-card').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
+document.querySelector('#explain').onclick=()=>{const e=state.example;let t='Vous avez choisi un exemple pour comparer un aspect visuel. La comparaison ne change pas votre observation initiale.';if(e==='unknown')t='Vous ne trouvez pas de correspondance claire. C’est une réponse valable : il vaut mieux conserver l’incertitude que forcer une catégorie.';else if(e==='creamy')t='Cet exemple illustre un aspect plutôt crémeux. Une photo ne permet pas de connaître votre sensation et ne suffit pas à tirer une conclusion sur la fertilité.';else if(e==='watery')t='Cet exemple illustre un aspect plutôt fluide. L’apparence doit rester séparée de la sensation et du contexte.';else if(e==='stretchy')t='Cet exemple illustre une apparence filante. La filance visible sur une image ne permet pas, à elle seule, de conclure sur l’ovulation.';document.querySelector('#explanation').textContent=t;show(3)};
+document.querySelector('#again').onclick=()=>show(4);
+document.querySelector('#finish').onclick=()=>{state.progress=Math.min(3,state.progress+1);localStorage.setItem('symrella_visual_learning_progress',String(state.progress));document.querySelector('#result').textContent=state.progress===1?'Vous avez commencé à distinguer les étapes de l’observation et de la comparaison.':state.progress===2?'Vous utilisez maintenant la comparaison comme aide, sans lui demander de décider à votre place.':'Votre parcours atteint le niveau où vous pouvez pratiquer la description autonome tout en conservant l’incertitude quand elle est nécessaire.';show(5)};
+document.querySelector('#restart').onclick=()=>show(1);
+show(1);
+</script>
+</body>
+</html>
