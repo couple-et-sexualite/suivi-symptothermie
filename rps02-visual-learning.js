@@ -176,7 +176,7 @@
     });
   }).catch(()=>{realGrid.innerHTML='<p class="learn-meta">Le registre est présent, mais les images externes ne sont pas disponibles dans cet environnement. La source et la licence restent consultables.</p>';});
 
-  const getSelectedVisual=()=>grid.querySelector('.rps02-visual[aria-pressed="true"]')?.dataset.value||null;
+  const getSelectedVisual=()=>grid.querySelector('.rps02-visual[aria-pressed="true"]')?.dataset.value||realGrid?.querySelector('.rps02-real[aria-pressed="true"]')?.dataset.selectedId||null;
   const labels={sensation:{dry:'sèche',moist:'humide',wet:'mouillée',slippery:'glissante'},texture:{sticky:'collante',creamy:'épaisse / crémeuse',watery:'très fluide',gel:'gélatineuse',mixed:'mélangée / difficile à décrire'},transparency:{opaque:'opaque / blanche',translucent:'translucide',transparent:'claire / transparente'},stretch:{none:'non étirable',little:'peu étirable',clear:'nettement étirable',uncertain:'étirement indéterminé'}};
   const result=document.getElementById('rps02-result');
   document.getElementById('rps02-check').addEventListener('click',()=>{
@@ -184,7 +184,7 @@
     const parts=[];
     Object.entries(values).forEach(([key,value])=>{if(value!=='unknown'&&labels[key][value])parts.push(escapeHtml(labels[key][value]));});
     const visual=getSelectedVisual();
-    const visualText=visual?({opaque:'repère visuel opaque / blanc',translucent:'repère visuel translucide',transparent:'repère visuel transparent',stretchy:'repère visuel étirable'}[visual]):'aucun repère visuel retenu';
+    const visualText=visual?(String(visual).startsWith('real-')||String(visual).includes('justisse-')||String(visual.includes('wikimedia-'))?'une photographie réelle du corpus':({opaque:'repère visuel opaque / blanc',translucent:'repère visuel translucide',transparent:'repère visuel transparent',stretchy:'repère visuel étirable'}[visual]||'un exemple du corpus')):'aucun repère visuel retenu';
     result.innerHTML='<strong>Votre description actuelle</strong><p>'+(parts.length?parts.join(' · '):'Vous n’avez pas encore retenu de caractéristique précise.')+'</p><p class="learn-meta">Repère visuel choisi : '+escapeHtml(visualText)+'.</p><p class="learn-meta">Ce résultat reprend uniquement vos choix. Il ne transforme pas ces caractéristiques en diagnostic, fertilité, ovulation ou catégorie méthodologique.</p>';
     result.hidden=false; result.focus();
   });
