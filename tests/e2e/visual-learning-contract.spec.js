@@ -15,6 +15,15 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     await expect(page.locator('#rps02-result')).toBeHidden();
   });
 
+  test('the real corpus registry is loaded with provenance and licensing fields', async ({ page }) => {
+    await page.goto('/');
+    const corpus = page.locator('#rps02-real-grid');
+    await expect(corpus).toBeVisible();
+    await expect(corpus.locator('.rps02-real')).toHaveCount(9);
+    await expect(corpus).toContainText('Justisse College Cervical Mucus Gallery');
+    await expect(corpus).toContainText('CC BY-SA');
+  });
+
   test('the comparison result only repeats observations selected by the user', async ({ page }) => {
     await page.goto('/');
     await page.locator('#rps02-transparency').selectOption('transparent');
