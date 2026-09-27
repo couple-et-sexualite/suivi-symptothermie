@@ -142,7 +142,7 @@ test('PWA files are structurally valid', () => {
   assert.equal(data.start_url, './');
   assert.equal(data.scope, './');
   assert.equal(data.display, 'standalone');
-  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v4'/);
+  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v5'/);
   assert.match(serviceWorker, /self\.addEventListener\('install'/);
   assert.match(serviceWorker, /self\.addEventListener\('fetch'/);
 });
@@ -178,7 +178,7 @@ test('editing an observation respects the selected Fahrenheit display unit', () 
 test('PWA declares an installable icon and caches it', () => {
   assert.match(manifest, /icons/);
   assert.match(manifest, /\.\/icons\/icon\.svg/);
-  assert.match(serviceWorker, /\.\/icons\/icon\.svg/);
+  assert.match(serviceWorker, /\.\/app\.js/);\n  assert.match(serviceWorker, /\.\/icons\/icon\.svg/);
 });
 
 test('privacy and terms documentation are linked and local-first claims remain explicit', () => {
