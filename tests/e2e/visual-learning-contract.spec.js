@@ -4,7 +4,7 @@ test.describe('RPS-02 visual learning — contract tests', () => {
   test('the integrated workshop offers an explicit unknown path', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#rps02-visual-workshop')).toBeVisible();
-    await expect(page.getByText('Je ne sais pas', { exact: true }).first()).toBeVisible();
+    await expect(page.locator('#rps02-sensation')).toHaveValue('unknown');
   });
 
   test('the workshop keeps the photo local and does not present a clinical conclusion', async ({ page }) => {
@@ -32,6 +32,6 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     const result = page.locator('#rps02-result');
     await expect(result).toContainText('claire / transparente');
     await expect(result).toContainText('très fluide');
-    await expect(result).not.toMatch(/fertile|ovulation|diagnostic|Peak/i);
+    expect(await result.innerText()).not.toMatch(/fertile|ovulation|diagnostic|Peak/i);
   });
 });
