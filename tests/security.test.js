@@ -70,7 +70,7 @@ test('PWA shell and service worker use an explicit allowlist', () => {
   assert.equal(data.start_url, './');
   assert.equal(data.scope, './');
   assert.equal(data.display, 'standalone');
-  assert.ok(page.includes('navigator.serviceWorker.register("./sw.js")'));
+  assert.ok(source.includes('navigator.serviceWorker.register("./sw.js")'));
   assert.ok(serviceWorker.includes("const CACHE_NAME = 'symptothermie-shell-v5'"));
   assert.ok(serviceWorker.includes('const CACHEABLE_PATHS'));
   assert.ok(serviceWorker.includes('./app.js'));
