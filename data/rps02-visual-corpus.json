@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "purpose": "Corpus réel de photos de sécrétions cervicales pour apprentissage visuel RPS-02. Les classifications de méthode source ne sont pas des catégories SymRella.",
-  "productionStatus": "pilot_external_references",
+  "productionStatus": "pilot_external_references_pending_local_asset_mirroring",
   "records": [
     {
       "imageId": "justisse-10c-01",
@@ -16,7 +16,13 @@
       "referenceLabel": "10CK",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Le code 10CK appartient à la méthode Justisse et ne doit pas être affiché comme une catégorie SymRella."
+      "limitations": "Le code 10CK appartient à la méthode Justisse et ne doit pas être affiché comme une catégorie SymRella.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-10c-02",
@@ -31,7 +37,13 @@
       "referenceLabel": "10CK",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement."
+      "limitations": "Notation source Justisse uniquement.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-8k",
@@ -46,7 +58,13 @@
       "referenceLabel": "8K",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement."
+      "limitations": "Notation source Justisse uniquement.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-6ckg",
@@ -61,7 +79,13 @@
       "referenceLabel": "6CKG",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement."
+      "limitations": "Notation source Justisse uniquement.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-8ckg",
@@ -76,7 +100,13 @@
       "referenceLabel": "8CKG",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement."
+      "limitations": "Notation source Justisse uniquement.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-10ckg",
@@ -91,7 +121,13 @@
       "referenceLabel": "10CKG",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement."
+      "limitations": "Notation source Justisse uniquement.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-6k",
@@ -106,7 +142,13 @@
       "referenceLabel": "6K",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement."
+      "limitations": "Notation source Justisse uniquement.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "justisse-10k-clear-stretchy",
@@ -121,7 +163,13 @@
       "referenceLabel": "10K",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "exemple réel décrit par la source comme clair, étirable et glissant",
-      "limitations": "La description est celle de la source Justisse; elle ne constitue pas une règle SymRella."
+      "limitations": "La description est celle de la source Justisse; elle ne constitue pas une règle SymRella.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     },
     {
       "imageId": "wikimedia-presumed-cervical-mucus",
@@ -136,7 +184,13 @@
       "referenceLabel": "Description source: mucus présumé, non évalué médicalement",
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "exemple réel de sécrétion étirée",
-      "limitations": "La page source indique qu'il n'a pas été évalué médicalement; aucune conclusion clinique ne doit être déduite de la photo."
+      "limitations": "La page source indique qu'il n'a pas été évalué médicalement; aucune conclusion clinique ne doit être déduite de la photo.",
+      "rightsStatus": "rights_verified",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_applicable",
+      "qualityStatus": "pending_technical_review",
+      "validationDate": null,
+      "validator": null
     }
   ]
 }
