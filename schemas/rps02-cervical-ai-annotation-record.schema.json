@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symrella.app/schemas/rps02-cervical-ai-annotation-record.schema.json",
+  "title": "RPS-02 Cervical AI Annotation Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion","observationId","annotatorId","ontologyVersion","quality","features","uncertainty"],
+  "properties": {
+    "schemaVersion": {"type":"string","const":"RPS02-CM-AI-ANNOT-v0.1"},
+    "observationId": {"type":"string","minLength":1,"maxLength":128},
+    "annotatorId": {"type":"string","minLength":1,"maxLength":128},
+    "ontologyVersion": {"type":"string","minLength":1,"maxLength":64},
+    "quality": {"type":"string","enum":["sufficient","insufficient","uncertain"]},
+    "qualityReasons": {"type":"array","uniqueItems":true,"items":{"type":"string","enum":["blur","exposure","framing","not_visible","insufficient_material","ambiguous","other"]}},
+    "features": {
+      "type":"object",
+      "additionalProperties":false,
+      "required":["transparency","chromaticAspect","texture","extensibility","stretchLength","surface"],
+      "properties":{
+        "transparency":{"type":"string","enum":["transparent","translucent","opaque","unknown"]},
+        "chromaticAspect":{"type":"string","enum":["clear","white","whitish","other","unknown"]},
+        "texture":{"type":"array","uniqueItems":true,"items":{"type":"string","enum":["creamy","thick","watery","gel_like","stretchy","sticky","mixed","other","unknown"]}},
+        "extensibility":{"type":"string","enum":["absent","weak","clear","indeterminate"]},
+        "stretchLength":{"type":"string","enum":["0","lt_1cm","1_2cm","gt_2cm","not_measurable","unknown"]},
+        "surface":{"type":"string","enum":["matte","glossy","mixed","unknown"]}
+      }
+    },
+    "uncertainty": {"type":"boolean"},
+    "notes": {"type":"string","maxLength":2000}
+  }
+}
