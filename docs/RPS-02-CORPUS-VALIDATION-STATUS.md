@@ -62,30 +62,3 @@ AND `rps02Mapping = validated` ou statut explicitement autorisé par la revue m�
 AND tests d'affichage/confidentialité réussis.
 
 Le corpus actuel est donc **techniquement structuré mais pas encore pédagogiquement ou méthodologiquement validé**.
-
-## Étape suivante — annotation aveugle lancée
-
-Le gate technique CI étant vert, le dépôt contient maintenant :
-
-- `docs/RPS-02-BLIND-ANNOTATION-PROTOCOL.md` : protocole d’annotation indépendante ;
-- `schemas/rps02-blind-annotation.schema.json` : structure contrôlée des annotations ;
-- `data/rps02-blind-annotation-template.json` : 9 identifiants aveugles, sans annotation préremplie ;
-- `docs/RPS-02-ADJUDICATION-PROTOCOL.md` : conservation des désaccords et procédure d’arbitrage.
-
-Les annotateurs ne doivent pas recevoir les labels de la méthode source ni un mapping RPS-02 attendu. Les deux tours sont indépendants. L’adjudication intervient seulement après conservation des deux annotations.
-
-### Statut au 28 septembre 2026
-
-| Gate | État |
-|---|---|
-| registre / schéma | **vert** |
-| CI technique | **vert** |
-| annotation indépendante | **à réaliser** |
-| analyse des désaccords | **à réaliser** |
-| adjudication | **à réaliser** |
-| revue pédagogique | **à réaliser** |
-| revue méthodologique RPS-02 | **à réaliser** |
-| miroir local des assets | **ouvert** |
-| sécurité/confidentialité des photos utilisatrices | **à vérifier** |
-
-Le passage du CI vert n’autorise donc pas encore l’affichage commercial des 9 photographies comme exemples validés.
