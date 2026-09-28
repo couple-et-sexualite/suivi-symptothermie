@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symrella.app/schemas/rps02-blind-annotation.schema.json",
+  "title": "RPS-02 Blind Visual Annotation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["annotationId","blindImageId","annotatorId","round","observations"],
+  "properties": {
+    "annotationId": {"type":"string","pattern":"^RPS02-ANN-[A-Za-z0-9_-]{1,64}$"},
+    "blindImageId": {"type":"string","pattern":"^RPS02-A(0[1-9])$"},
+    "annotatorId": {"type":"string","pattern":"^[A-Za-z0-9_-]{1,64}$"},
+    "round": {"type":"string","enum":["A","B"]},
+    "annotatedAt": {"type":"string","format":"date-time"},
+    "observations": {
+      "type":"object",
+      "additionalProperties": false,
+      "required":["presence","visibleColor","texture","stretchiness","transparency","apparentAmount","support","lightingClass","qualityStatus"],
+      "properties":{
+        "presence":{"type":"string","enum":["none","present","unknown","not_assessable"]},
+        "visibleColor":{"type":"string","enum":["clear_translucent","white_cloudy","yellowish","greenish","brownish","mixed","other","unknown"]},
+        "texture":{"type":"string","enum":["sticky","creamy","watery","gummy","lumpy","other","unknown","not_assessable"]},
+        "stretchiness":{"type":"string","enum":["none","short","moderate","long","unknown","not_assessable"]},
+        "transparency":{"type":"string","enum":["opaque","translucent","clear","mixed","unknown","not_assessable"]},
+        "apparentAmount":{"type":"string","enum":["none","small","moderate","large","unknown","not_assessable"]},
+        "support":{"type":"string","enum":["tissue","finger","external_surface","unknown"]},
+        "lightingClass":{"type":"string","enum":["good","acceptable","poor","unknown"]},
+        "qualityStatus":{"type":"string","enum":["sufficient","insufficient","uncertain"]}
+      }
+    },
+    "description":"string",
+    "technicalIssues":{"type":"array","items":{"type":"string","enum":["dark","low_contrast","out_of_focus","mixed_material","support_obscures_view","stretchiness_not_observable","color_light_dependent","framing_insufficient","possible_editing","label_leakage","other"]},"uniqueItems":true},
+    "uncertaintyNotes":{"type":"string"},
+    "prohibitedInferenceCheck":{"type":"boolean","const":true}
+  }
+}
