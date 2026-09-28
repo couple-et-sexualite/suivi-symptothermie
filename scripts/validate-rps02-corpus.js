@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const fs = require("node:fs");
-const crypto = require("node:crypto");
+import fs from "node:fs";
+import crypto from "node:crypto";
 
 const corpusPath = "data/rps02-visual-corpus.json";
 const corpus = JSON.parse(fs.readFileSync(corpusPath, "utf8"));
