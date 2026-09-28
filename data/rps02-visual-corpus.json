@@ -19,7 +19,7 @@
       "limitations": "Le code 10CK appartient à la méthode Justisse et ne doit pas être affiché comme une catégorie SymRella.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -50,7 +50,7 @@
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -81,7 +81,7 @@
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -112,7 +112,7 @@
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -143,7 +143,7 @@
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -174,7 +174,7 @@
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -205,7 +205,7 @@
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -236,7 +236,7 @@
       "limitations": "La description est celle de la source Justisse; elle ne constitue pas une règle SymRella.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
@@ -267,7 +267,7 @@
       "limitations": "La page source indique qu'il n'a pas été évalué médicalement; aucune conclusion clinique ne doit être déduite de la photo.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
-      "consentStatus": "not_applicable",
+      "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
         "presence": "unknown",
