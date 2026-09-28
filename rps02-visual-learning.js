@@ -157,9 +157,12 @@
 
   const corpusSection=document.createElement('div');
   corpusSection.className='rps02-real-corpus';
-  corpusSection.innerHTML='<h4>Exemples photographiques réels — corpus sous licence</h4><p class="learn-meta">Ces photographies proviennent de sources dont les conditions de réutilisation ont été documentées. Elles servent à apprendre à observer ; les notations propres aux méthodes sources ne sont pas des catégories SymRella.</p><div class="rps02-real-grid" id="rps02-real-grid"><p class="learn-meta">Chargement du corpus…</p></div>';
+  const corpusTitle=document.createElement('h4'); corpusTitle.textContent='Exemples photographiques réels — corpus sous licence';
+  const corpusIntro=document.createElement('p'); corpusIntro.className='learn-meta'; corpusIntro.textContent='Ces photographies proviennent de sources dont les conditions de réutilisation ont été documentées. Elles servent à apprendre à observer ; les notations propres aux méthodes sources ne sont pas des catégories SymRella.';
+  const realGrid=document.createElement('div'); realGrid.className='rps02-real-grid'; realGrid.id='rps02-real-grid';
+  const loading=document.createElement('p'); loading.className='learn-meta'; loading.textContent='Chargement du corpus…'; realGrid.appendChild(loading);
+  corpusSection.append(corpusTitle,corpusIntro,realGrid);
   card.querySelector('.rps02-step:nth-of-type(2)').appendChild(corpusSection);
-  const realGrid=corpusSection.querySelector('#rps02-real-grid');
   fetch('./data/rps02-visual-corpus.json',{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('corpus');return response.json();}).then(data=>{
     realGrid.innerHTML='';
     data.records.forEach(record=>{
@@ -187,7 +190,12 @@
       });
       realGrid.appendChild(button);
     });
-  }).catch(()=>{realGrid.innerHTML='<p class="learn-meta">Le registre est présent, mais les images externes ne sont pas disponibles dans cet environnement. La source et la licence restent consultables.</p>';});
+  }).catch(()=>{
+    realGrid.replaceChildren();
+    const errorMeta=document.createElement('p'); errorMeta.className='learn-meta';
+    errorMeta.textContent='Le registre est présent, mais les images externes ne sont pas disponibles dans cet environnement. La source et la licence restent consultables.';
+    realGrid.appendChild(errorMeta);
+  });
 
   const getSelectedVisual=()=>grid.querySelector('.rps02-visual[aria-pressed="true"]')?.dataset.value||realGrid?.querySelector('.rps02-real[aria-pressed="true"]')?.dataset.selectedId||null;
   const labels={sensation:{dry:'sèche',moist:'humide',wet:'mouillée',slippery:'glissante'},texture:{sticky:'collante',creamy:'épaisse / crémeuse',watery:'très fluide',gel:'gélatineuse',mixed:'mélangée / difficile à décrire'},transparency:{opaque:'opaque / blanche',translucent:'translucide',transparent:'claire / transparente'},stretch:{none:'non étirable',little:'peu étirable',clear:'nettement étirable',uncertain:'étirement indéterminé'}};
