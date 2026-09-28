@@ -37,7 +37,7 @@ La sensation ne peut pas être déduite d'une photo.
 <button id="save" class="secondary">Sauvegarder localement</button>
 <p id="status" class="status" aria-live="polite"></p>
 <script>
-const manifestUrl='../../../data/rps02-blind-annotation-view.json';
+const manifestUrl='../../data/rps02-blind-annotation-view.json';
 const dims=[
  ['presence','Présence',['visible','absente','non_determinable']],
  ['visibleColor','Couleur visible',['clair/blanc','jaune','brun','rose/rouge','vert','gris','autre','non_determinable']],
@@ -56,12 +56,14 @@ function render(){
  app.replaceChildren();
  records.forEach((r,i)=>{
   const card=document.createElement('section'); card.className='card';
-  card.innerHTML='<h2>'+esc(r.blindImageId)+'</h2><img alt="Image '+esc(r.blindImageId)+'" src="'+esc(r.assetUrl)+'" referrerpolicy="no-referrer">';
+  const h=document.createElement('h2'); h.textContent=r.blindImageId; card.appendChild(h);
+  const img=document.createElement('img'); img.alt='Image '+r.blindImageId; img.src=r.assetUrl; img.referrerPolicy='no-referrer'; card.appendChild(img);
   const grid=document.createElement('div'); grid.className='grid';
   dims.forEach(([key,label,opts])=>{
    const wrap=document.createElement('label'); wrap.textContent=label;
    const sel=document.createElement('select'); sel.dataset.i=i; sel.dataset.key=key;
-   sel.innerHTML='<option value="">— sélectionner —</option>'+opts.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');
+   const empty=document.createElement('option'); empty.value=''; empty.textContent='— sélectionner —'; sel.appendChild(empty);
+   opts.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o);});
    sel.addEventListener('change',e=>{r.annotation[key]=e.target.value;});
    wrap.appendChild(sel); grid.appendChild(wrap);
   });
