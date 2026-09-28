@@ -1,0 +1,26 @@
+name: RPS-02 local asset mirror
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: spec/rps02-visual-learning
+          fetch-depth: 0
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+      - name: Mirror assets
+        run: node scripts/mirror-rps02-assets.mjs
+      - name: Validate blind manifest
+        run: node scripts/validate-rps02-blind-manifest.js
+      - name: Commit mirror
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/rps02-blind-assets data/rps02-local-asset-manifest.json
+          git diff --cached --quiet || git commit -m "RPS-02: mirror blind assets locally"
+          git push origin HEAD:spec/rps02-visual-learning
