@@ -8,8 +8,8 @@ test('RPS-02 blind manifest exposes only neutral image identifiers and assets', 
   const ids = manifest.records.map(r => r.blindImageId);
   assert.deepEqual(ids, Array.from({length: 9}, (_, i) => 'RPS02-A0' + (i + 1)));
   for (const record of manifest.records) {
-    assert.deepEqual(Object.keys(record).sort(), ['assetUrl', 'blindImageId']);
-    assert.match(record.assetUrl, /^https?:\/\//);
+    assert.deepEqual(Object.keys(record).sort(), ['assetPath', 'blindImageId']);
+    assert.match(record.assetPath, /^\.\/assets\//);
   }
 });
 
