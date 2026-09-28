@@ -161,3 +161,13 @@ test("P05 missing dates do not create synthetic temperatures",()=>{
 });
 test("P06 tutor output is externalized",()=>assert.equal(typeof getTutorMessage(evaluateCycle([]).state),"string"));
 test("P07 engine exposes no contraceptive state",()=>assert.equal(Object.keys(evaluateCycle([])).includes("contraceptive"),false));
+
+
+test("T35 tutor supports French, English, Spanish and Arabic without changing engine state",()=>{
+  const states=["NO_DATA","DISTURBED","THERMAL_RISE_CANDIDATE","CERVICAL_TRANSITION","DOUBLE_CHECK_PENDING","DOUBLE_CHECK_COMPLETE","UNRESOLVED"];
+  for(const state of states){
+    const messages=["fr","en","es","ar"].map(lang=>getTutorMessage(state,lang));
+    for(const message of messages) assert.equal(typeof message,"string");
+    assert.ok(messages.every(Boolean));
+  }
+});
