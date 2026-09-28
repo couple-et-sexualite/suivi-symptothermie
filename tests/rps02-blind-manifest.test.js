@@ -17,5 +17,5 @@ test('RPS-02 annotator UI does not use HTML injection primitives', () => {
   const html = fs.readFileSync('tools/rps02-blind-annotation/index.html', 'utf8');
   assert.doesNotMatch(html, /\.innerHTML\s*=/);
   assert.doesNotMatch(html, /document\.write\s*\(/);
-  assert.match(html, /../../data/rps02-blind-annotation-view\.json/);
+  assert.match(html, /\.\.\/\.\.\/data\/rps02-blind-annotation-view\.json/);
 });
