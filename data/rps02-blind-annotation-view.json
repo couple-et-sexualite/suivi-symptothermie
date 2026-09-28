@@ -1,0 +1,15 @@
+{
+  "version": "1.1.0",
+  "purpose": "Manifest public minimal pour annotation aveugle. Les images sont locales et portent uniquement un identifiant neutre.",
+  "records": [
+    {"blindImageId":"RPS02-A01","assetPath":"../../data/rps02-blind-assets/RPS02-A01.jpg"},
+    {"blindImageId":"RPS02-A02","assetPath":"../../data/rps02-blind-assets/RPS02-A02.jpg"},
+    {"blindImageId":"RPS02-A03","assetPath":"../../data/rps02-blind-assets/RPS02-A03.jpg"},
+    {"blindImageId":"RPS02-A04","assetPath":"../../data/rps02-blind-assets/RPS02-A04.jpg"},
+    {"blindImageId":"RPS02-A05","assetPath":"../../data/rps02-blind-assets/RPS02-A05.jpg"},
+    {"blindImageId":"RPS02-A06","assetPath":"../../data/rps02-blind-assets/RPS02-A06.jpg"},
+    {"blindImageId":"RPS02-A07","assetPath":"../../data/rps02-blind-assets/RPS02-A07.jpg"},
+    {"blindImageId":"RPS02-A08","assetPath":"../../data/rps02-blind-assets/RPS02-A08.jpg"},
+    {"blindImageId":"RPS02-A09","assetPath":"../../data/rps02-blind-assets/RPS02-A09.jpg"}
+  ]
+}

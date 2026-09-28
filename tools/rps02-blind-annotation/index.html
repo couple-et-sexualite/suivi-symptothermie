@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPS-02 — Annotation visuelle aveugle</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1000px;margin:0 auto;padding:24px;line-height:1.45;background:#f7f7f7;color:#222}
+.card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:20px;margin:18px 0}
+img{display:block;max-width:100%;max-height:520px;margin:16px auto;border-radius:8px;background:#eee}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+label{display:block;font-weight:600}
+select,textarea,input{width:100%;box-sizing:border-box;margin-top:6px;padding:9px;border:1px solid #bbb;border-radius:7px;font:inherit}
+textarea{min-height:90px}
+button{padding:12px 18px;border:0;border-radius:8px;background:#222;color:#fff;font-weight:700;cursor:pointer;margin:8px 8px 8px 0}
+button.secondary{background:#666}
+.notice{padding:14px;border-left:4px solid #555;background:#eee}
+.status{font-weight:700}
+.small{font-size:.9rem;color:#555}
+</style>
+</head>
+<body>
+<h1>RPS-02 — Annotation visuelle aveugle</h1>
+<div class="notice">
+<strong>Consigne :</strong> décrivez uniquement ce qui est observable sur l'image.
+Ne déduisez ni fertilité, ni ovulation, ni Peak, ni état hormonal, ni infection.
+La sensation ne peut pas être déduite d'une photo.
+</div>
+<div class="card">
+<label>Identifiant de l'annotateur
+<input id="annotatorId" placeholder="A ou B — identifiant fourni par le responsable">
+</label>
+<p class="small">Ne renseignez pas votre nom si ce n'est pas nécessaire. Les résultats sont exportés uniquement sur votre appareil.</p>
+</div>
+<div id="app"></div>
+<button id="export">Exporter mes annotations en JSON</button>
+<button id="save" class="secondary">Sauvegarder localement</button>
+<p id="status" class="status" aria-live="polite"></p>
+<script>
+const manifestUrl='../../data/rps02-blind-annotation-view.json';
+const dims=[
+ ['presence','Présence',['visible','absente','non_determinable']],
+ ['visibleColor','Couleur visible',['clair/blanc','jaune','brun','rose/rouge','vert','gris','autre','non_determinable']],
+ ['texture','Texture apparente',['lisse','cremeuse','granuleuse','gélatineuse','fibreuse','hétérogène','autre','non_determinable']],
+ ['stretchiness','Étirement visible',['oui','non','non_determinable']],
+ ['transparency','Transparence',['transparente','translucide','opaque','mixte','non_determinable']],
+ ['apparentAmount','Quantité apparente',['très_faible','faible','moyenne','importante','non_determinable']],
+ ['support','Support observable',['peau','doigts','papier/tissu','récipient','autre','non_determinable']],
+ ['lightingClass','Éclairage',['acceptable','limité','problématique','non_determinable']],
+ ['qualityStatus','Qualité de l’image',['exploitable','partiellement_exploitable','non_exploitable']]
+];
+const app=document.getElementById('app');
+let records=[];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function render(){
+ app.replaceChildren();
+ records.forEach((r,i)=>{
+  const card=document.createElement('section'); card.className='card';
+  const h=document.createElement('h2'); h.textContent=r.blindImageId; card.appendChild(h);
+  const img=document.createElement('img'); img.alt='Image '+r.blindImageId; img.src=r.assetPath; img.referrerPolicy='no-referrer'; card.appendChild(img);
+  const grid=document.createElement('div'); grid.className='grid';
+  dims.forEach(([key,label,opts])=>{
+   const wrap=document.createElement('label'); wrap.textContent=label;
+   const sel=document.createElement('select'); sel.dataset.i=i; sel.dataset.key=key;
+   const empty=document.createElement('option'); empty.value=''; empty.textContent='— sélectionner —'; sel.appendChild(empty);
+   opts.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o);});
+   sel.addEventListener('change',e=>{r.annotation[key]=e.target.value;});
+   wrap.appendChild(sel); grid.appendChild(wrap);
+  });
+  const c=document.createElement('label'); c.textContent='Description libre (observable uniquement)';
+  const ta=document.createElement('textarea'); ta.value=r.annotation.comment||''; ta.addEventListener('input',e=>r.annotation.comment=e.target.value);
+  c.appendChild(ta); grid.appendChild(c); card.appendChild(grid); app.appendChild(card);
+ });
+}
+function payload(){
+ return {schemaVersion:'1.0.0',annotationType:'RPS-02-blind-visual',annotatorId:document.getElementById('annotatorId').value.trim(),createdAt:new Date().toISOString(),annotations:records.map(r=>({blindImageId:r.blindImageId,...r.annotation}))};
+}
+function download(){
+ const p=payload(); const blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rps02-blind-annotations-'+(p.annotatorId||'anonymous')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ document.getElementById('status').textContent='Export JSON effectué. Le fichier reste sur cet appareil.';
+}
+document.getElementById('export').addEventListener('click',download);
+document.getElementById('save').addEventListener('click',()=>{localStorage.setItem('rps02-blind-annotations',JSON.stringify(payload()));document.getElementById('status').textContent='Sauvegarde locale effectuée.';});
+fetch(manifestUrl).then(r=>{if(!r.ok)throw new Error('manifest inaccessible');return r.json();}).then(m=>{records=m.records.map(x=>({blindImageId:x.blindImageId,assetPath:x.assetPath,annotation:{}}));render();}).catch(e=>{document.getElementById('status').textContent='Impossible de charger le jeu aveugle : '+e.message;});
+</script>
+</body>
+</html>

@@ -9,7 +9,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://lh7-us.googleusercontent.com https://upload.wikimedia.org; connect-src 'self'; worker-src 'self'; manifest-src 'self';">
 <title>Suivi Symptothermie — observation du cycle</title>
 <meta name="description" content="Application locale de suivi des observations du cycle : température, glaire, saignements, contexte et apprentissage. Les données restent dans le navigateur.">
   <meta property="og:title" content="Suivi Symptothermie — observation du cycle">
@@ -490,6 +490,7 @@
 </div>
 
 <script src="./app.js"></script>
+<script src="./rps02-visual-learning.js"></script>
 
 <footer class="no-print" style="text-align:center;color:var(--text-muted);font-size:.82rem;padding:8px 0 24px;">
   <a href="./privacy.html" style="color:var(--blue);">Politique de confidentialité</a>

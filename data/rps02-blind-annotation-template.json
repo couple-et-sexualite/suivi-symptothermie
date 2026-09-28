@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "purpose": "Formulaire de collecte en aveugle. Aucune annotation RPS-02, notation source ou provenance n'est exposée.",
+  "status": "empty_template",
+  "records": [
+    {
+      "blindImageId": "RPS02-A01",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A02",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A03",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A04",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A05",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A06",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A07",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A08",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    },
+    {
+      "blindImageId": "RPS02-A09",
+      "annotatorA": null,
+      "annotatorB": null,
+      "adjudication": null
+    }
+  ]
+}

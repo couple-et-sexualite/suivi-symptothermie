@@ -45,7 +45,7 @@ test.describe('cervical observation assistant', () => {
     });
 
     const png1x1 = Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC',
+      'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAFUlEQVR4nGP8//8/A27AhEduBEsDAKXjAxF9kqZqAAAAAElFTkSuQmCC',
       'base64'
     );
     await page.locator('#cervical-photo').setInputFiles({
@@ -78,7 +78,7 @@ test.describe('cervical observation assistant', () => {
     await resetApp(page);
 
     await page.locator('#ca-transparency').selectOption('transparent');
-    await page.locator('#ca-texture').selectOption('stretchy');
+    await page.locator('#ca-texture').selectOption('watery');
     await page.locator('#cervical-assistant-analyze').click();
     await expect(page.locator('#cervical-assistant-result')).toBeVisible();
 
