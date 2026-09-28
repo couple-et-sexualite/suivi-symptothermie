@@ -17,12 +17,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Le code 10CK appartient à la méthode Justisse et ne doit pas être affiché comme une catégorie SymRella.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-10c-02",
@@ -38,12 +48,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-8k",
@@ -59,12 +79,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-6ckg",
@@ -80,12 +110,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-8ckg",
@@ -101,12 +141,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-10ckg",
@@ -122,12 +172,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-6k",
@@ -143,12 +203,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "justisse-10k-clear-stretchy",
@@ -164,12 +234,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "exemple réel décrit par la source comme clair, étirable et glissant",
       "limitations": "La description est celle de la source Justisse; elle ne constitue pas une règle SymRella.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     },
     {
       "imageId": "wikimedia-presumed-cervical-mucus",
@@ -185,12 +265,22 @@
       "rps02Mapping": "pending_expert",
       "teachingPurpose": "exemple réel de sécrétion étirée",
       "limitations": "La page source indique qu'il n'a pas été évalué médicalement; aucune conclusion clinique ne doit être déduite de la photo.",
-      "rightsStatus": "rights_verified",
+      "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_applicable",
-      "qualityStatus": "pending_technical_review",
-      "validationDate": null,
-      "validator": null
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "accessDate": "2026-09-28"
     }
   ]
 }
