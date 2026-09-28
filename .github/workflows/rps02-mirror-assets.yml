@@ -1,8 +1,6 @@
 name: RPS-02 local asset mirror
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
 permissions:
   contents: write
 jobs:
