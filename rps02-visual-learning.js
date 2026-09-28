@@ -5,6 +5,7 @@
 (() => {
   'use strict';
 
+  const init = () => {
   const root = document.getElementById('apprendre');
   if (!root || document.getElementById('rps02-visual-workshop')) return;
 
@@ -367,4 +368,11 @@
   });
 
   showStep(1);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
 })();
