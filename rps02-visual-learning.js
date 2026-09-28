@@ -164,7 +164,7 @@
   corpusSection.append(corpusTitle,corpusIntro,realGrid);
   card.querySelector('.rps02-step:nth-of-type(2)').appendChild(corpusSection);
   fetch('./data/rps02-visual-corpus.json',{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('corpus');return response.json();}).then(data=>{
-    realGrid.innerHTML='';
+    realGrid.replaceChildren();
     data.records.forEach(record=>{
       const button=document.createElement('button');
       button.type='button'; button.className='rps02-real'; button.setAttribute('aria-pressed','false');
