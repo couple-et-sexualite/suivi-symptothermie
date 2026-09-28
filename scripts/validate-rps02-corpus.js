@@ -31,6 +31,21 @@ function dimensions(buffer, type) {
 }
 
 const failures = [];
+const required = ["imageId","sourceType","rightsStatus","qualityStatus","pedagogicalStatus","mappedFeatures"];
+const enums = {
+  sourceType: ["licensed_external","user_contributed","commissioned","original_symrella","synthetic_training_only"],
+  rightsStatus: ["documented","restricted","pending","withdrawn"],
+  qualityStatus: ["sufficient","insufficient","uncertain"],
+  pedagogicalStatus: ["candidate","rights_verified","pedagogical_review","expert_review","validated","rejected","withdrawn"],
+  rps02Mapping: ["validated","pending_expert","not_applicable","rejected"]
+};
+for (const record of corpus.records) {
+  for (const key of required) if (!(key in record)) failures.push(record.imageId + ": missing " + key);
+  for (const [key, values] of Object.entries(enums)) if (key in record && !values.includes(record[key])) failures.push(record.imageId + ": invalid " + key + "=" + record[key]);
+  const mf = record.mappedFeatures || {};
+  for (const key of ["presence","visibleColor","texture","stretchiness","transparency","apparentAmount"]) if (!(key in mf)) failures.push(record.imageId + ": missing mappedFeatures." + key);
+  if (record.rps02Mapping === "pending_expert" && Object.values(mf).some(v => v !== "unknown")) failures.push(record.imageId + ": pending_expert record contains a non-unknown mapped feature");
+}
 const report = [];
 for (const record of corpus.records) {
   if (!record.assetUrl) {
