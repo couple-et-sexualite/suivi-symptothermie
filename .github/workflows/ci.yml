@@ -16,6 +16,14 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npm run check
+      - run: node scripts/validate-rps02-corpus.js
       - run: npm test
       - run: npx playwright install --with-deps
       - run: npm run test:e2e
+      - name: Upload RPS-02 technical report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rps02-corpus-technical-report
+          path: artifacts/rps02-corpus-technical-report.json
+          if-no-files-found: ignore
