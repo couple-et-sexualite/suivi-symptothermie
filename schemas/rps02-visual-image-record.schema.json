@@ -1,57 +1,275 @@
 {
-  "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://symrella.app/schemas/rps02-visual-image-record.schema.json",
-  "title":"RPS-02 Visual Learning Image Record",
-  "type":"object",
-  "additionalProperties":false,
-  "required":["imageId","sourceType","rightsStatus","qualityStatus","pedagogicalStatus","mappedFeatures"],
-  "properties":{
-    "imageId":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,128}$"},
-    "assetPath":{"type":"string","maxLength":500},
-    "thumbnailPath":{"type":"string","maxLength":500},
-    "sourceType":{"type":"string","enum":["licensed_external","user_contributed","commissioned","original_symrella","synthetic_training_only"]},
-    "sourceName":{"type":"string","maxLength":300},
-    "sourceUrl":{"type":"string","maxLength":2000},
-    "creator":{"type":"string","maxLength":300},
-    "license":{"type":"string","maxLength":200},
-    "licenseUrl":{"type":"string","maxLength":2000},
-    "commercialUse":{"type":"boolean"},
-    "modificationAllowed":{"type":"boolean"},
-    "attributionRequired":{"type":"boolean"},
-    "attributionText":{"type":"string","maxLength":1000},
-    "accessDate":{"type":"string","format":"date"},
-    "originalHash":{"type":"string","maxLength":128},
-    "derivedHash":{"type":"string","maxLength":128},
-    "referenceSystem":{"type":"string","maxLength":200},
-    "referenceLabel":{"type":"string","maxLength":300},
-    "rps02Mapping":{"type":"string","enum":["validated","pending_expert","not_applicable","rejected"]},
-    "mappedFeatures":{
-      "type":"object","additionalProperties":false,
-      "required":["presence","visibleColor","texture","stretchiness","transparency","apparentAmount"],
-      "properties":{
-        "presence":{"type":"string","enum":["none","present","unknown","not_assessable"]},
-        "visibleColor":{"type":"string","enum":["clear_translucent","white_cloudy","yellowish","greenish","brownish","mixed","other","unknown"]},
-        "texture":{"type":"string","enum":["sticky","creamy","watery","gummy","lumpy","other","unknown","not_assessable"]},
-        "stretchiness":{"type":"string","enum":["none","short","moderate","long","unknown","not_assessable"]},
-        "transparency":{"type":"string","enum":["opaque","translucent","clear","mixed","unknown","not_assessable"]},
-        "apparentAmount":{"type":"string","enum":["none","small","moderate","large","unknown","not_assessable"]}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symrella.app/schemas/rps02-visual-image-record.schema.json",
+  "title": "RPS-02 Visual Learning Image Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "imageId",
+    "sourceType",
+    "rightsStatus",
+    "qualityStatus",
+    "pedagogicalStatus",
+    "mappedFeatures"
+  ],
+  "properties": {
+    "imageId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+    },
+    "assetPath": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "thumbnailPath": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "sourceType": {
+      "type": "string",
+      "enum": [
+        "licensed_external",
+        "user_contributed",
+        "commissioned",
+        "original_symrella",
+        "synthetic_training_only"
+      ]
+    },
+    "sourceName": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "sourceUrl": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "creator": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "license": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "licenseUrl": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "commercialUse": {
+      "type": "boolean"
+    },
+    "modificationAllowed": {
+      "type": "boolean"
+    },
+    "attributionRequired": {
+      "type": "boolean"
+    },
+    "attributionText": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "accessDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "originalHash": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "derivedHash": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "referenceSystem": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "referenceLabel": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "rps02Mapping": {
+      "type": "string",
+      "enum": [
+        "validated",
+        "pending_expert",
+        "not_applicable",
+        "rejected"
+      ]
+    },
+    "mappedFeatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "presence",
+        "visibleColor",
+        "texture",
+        "stretchiness",
+        "transparency",
+        "apparentAmount"
+      ],
+      "properties": {
+        "presence": {
+          "type": "string",
+          "enum": [
+            "none",
+            "present",
+            "unknown",
+            "not_assessable"
+          ]
+        },
+        "visibleColor": {
+          "type": "string",
+          "enum": [
+            "clear_translucent",
+            "white_cloudy",
+            "yellowish",
+            "greenish",
+            "brownish",
+            "mixed",
+            "other",
+            "unknown"
+          ]
+        },
+        "texture": {
+          "type": "string",
+          "enum": [
+            "sticky",
+            "creamy",
+            "watery",
+            "gummy",
+            "lumpy",
+            "other",
+            "unknown",
+            "not_assessable"
+          ]
+        },
+        "stretchiness": {
+          "type": "string",
+          "enum": [
+            "none",
+            "short",
+            "moderate",
+            "long",
+            "unknown",
+            "not_assessable"
+          ]
+        },
+        "transparency": {
+          "type": "string",
+          "enum": [
+            "opaque",
+            "translucent",
+            "clear",
+            "mixed",
+            "unknown",
+            "not_assessable"
+          ]
+        },
+        "apparentAmount": {
+          "type": "string",
+          "enum": [
+            "none",
+            "small",
+            "moderate",
+            "large",
+            "unknown",
+            "not_assessable"
+          ]
+        }
       }
     },
-    "support":{"type":"string","enum":["tissue","finger","external_surface","unknown"]},
-    "lightingClass":{"type":"string","enum":["good","acceptable","poor","unknown"]},
-    "qualityStatus":{"type":"string","enum":["sufficient","insufficient","uncertain"]},
-    "rightsStatus":{"type":"string","enum":["documented","restricted","pending","withdrawn"]},
-    "pedagogicalStatus":{"type":"string","enum":["candidate","rights_verified","pedagogical_review","expert_review","validated","rejected","withdrawn"]},
-    "consentStatus":{"type":"string","enum":["not_required","documented","pending","withdrawn"]},
-    "teachingPurpose":{"type":"string","maxLength":500},
-    "limitations":{"type":"string","maxLength":2000},
-    "validator":{"type":"string","maxLength":200},
-    "validationDate":{"type":"string","format":"date"}
+    "support": {
+      "type": "string",
+      "enum": [
+        "tissue",
+        "finger",
+        "external_surface",
+        "unknown"
+      ]
+    },
+    "lightingClass": {
+      "type": "string",
+      "enum": [
+        "good",
+        "acceptable",
+        "poor",
+        "unknown"
+      ]
+    },
+    "qualityStatus": {
+      "type": "string",
+      "enum": [
+        "sufficient",
+        "insufficient",
+        "uncertain"
+      ]
+    },
+    "rightsStatus": {
+      "type": "string",
+      "enum": [
+        "documented",
+        "restricted",
+        "pending",
+        "withdrawn"
+      ]
+    },
+    "pedagogicalStatus": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "rights_verified",
+        "pedagogical_review",
+        "expert_review",
+        "validated",
+        "rejected",
+        "withdrawn"
+      ]
+    },
+    "consentStatus": {
+      "type": "string",
+      "enum": [
+        "not_required",
+        "documented",
+        "pending",
+        "withdrawn"
+      ]
+    },
+    "teachingPurpose": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "limitations": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "validator": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "validationDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "assetUrl": {
+      "type": "string",
+      "maxLength": 2000
+    }
   },
-  "allOf":[
+  "allOf": [
     {
-      "if":{"properties":{"sourceType":{"const":"user_contributed"}}},
-      "then":{"required":["consentStatus"]}
+      "if": {
+        "properties": {
+          "sourceType": {
+            "const": "user_contributed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "consentStatus"
+        ]
+      }
     }
   ]
 }
