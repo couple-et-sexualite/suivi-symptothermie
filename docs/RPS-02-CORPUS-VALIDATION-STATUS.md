@@ -19,9 +19,9 @@ Aucune annotation visuelle n'a été inventée pour faire passer une image en va
 - 8 références : Justisse College Cervical Mucus Gallery, licence CC BY-SA.
 - 1 référence : Wikimedia Commons, Ipertornado, CC BY-SA 4.0.
 
-La galerie Justisse précise que ses images sont sous CC BY-SA, avec attribution, et rappelle que ses notations appartiennent à la méthode Justisse et ne doivent pas être combinées avec d'autres méthodes. Elle indique aussi que les photographies ne sont pas toujours faciles à interpréter. citeturn0search0turn0search1
+La galerie Justisse précise que ses images sont sous CC BY-SA, avec attribution, et rappelle que ses notations appartiennent à la méthode Justisse et ne doivent pas être combinées avec d'autres méthodes. Elle indique aussi que les photographies ne sont pas toujours faciles à interpréter. (source : https://mucus.justisse.ca/finger-testable-observations ; https://mucus.justisse.ca/)
 
-La page Wikimedia de `Presumed cervical mucus.jpg` indique une licence CC BY-SA 4.0 et précise que le mucus représenté n'a pas été évalué médicalement. citeturn0search2
+La page Wikimedia de `Presumed cervical mucus.jpg` indique une licence CC BY-SA 4.0 et précise que le mucus représenté n'a pas été évalué médicalement. (source : https://commons.wikimedia.org/wiki/File:Presumed_cervical_mucus.jpg)
 
 ## Ce qui reste ouvert
 
