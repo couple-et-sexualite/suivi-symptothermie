@@ -247,6 +247,24 @@ export const TUTOR_MESSAGES=Object.freeze({
     complete:"The observation criteria configured for this reference are now complete.",
     unresolved:"The observations show a configuration that SymRella cannot interpret reliably enough. The analysis remains pending."
   }
+,  es:{
+    insufficient:"Continúa tus observaciones diarias. SymRella todavía no dispone de suficientes datos para interpretar este ciclo.",
+    disturbed:"Esta medición está marcada como potencialmente alterada. Se conserva, pero SymRella evita utilizarla en este cálculo.",
+    thermalCandidate:"Se está observando un aumento de temperatura. Se necesitan más mediciones antes de evaluarlo.",
+    cervical:"Se ha detectado un cambio en la observación cervical. Los próximos días permitirán continuar la evaluación.",
+    pending:"Los dos indicadores todavía no son concordantes. SymRella continúa observando en lugar de concluir.",
+    complete:"Los criterios de observación configurados para esta referencia ya están completos.",
+    unresolved:"Las observaciones presentan una configuración que SymRella no puede interpretar con suficiente fiabilidad. El análisis queda pendiente."
+  },
+  ar:{
+    insufficient:"واصلي تسجيل ملاحظاتك اليومية. لا تملك SymRella بعد بيانات كافية لتقييم هذه الدورة.",
+    disturbed:"تم وضع علامة على هذه القياس باعتباره قد يكون متأثراً بعامل ما. يبقى مسجلاً، لكن SymRella تتجنب استخدامه في هذا الحساب.",
+    thermalCandidate:"تتم ملاحظة ارتفاع في درجة الحرارة. نحتاج إلى قياسات إضافية قبل تقييمه.",
+    cervical:"تمت ملاحظة تغير في الإفرازات أو العلامات العنقية. ستسمح الأيام التالية بمواصلة التقييم.",
+    pending:"المؤشران لم يتوافقا بعد. تواصل SymRella الملاحظة بدلاً من إصدار نتيجة.",
+    complete:"اكتملت الآن معايير الملاحظة المحددة لهذا المرجع.",
+    unresolved:"تظهر الملاحظات نمطاً لا تستطيع SymRella تفسيره بدرجة كافية من الموثوقية. يبقى التحليل قيد المراجعة."
+  }
 });
 
 export function getTutorMessage(state,lang="fr") {
