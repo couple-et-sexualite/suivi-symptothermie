@@ -13,7 +13,7 @@ const local=[];
 for(let i=0;i<9;i++){
   const id='RPS02-A0'+(i+1);
   const src=records[i].assetUrl;
-  if(!/^https?:\\/\\//.test(src)) throw new Error('URL source invalide pour '+id);
+  if(!/^https?:\/\//.test(src)) throw new Error('URL source invalide pour '+id);
   const res=await fetch(src,{redirect:'follow'});
   if(!res.ok) throw new Error('Téléchargement '+id+': HTTP '+res.status);
   const input=Buffer.from(await res.arrayBuffer());
@@ -27,5 +27,5 @@ for(let i=0;i<9;i++){
   const sha256=crypto.createHash('sha256').update(bytes).digest('hex');
   local.push({blindImageId:id,assetPath:'../../data/rps02-blind-assets/'+id+'.jpg',sha256,bytes:bytes.length,sourceUrl:src,sourceRecordId:records[i].imageId,license:records[i].license,rightsStatus:records[i].rightsStatus});
 }
-await fs.writeFile('data/rps02-local-asset-manifest.json',JSON.stringify({version:'1.0.0',purpose:'Provenance non aveugle et intégrité des assets locaux RPS-02.',generatedAt:new Date().toISOString(),records:local},null,2)+'\\n');
+await fs.writeFile('data/rps02-local-asset-manifest.json',JSON.stringify({version:'1.0.0',purpose:'Provenance non aveugle et intégrité des assets locaux RPS-02.',generatedAt:new Date().toISOString(),records:local},null,2)+'\n');
 console.log('Miroir RPS-02 créé: 9 assets locaux, EXIF retirés, SHA-256 calculés.');
