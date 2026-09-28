@@ -14,7 +14,7 @@ test('RPS-02 visual workshop keeps observation descriptive and local-first', () 
   assert.match(visualJs, /Transparence apparente/);
   assert.match(visualJs, /Étirement observé/);
   assert.match(visualJs, /n.?est pas téléversée, analysée ni sauvegardée/i);
-  assert.doesNotMatch(visualJs, /photo.*(fertile|fertilité|ovulation)/i);
+  assert.doesNotMatch(visualJs, /photo[^\n]*(fertile|fertilité|ovulation)/i);
   assert.doesNotMatch(visualJs, /10CK.*fertil/i);
 });
 
@@ -42,5 +42,5 @@ test('RPS-02 source codes are metadata and not used as SymRella categories', () 
   assert.ok(labels.includes('10K'));
   assert.ok(labels.includes('10C'));
   assert.ok(labels.includes('6CK'));
-  assert.match(corpus.purpose, /classifications de méthode source ne sont pas des catégories SymRella/i);
+  assert.match(corpus.purpose, /codes de la méthode source restent des métadonnées.*ne sont pas des catégories SymRella/i);
 });
