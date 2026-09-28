@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "purpose": "Machine-readable traceability matrix for the RPS-02/SymRella descriptive engine.",
+  "status": "engineering_traceability_pending_methodological_validation",
+  "principles": [
+    "SOURCE_RULE entries identify rules attributed to the reference method.",
+    "SYMR_ADAPTATION entries identify SymRella-specific behavior and must not be presented as reference-method rules.",
+    "VALIDATION_PROTOCOL entries describe work required before methodological claims are made.",
+    "Cervical interpretation remains blocked until expert validation of the SymRella ontology."
+  ],
+  "sources": {
+    "S01": {
+      "name": "AWMF S2k 015-095 — Nicht-hormonelle Empfängnisverhütung",
+      "url": "https://register.awmf.org/assets/guidelines/015-095l_S2k_Nicht-hormonelle-Empfaengnisverhuetung_2024-08.pdf",
+      "status": "documented_reference"
+    },
+    "S02": {
+      "name": "Sensiplan — official information and method materials",
+      "url": "https://www.sensiplan.de/",
+      "status": "documented_reference"
+    },
+    "SYMR": {
+      "name": "SymRella engineering adaptation",
+      "url": null,
+      "status": "project_specific"
+    }
+  },
+  "rules": [
+    {"id":"R01","kind":"SOURCE_RULE","source":"S01","code":"thermal.sixReferenceValues","tests":["T03","T06","T08"],"validationStatus":"engineering_implemented_expert_review_pending"},
+    {"id":"R02","kind":"SOURCE_RULE","source":"S01","code":"thermal.threeHigherValues","tests":["T06"],"validationStatus":"engineering_implemented_expert_review_pending"},
+    {"id":"R03","kind":"SOURCE_RULE","source":"S01","code":"thermal.plusTwoTenths","tests":["T06","T07"],"validationStatus":"engineering_implemented_expert_review_pending"},
+    {"id":"R04","kind":"SOURCE_RULE","source":"S01","code":"thermal.exceptionFourthValue","tests":["T05"],"validationStatus":"engineering_implemented_expert_review_pending"},
+    {"id":"R05","kind":"SOURCE_RULE","source":"S01","code":"thermal.exceptionIgnoredLow","tests":["T31"],"validationStatus":"engineering_implemented_expert_review_pending"},
+    {"id":"R06","kind":"SOURCE_RULE","source":"S01","code":"cervical.peak","tests":["T13","T17"],"validationStatus":"blocked_pending_cervical_ontology"},
+    {"id":"R07","kind":"SOURCE_RULE","source":"S01","code":"cervical.peakPlusThree","tests":["T14","T15","T16"],"validationStatus":"blocked_pending_cervical_ontology"},
+    {"id":"R08","kind":"SOURCE_RULE","source":"S01","code":"doubleCheck.laterCriterion","tests":["T18","T19","T20","T21","T22"],"validationStatus":"blocked_pending_cervical_ontology"},
+    {"id":"R09","kind":"SYMR_ADAPTATION","source":"SYMR","code":"descriptiveStates","tests":["T01","T02","T34"],"validationStatus":"engineering_implemented"},
+    {"id":"R10","kind":"SYMR_ADAPTATION","source":"SYMR","code":"noDiagnosticConclusions","tests":["T34"],"validationStatus":"engineering_implemented"},
+    {"id":"R11","kind":"SYMR_ADAPTATION","source":"SYMR","code":"rawObservationsPreserved","tests":["T08","T27","T30"],"validationStatus":"engineering_implemented"},
+    {"id":"R12","kind":"IMPLEMENTATION","source":"SYMR","code":"fahrenheitToCelsius","tests":["T10","T26"],"validationStatus":"engineering_implemented"},
+    {"id":"R13","kind":"SYMR_ADAPTATION","source":"SYMR","code":"cervical.interpretationBlocked","tests":["T12","T13","T14","T16","T17"],"validationStatus":"engineering_implemented"},
+    {"id":"R14","kind":"VALIDATION_PROTOCOL","source":"SYMR","code":"annotation.independentReview","tests":["C01-C24"],"validationStatus":"protocol_defined_execution_pending"},
+    {"id":"R15","kind":"VALIDATION_PROTOCOL","source":"SYMR","code":"multilingual.invariance","tests":["C21","C22"],"validationStatus":"protocol_defined_execution_pending"}
+  ],
+  "gates": [
+    "expert_validation_of_reference_rules",
+    "independent_cervical_annotation",
+    "pedagogical_review",
+    "multilingual_invariance_review",
+    "local_asset_rights_and_integrity_audit",
+    "security_privacy_review",
+    "complete_desktop_and_mobile_e2e"
+  ]
+}
