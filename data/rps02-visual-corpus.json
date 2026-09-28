@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "purpose": "Corpus réel de photos de sécrétions cervicales pour apprentissage visuel RPS-02. Les classifications de méthode source ne sont pas des catégories SymRella.",
+  "version": "1.1.0",
+  "purpose": "Corpus de référence de 9 photos Justisse pour apprentissage visuel RPS-02. Les codes de la méthode source restent des métadonnées et ne sont pas des catégories SymRella.",
   "productionStatus": "pilot_external_references_pending_local_asset_mirroring",
   "records": [
     {
@@ -32,38 +32,8 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
-    },
-    {
-      "imageId": "justisse-10c-02",
-      "sourceType": "licensed_external",
-      "sourceName": "Justisse College Cervical Mucus Gallery",
-      "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72veJ2F3u3cfDkbD9g8SWN_FSBoNLo_gS9YB-Pvpw87kNwXuBoKhOw1N12496RS0j2YXVxjh1sqPxhJEoHp5wBkSmOpI86UMhXaIeT244NZxZEdlMjxrXe5TzDYmCW4fB-JD2Da4QS2MAFQDzoBleXPniglKfgfkoLnJCxxFA4qcV2UXtZjrqVupJxJ6LYw0g-PSt40aEJsQdO1fBBjO7ythGcJZ2pr4rlzCheWi_OU=w1280",
-      "creator": "Justisse College Cervical Mucus Gallery contributors",
-      "license": "CC BY-SA",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "attributionText": "Justisse College Cervical Mucus Gallery — CC BY-SA",
-      "referenceLabel": "10CK",
-      "rps02Mapping": "pending_expert",
-      "teachingPurpose": "photo réelle; comparaison visuelle",
-      "limitations": "Notation source Justisse uniquement.",
-      "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
-      "consentStatus": "not_required",
-      "qualityStatus": "uncertain",
-      "mappedFeatures": {
-        "presence": "unknown",
-        "visibleColor": "unknown",
-        "texture": "unknown",
-        "stretchiness": "unknown",
-        "transparency": "unknown",
-        "apparentAmount": "unknown"
-      },
-      "commercialUse": true,
-      "modificationAllowed": true,
-      "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A01"
     },
     {
       "imageId": "justisse-8k",
@@ -94,7 +64,8 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A02"
     },
     {
       "imageId": "justisse-6ckg",
@@ -125,7 +96,8 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A03"
     },
     {
       "imageId": "justisse-8ckg",
@@ -156,7 +128,8 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A04"
     },
     {
       "imageId": "justisse-10ckg",
@@ -187,7 +160,8 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A05"
     },
     {
       "imageId": "justisse-6k",
@@ -218,7 +192,41 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A06"
+    },
+    {
+      "imageId": "justisse-10c-01",
+      "sourceType": "licensed_external",
+      "sourceName": "Justisse College Cervical Mucus Gallery",
+      "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uhP49SKZynZ7ue1XRI6EGlUndR_1yabUe3EENFgN2qA_rDN55KrDZiNOf0BYNDfBx9LK5T5WSG1YDQF14aVMm7RTRdF1K07GMqNhD42mVpDM7McTlskn0iuwSyv56IerTU5sS9jrouw9i9QMsjNFCvtvAU6Ehhg3zpMIoOPj0aB4SeTp8CHYXbEAMCddBQmVx2uINaMzDNGYgiLeCtGI6z6gcU_1yN4bmHfRH%3Dw1280",
+      "creator": "Justisse College Cervical Mucus Gallery contributors",
+      "license": "CC BY-SA",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "attributionText": "Justisse College Cervical Mucus Gallery — CC BY-SA",
+      "referenceLabel": "10C",
+      "rps02Mapping": "pending_expert",
+      "teachingPurpose": "photo réelle; comparaison visuelle",
+      "limitations": "Notation source Justisse uniquement; ne constitue pas une catégorie SymRella.",
+      "rightsStatus": "documented",
+      "pedagogicalStatus": "candidate",
+      "consentStatus": "not_required",
+      "qualityStatus": "uncertain",
+      "mappedFeatures": {
+        "presence": "unknown",
+        "visibleColor": "unknown",
+        "texture": "unknown",
+        "stretchiness": "unknown",
+        "transparency": "unknown",
+        "apparentAmount": "unknown"
+      },
+      "commercialUse": true,
+      "modificationAllowed": true,
+      "attributionRequired": true,
+      "sourceImageOrder": 7,
+      "accessDate": "2026-09-29",
+      "internalId": "A07"
     },
     {
       "imageId": "justisse-10k-clear-stretchy",
@@ -249,22 +257,23 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "accessDate": "2026-09-28",
+      "internalId": "A08"
     },
     {
-      "imageId": "wikimedia-presumed-cervical-mucus",
+      "imageId": "justisse-6ck-01",
       "sourceType": "licensed_external",
-      "sourceName": "Wikimedia Commons",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Presumed_cervical_mucus.jpg",
-      "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/9/98/Presumed_cervical_mucus.jpg",
-      "creator": "Ipertornado",
-      "license": "CC BY-SA 4.0",
+      "sourceName": "Justisse College Cervical Mucus Gallery",
+      "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vh5yOn4gOulADBaH-YaGZBZLeohVrMV4bTQCIlJWqpgQTV5mIRxdG1b5yunY1d5Lu07NHm8CuBuFbJEpL2CYkA4PR4kKQfkw6Gj9NKsa7FwzqxdWrpAYDLcoYiEYGk-kMPohdwjAAJ6dHzcp5H90h1el3gClelBRzD5HUNJA_OU1TxDt7uVjm3aR1IefQOR9z_aO_CpX6UUpA9aGcAWV25IIDD5eIuEgnK56RPVB%3Dw1280",
+      "creator": "Justisse College Cervical Mucus Gallery contributors",
+      "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "attributionText": "Ipertornado / Wikimedia Commons — CC BY-SA 4.0",
-      "referenceLabel": "Description source: mucus présumé, non évalué médicalement",
+      "attributionText": "Justisse College Cervical Mucus Gallery — CC BY-SA",
+      "referenceLabel": "6CK",
       "rps02Mapping": "pending_expert",
-      "teachingPurpose": "exemple réel de sécrétion étirée",
-      "limitations": "La page source indique qu'il n'a pas été évalué médicalement; aucune conclusion clinique ne doit être déduite de la photo.",
+      "teachingPurpose": "photo réelle; comparaison visuelle",
+      "limitations": "Notation source Justisse uniquement; ne constitue pas une catégorie SymRella.",
       "rightsStatus": "documented",
       "pedagogicalStatus": "candidate",
       "consentStatus": "not_required",
@@ -280,7 +289,10 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "accessDate": "2026-09-28"
+      "sourceImageOrder": 12,
+      "accessDate": "2026-09-29",
+      "internalId": "A09"
     }
-  ]
+  ],
+  "selectionNote": "Sélection A01-A09 figée le 29 septembre 2026 d'après l'ordre de la galerie Justisse : A01=10CK, A02=8K, A03=6CKG, A04=8CKG, A05=10CKG, A06=6K, A07=10C, A08=10K, A09=6CK."
 }
