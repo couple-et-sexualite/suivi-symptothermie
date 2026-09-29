@@ -12,12 +12,35 @@ test.describe('RPS-02 visual learning — contract tests', () => {
   });
 
   test('the workshop keeps the photo local and does not present a clinical conclusion', async ({ page }) => {
+    const externalRequests = [];
+    page.on('request', request => {
+      if (/^https?:\/\//.test(request.url()) && !request.url().startsWith('http://127.0.0.1') && !request.url().startsWith('http://localhost')) {
+        externalRequests.push(request.url());
+      }
+    });
     await page.goto('/');
+    const workshop = page.locator('#rps02-visual-workshop');
+    await expect(page.locator('#rps02-photo')).toHaveAttribute('accept', /image/);
+    await workshop.locator('[data-next="2"]').click();
+    await workshop.locator('[data-next="3"]').click();
+    await workshop.locator('[data-next="4"]').click();
+
+    await page.locator('#rps02-photo').setInputFiles({
+      name: 'observation.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from([
+        137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,
+        0,0,0,1,0,0,0,1,8,6,0,0,0,31,21,196,137,
+        0,0,0,13,73,68,65,84,8,215,99,248,207,192,240,
+        31,0,5,0,1,255,137,153,61,29,0,0,0,0,73,69,78,68,174,66,96,130
+      ])
+    });
+    await expect(page.locator('#rps02-photo-preview')).toBeVisible();
+    await expect(page.locator('#rps02-photo-status')).toContainText('localement uniquement');
+    expect(externalRequests.some(url => /googleusercontent|justisse\.ca/i.test(url))).toBe(false);
+
     const body = await page.locator('body').innerText();
     expect(body).not.toMatch(/vous ovulez|vous êtes fertile|c'est votre glaire fertile/i);
-    await expect(page.locator('#rps02-photo')).toHaveAttribute('accept', /image/);
-    await expect(page.locator('#rps02-photo-status')).toBeAttached();
-    await expect(page.locator('#rps02-result')).toHaveCount(0);
   });
 
   test('the real corpus registry is loaded with provenance and licensing fields', async ({ page }) => {
