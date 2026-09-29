@@ -49,7 +49,7 @@ for(let i=0;i<records.length;i++){
   const sha256=crypto.createHash('sha256').update(bytes).digest('hex');
   local.push({
     blindImageId:id,
-    assetPath:'../../data/rps02-blind-assets/'+id+'.jpg',
+    assetPath:'./rps02-blind-assets/'+id+'.jpg',
     sha256,
     bytes:bytes.length,
     sourceUrl:actual,
