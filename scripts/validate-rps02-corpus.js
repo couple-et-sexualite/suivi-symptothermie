@@ -59,10 +59,10 @@ for (const record of corpus.records) {
       headers: { "user-agent": "SymRella-RPS02-corpus-check/1.0" }
     });
     if (!response.ok) {
-      if (response.status === 403) {
+      if (response.status === 400 || response.status === 403) {
         warnings.push({
           imageId: record.imageId,
-          reason: "external_asset_blocked",
+          reason: "external_asset_blocked_or_rejected",
           httpStatus: response.status
         });
         report.push({
