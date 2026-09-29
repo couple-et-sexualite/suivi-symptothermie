@@ -17,7 +17,7 @@ for(let i=1;i<=9;i++){
  const r=x.records.find(v=>v.blindImageId===id);
  if(!r) throw new Error('ID aveugle manquant: '+id);
  if(Object.keys(r).sort().join(',')!=='assetPath,blindImageId') throw new Error('Schéma aveugle inattendu: '+id);
- if(typeof r.assetPath!=='string'||!/^\.\.\/\.\.\/data\/rps02-blind-assets\/RPS02-A0[1-9]\.jpg$/.test(r.assetPath)) throw new Error('assetPath local invalide: '+id);
+ if(typeof r.assetPath!=='string'||!/^\.\/rps02-blind-assets\/RPS02-A0[1-9]\.jpg$/.test(r.assetPath)) throw new Error('assetPath local invalide: '+id);
  const file=path.normalize(path.join(path.dirname(p),r.assetPath));
  if(!fs.existsSync(file)) throw new Error('Asset local manquant: '+file);
  const bytes=fs.readFileSync(file);
