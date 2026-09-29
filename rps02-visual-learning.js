@@ -160,7 +160,7 @@
 
     <div class="rps02-corpus">
       <h3>Corpus photographique de référence</h3>
-      <p class="learn-meta">Les photographies réelles sont conservées comme références externes tant qu'elles n'ont pas été validées et copiées localement. Les codes de la méthode source restent des métadonnées internes et ne sont pas des catégories SymRella.</p>
+      <p class="learn-meta">Les photographies réelles sont conservées localement comme références ; elles ne deviennent pas des catégories SymRella tant que leur validation pédagogique n'est pas documentée. Les codes de la méthode source restent des métadonnées internes et ne sont pas des catégories SymRella.</p>
       <div id="rps02-corpus-list" class="rps02-corpus-list" aria-live="polite">Chargement du registre…</div>
     </div>
   `;
