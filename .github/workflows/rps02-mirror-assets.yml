@@ -9,11 +9,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: spec/rps02-visual-learning
+          ref: fix/rps02-photo-mirror-browser
           fetch-depth: 0
-      - name: Install ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
-      - name: Mirror assets
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Mirror assets through the official gallery
         run: node scripts/mirror-rps02-assets.mjs
       - name: Validate blind manifest
         run: node scripts/validate-rps02-blind-manifest.js
@@ -23,4 +25,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/rps02-blind-assets data/rps02-local-asset-manifest.json
           git diff --cached --quiet || git commit -m "RPS-02: mirror blind assets locally"
-          git push origin HEAD:spec/rps02-visual-learning
+          git push origin HEAD:fix/rps02-photo-mirror-browser
