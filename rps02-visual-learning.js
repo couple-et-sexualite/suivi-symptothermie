@@ -95,27 +95,8 @@
     <section class="rps02-panel" data-panel="2" hidden>
       <h3>2. Comparer sans chercher le « bon nom »</h3>
       <p>Regardez seulement les caractéristiques visuelles. Votre sensation ne peut pas être déduite d'une photo.</p>
-      <div class="rps02-compare-grid">
-        <button type="button" class="rps02-example" data-example="opaque" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-opaque" aria-hidden="true"></span>
-          <strong>Plutôt opaque</strong>
-          <span>Peu ou pas de transparence apparente.</span>
-        </button>
-        <button type="button" class="rps02-example" data-example="translucent" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-translucent" aria-hidden="true"></span>
-          <strong>Plutôt translucide</strong>
-          <span>La lumière semble passer partiellement.</span>
-        </button>
-        <button type="button" class="rps02-example" data-example="transparent" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-transparent" aria-hidden="true"></span>
-          <strong>Plutôt transparent</strong>
-          <span>Aspect clair avec transparence apparente.</span>
-        </button>
-        <button type="button" class="rps02-example" data-example="stretchy" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-stretchy" aria-hidden="true"></span>
-          <strong>Plutôt étirable</strong>
-          <span>Un fil peut sembler se former lorsqu'il est étiré.</span>
-        </button>
+      <div id="rps02-photo-compare" class="rps02-photo-compare" aria-live="polite">
+        Chargement des photographies de référence…
       </div>
       <button class="btn btn-secondary" type="button" id="rps02-none">Aucune ne correspond</button>
       <div class="actions">
@@ -180,11 +161,12 @@
     #rps02-visual-workshop .rps02-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
     #rps02-visual-workshop .rps02-example{display:flex;flex-direction:column;gap:6px}
     #rps02-visual-workshop .rps02-example span:last-child{font-size:.85rem;color:var(--text-muted)}
-    #rps02-visual-workshop .rps02-swatch{height:70px;border-radius:8px;border:1px solid var(--border)}
-    #rps02-visual-workshop .rps02-swatch-opaque{background:#eee}
-    #rps02-visual-workshop .rps02-swatch-translucent{background:linear-gradient(135deg,#eef8f8,#cfe2e2)}
-    #rps02-visual-workshop .rps02-swatch-transparent{background:linear-gradient(135deg,#fff,#d8eef4)}
-    #rps02-visual-workshop .rps02-swatch-stretchy{background:linear-gradient(90deg,#f8ffff,#cbe8ee,#fff)}
+    #rps02-visual-workshop .rps02-photo-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+    #rps02-visual-workshop .rps02-photo-example{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;text-align:left;cursor:pointer}
+    #rps02-visual-workshop .rps02-photo-example[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:1px}
+    #rps02-visual-workshop .rps02-photo-example img{display:block;width:100%;height:150px;object-fit:contain;border-radius:7px;background:var(--bg);border:1px solid var(--border)}
+    #rps02-visual-workshop .rps02-photo-example strong{display:block;margin-top:7px}
+    #rps02-visual-workshop .rps02-photo-example small{display:block;color:var(--text-muted);margin-top:3px}
     #rps02-visual-workshop .rps02-photo-preview{display:block;max-width:100%;max-height:280px;margin-top:10px;border:1px solid var(--border);border-radius:12px;object-fit:contain;background:var(--bg)}
     #rps02-visual-workshop .rps02-corpus{margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
     #rps02-visual-workshop .rps02-corpus-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -193,7 +175,7 @@
     #rps02-visual-workshop .rps02-corpus-item small{display:block;color:var(--text-muted);margin-top:4px}
     @media(min-width:700px){
       #rps02-visual-workshop .rps02-options{grid-template-columns:repeat(3,minmax(0,1fr))}
-      #rps02-visual-workshop .rps02-compare-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      #rps02-visual-workshop .rps02-photo-compare{grid-template-columns:repeat(3,minmax(0,1fr))}
       #rps02-visual-workshop .rps02-corpus-list{grid-template-columns:repeat(3,minmax(0,1fr))}
     }
   `;
@@ -253,15 +235,12 @@
   const updateFeedback = () => {
     const feedback = card.querySelector('#rps02-feedback');
     const choice = state.visualChoice;
-    const messages = {
-      opaque:'Tu as choisi un exemple plutôt opaque. Observe surtout la transparence apparente ; ne déduis pas la sensation de cette image.',
-      translucent:'Tu as choisi un exemple plutôt translucide. Compare maintenant la quantité de lumière qui semble traverser l’observation.',
-      transparent:'Tu as choisi un exemple plutôt transparent. La transparence est une caractéristique visuelle parmi d’autres.',
-      stretchy:'Tu as choisi un exemple plutôt étirable. L’étirement visible est une caractéristique d’apparence ; il ne suffit pas à conclure sur l’ovulation ou la fertilité.',
-      none:'Aucun exemple ne te paraît suffisamment proche. C’est une réponse valable : il vaut mieux conserver l’incertitude que forcer une catégorie.',
-      null:'Tu n’as pas besoin de choisir un exemple. Tu peux comparer à nouveau ou continuer avec « je ne sais pas ».'
-    };
-    feedback.textContent = messages[choice || 'null'];
+    if (!choice) {
+      feedback.textContent = 'Tu n’as pas besoin de choisir une photo. Tu peux comparer les exemples ou continuer avec « je ne sais pas ».';
+      return;
+    }
+    feedback.textContent =
+      `Tu as sélectionné la photo ${choice}. Observe uniquement ce qui est visible : couleur, texture, transparence, quantité apparente et éventuel étirement. La photo ne permet pas de déduire une sensation, une phase du cycle, l’ovulation ou la fertilité.`;
   };
 
   const updateSummary = () => {
@@ -280,18 +259,11 @@
     button.addEventListener('click', () => showStep(Number(button.dataset.next)));
   });
 
-  card.querySelectorAll('.rps02-example').forEach(button => {
-    button.addEventListener('click', () => {
-      card.querySelectorAll('.rps02-example').forEach(item => item.setAttribute('aria-pressed','false'));
-      button.setAttribute('aria-pressed','true');
-      state.visualChoice = button.dataset.example;
-    });
-  });
-
-  card.querySelector('#rps02-none').addEventListener('click', () => {
-    card.querySelectorAll('.rps02-example').forEach(item => item.setAttribute('aria-pressed','false'));
-    state.visualChoice = 'none';
-  });
+  const selectReferencePhoto = button => {
+    card.querySelectorAll('.rps02-photo-example').forEach(item => item.setAttribute('aria-pressed','false'));
+    button.setAttribute('aria-pressed','true');
+    state.visualChoice = button.dataset.example;
+  };
 
   let objectUrl = null;
   const photo = card.querySelector('#rps02-photo');
@@ -327,7 +299,7 @@
   card.querySelector('#rps02-restart').addEventListener('click', () => {
     state.visualChoice = null;
     state.photoSelected = false;
-    card.querySelectorAll('.rps02-options button,.rps02-example').forEach(button => button.setAttribute('aria-pressed','false'));
+    card.querySelectorAll('.rps02-options button,.rps02-photo-example').forEach(button => button.setAttribute('aria-pressed','false'));
     photo.value = '';
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     objectUrl = null;
@@ -339,10 +311,31 @@
 
   const renderCorpus = records => {
     const list = card.querySelector('#rps02-corpus-list');
+    const compare = card.querySelector('#rps02-photo-compare');
     if (!Array.isArray(records) || !records.length) {
       list.textContent = 'Aucun enregistrement de corpus disponible.';
+      compare.textContent = 'Aucune photographie de référence disponible.';
       return;
     }
+
+    compare.innerHTML = records.map(record => {
+      const reference = esc(record.internalId || 'Référence');
+      const asset = String(record.localAssetPath || '').replace(/^\.\//, '');
+      const imagePath = `./data/${asset}`;
+      return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
+        <img src="${esc(imagePath)}" alt="Photo de référence ${reference}" loading="lazy">
+        <strong>Photo ${reference}</strong>
+        <small>Décris seulement ce que tu observes.</small>
+      </button>`;
+    }).join('');
+
+    compare.querySelectorAll('.rps02-photo-example').forEach(button => {
+      button.addEventListener('click', () => selectReferencePhoto(button));
+      button.querySelector('img').addEventListener('error', () => {
+        button.querySelector('img').alt = `Photo de référence ${button.dataset.example} indisponible`;
+      });
+    });
+
     list.innerHTML = records.map(record => {
       const reference = esc(record.internalId || 'Référence');
       const status = esc(record.pedagogicalStatus || 'non validé');
