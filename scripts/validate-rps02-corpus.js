@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import crypto from "node:crypto";
+import path from "node:path";
 
 const corpusPath = "data/rps02-visual-corpus.json";
 const localManifestPath = "data/rps02-local-asset-manifest.json";
@@ -66,7 +67,7 @@ for (const record of corpus.records || []) {
   } else {
     if (local.assetPath !== record.localAssetPath) failures.push(record.imageId + ": localAssetPath differs from provenance manifest");
     if (local.sha256 !== record.sha256) failures.push(record.imageId + ": corpus SHA-256 differs from provenance manifest");
-    const localFile = record.localAssetPath.replace(/^\.\//, "");
+    const localFile = path.resolve(path.dirname(localManifestPath), record.localAssetPath);
     if (!fs.existsSync(localFile)) {
       failures.push(record.imageId + ": local asset missing: " + localFile);
     } else {
