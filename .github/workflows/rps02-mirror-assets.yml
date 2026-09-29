@@ -1,6 +1,8 @@
 name: RPS-02 local asset mirror
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - fix/rps02-photo-mirror-browser
 permissions:
   contents: write
 jobs:
