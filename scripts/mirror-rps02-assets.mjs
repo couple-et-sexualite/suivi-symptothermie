@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { chromium } from 'playwright';
+import { chromium } from '@playwright/test';
 
 const PAGE='https://mucus.justisse.ca/finger-testable-observations';
 const corpus=JSON.parse(await fs.readFile('data/rps02-visual-corpus.json','utf8'));
