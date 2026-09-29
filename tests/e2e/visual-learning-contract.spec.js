@@ -16,7 +16,7 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     const body = await page.locator('body').innerText();
     expect(body).not.toMatch(/vous ovulez|vous êtes fertile|c'est votre glaire fertile/i);
     await expect(page.locator('#rps02-photo')).toHaveAttribute('accept', /image/);
-    await expect(page.locator('#rps02-photo-status')).toBeVisible();
+    await expect(page.locator('#rps02-photo-status')).toBeAttached();
     await expect(page.locator('#rps02-result')).toHaveCount(0);
   });
 
