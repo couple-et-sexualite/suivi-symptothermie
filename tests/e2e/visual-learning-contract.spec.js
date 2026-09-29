@@ -48,9 +48,10 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     const corpus = page.locator('#rps02-corpus-list');
     await expect(corpus).toBeVisible();
     await expect(corpus.locator('.rps02-corpus-item')).toHaveCount(9);
-    await expect(corpus).toContainText('10CK');
-    await expect(corpus).toContainText('10C');
-    await expect(corpus).toContainText('6CK');
+    await expect(corpus).toContainText('Photo A01');
+    await expect(corpus).toContainText('Photo A09');
+    await expect(corpus).toContainText('candidate_pending_expert');
+    expect(await corpus.innerText()).not.toMatch(/10CK|10C|6CK|8CKG|10CKG|6K|10K|8K/);
   });
 
   test('the comparison result only repeats observations selected by the user', async ({ page }) => {
