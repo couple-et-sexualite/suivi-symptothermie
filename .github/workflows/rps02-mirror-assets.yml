@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - fix/rps02-photo-mirror-browser
+  pull_request:
+    branches:
+      - main
 permissions:
   contents: write
 jobs:
