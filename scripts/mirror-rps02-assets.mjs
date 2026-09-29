@@ -19,8 +19,8 @@ const context=await browser.newContext({
 const page=await context.newPage();
 await page.goto(PAGE,{waitUntil:'networkidle',timeout:120000});
 
-const links=await page.locator('a[href*="lh7-us.googleusercontent.com/sitesv-images-rt/"]').evaluateAll(as=>as.map(a=>a.href));
-const unique=[...new Set(links)];
+const imageEntries=await page.locator('img').evaluateAll(imgs=>imgs.map((img,index)=>({index,url:img.currentSrc||img.src||img.getAttribute('data-src')||''})).filter(x=>x.url.includes('lh7-us.googleusercontent.com/sitesv-images-rt/')));
+const unique=[...new Map(imageEntries.map(x=>[x.url,x])).values()];
 if(unique.length<13) throw new Error('La galerie n’expose pas les 13 premières images attendues; trouvé '+unique.length+'.');
 
 const sourceIndexes=[0,2,3,4,5,6,7,11,12];
@@ -28,10 +28,11 @@ const local=[];
 for(let i=0;i<records.length;i++){
   const id='RPS02-A0'+(i+1);
   const expected=records[i].assetUrl;
-  const actual=unique[sourceIndexes[i]];
+  const actual=unique[sourceIndexes[i]].url;
+  const imageIndex=unique[sourceIndexes[i]].index;
   if(actual!==expected) throw new Error('URL source inattendue pour '+id+'; la page Justisse a changé ou le corpus n’est plus synchronisé.');
 
-  const loc=page.locator('a[href="'+actual+'"]').locator('img').first();
+  const loc=page.locator('img').nth(imageIndex);
   await loc.scrollIntoViewIfNeeded();
   await loc.waitFor({state:'visible',timeout:30000});
   await page.waitForTimeout(250);
