@@ -37,7 +37,7 @@ const enums = {
   sourceType: ["licensed_external","user_contributed","commissioned","original_symrella","synthetic_training_only"],
   rightsStatus: ["documented","restricted","pending","withdrawn"],
   qualityStatus: ["sufficient","insufficient","uncertain"],
-  pedagogicalStatus: ["candidate","rights_verified","pedagogical_review","expert_review","validated","rejected","withdrawn"],
+  pedagogicalStatus: ["candidate","candidate_pending_expert","rights_verified","pedagogical_review","expert_review","validated","rejected","withdrawn"],
   rps02Mapping: ["validated","pending_expert","not_applicable","rejected"]
 };
 for (const record of corpus.records) {
