@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
       - name: Install Playwright
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           ./node_modules/.bin/playwright install --with-deps chromium
       - name: Mirror assets through the official gallery
         run: node scripts/mirror-rps02-assets.mjs
