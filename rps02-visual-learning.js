@@ -344,12 +344,10 @@
       return;
     }
     list.innerHTML = records.map(record => {
-      const code = record.referenceLabel ? esc(record.referenceLabel) : 'Référence';
-      const source = esc(record.sourceName || 'Source non précisée');
+      const reference = esc(record.internalId || 'Référence');
       const status = esc(record.pedagogicalStatus || 'non validé');
       return `<article class="rps02-corpus-item">
-        <strong>${code}</strong>
-        <small>${source}</small>
+        <strong>Photo ${reference}</strong>
         <small>Statut pédagogique : ${status}</small>
       </article>`;
     }).join('');
