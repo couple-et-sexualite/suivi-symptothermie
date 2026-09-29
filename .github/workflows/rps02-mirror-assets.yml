@@ -1,8 +1,5 @@
 name: RPS-02 local asset mirror
 on:
-  push:
-    branches:
-      - fix/rps02-photo-mirror-browser
   pull_request:
     branches:
       - main
