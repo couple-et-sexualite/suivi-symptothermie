@@ -26,7 +26,7 @@ test('RPS-02 corpus remains unvalidated until expert mapping and local asset mir
     assert.equal(record.rps02Mapping, 'pending_expert');
     assert.equal(record.pedagogicalStatus, 'candidate');
     assert.equal(record.rightsStatus, 'documented');
-    assert.equal(record.license);
+    assert.ok(record.license);
     assert.equal(record.attributionRequired, true);
   }
 });
