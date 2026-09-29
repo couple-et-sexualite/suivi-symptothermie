@@ -54,16 +54,22 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     expect(await corpus.innerText()).not.toMatch(/10CK|10C|6CK|8CKG|10CKG|6K|10K|8K/);
   });
 
-  test('the comparison result only repeats observations selected by the user', async ({ page }) => {
+  test('the comparison step displays the real local photos without source labels', async ({ page }) => {
     await page.goto('/');
     const workshop = page.locator('#rps02-visual-workshop');
-    await workshop.locator('[data-group="transparency"] button[data-value="transparent"]').click();
-    await workshop.locator('[data-group="appearance"] button[data-value="watery"]').click();
     await workshop.locator('[data-next="2"]').click();
-    await workshop.locator('.rps02-example[data-example="transparent"]').click();
+    const photos = workshop.locator('.rps02-photo-example');
+    await expect(photos).toHaveCount(9);
+    await expect(photos.first().locator('img')).toBeVisible();
+    await expect(photos.first().locator('img')).toHaveAttribute('src', /data\/rps02-blind-assets\/RPS02-A01\.jpg/);
+
+    await photos.first().click();
+    await expect(photos.first()).toHaveAttribute('aria-pressed', 'true');
     await workshop.locator('[data-next="3"]').click();
+
     const feedback = workshop.locator('#rps02-feedback');
-    await expect(feedback).toContainText('transparent');
+    await expect(feedback).toContainText('Photo A01');
+    expect(await feedback.innerText()).not.toMatch(/10CK|10C|6CK|8CKG|10CKG|6K|10K|8K/);
     expect(await feedback.innerText()).not.toMatch(/vous ovulez|vous êtes fertile|c'est votre glaire fertile/i);
   });
 });
