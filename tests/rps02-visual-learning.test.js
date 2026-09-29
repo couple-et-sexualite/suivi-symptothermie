@@ -19,12 +19,12 @@ test('RPS-02 visual workshop keeps observation descriptive and local-first', () 
 });
 
 test('RPS-02 corpus remains unvalidated until expert mapping and local asset mirroring', () => {
-  assert.equal(corpus.productionStatus, 'pilot_external_references_pending_local_asset_mirroring');
+  assert.equal(corpus.productionStatus, 'local_mirror_complete_pending_expert_validation');
   assert.ok(Array.isArray(corpus.records));
   assert.ok(corpus.records.length >= 9);
   for (const record of corpus.records) {
     assert.equal(record.rps02Mapping, 'pending_expert');
-    assert.equal(record.pedagogicalStatus, 'candidate');
+    assert.equal(record.pedagogicalStatus, 'candidate_pending_expert');
     assert.equal(record.rightsStatus, 'documented');
     assert.ok(record.license);
     assert.equal(record.attributionRequired, true);
