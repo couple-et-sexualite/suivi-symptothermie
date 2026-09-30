@@ -36,7 +36,7 @@
       "internalId": "A01",
       "sourceImageOrder": 1,
       "localAssetPath": "./rps02-blind-assets/RPS02-A01.jpg",
-      "sha256": "a282fccd38b59d18e6fdc729907511858d6ee132663dcdaf000994dbd5fc1d2b"
+      "sha256": "04041963b975244ecce14723ae1906d0945bd2d29ce009e9ab0d35789f161794"
     },
     {
       "imageId": "justisse-8k",
@@ -71,7 +71,7 @@
       "internalId": "A02",
       "sourceImageOrder": 3,
       "localAssetPath": "./rps02-blind-assets/RPS02-A02.jpg",
-      "sha256": "1516222107394788d96b96e67080b7481e00a107ef7a030cf2c67792454190d5"
+      "sha256": "e69a696ec58c5056089bc1d8ea76c2ad501b2ed3524b9911a10120fb7d27f923"
     },
     {
       "imageId": "justisse-6ckg",
@@ -106,7 +106,7 @@
       "internalId": "A03",
       "sourceImageOrder": 4,
       "localAssetPath": "./rps02-blind-assets/RPS02-A03.jpg",
-      "sha256": "2567b1cf9fbcb8d90eb016f147bfdc6a19eb38935ee3acf59c70f2774e78894a"
+      "sha256": "f63755f33911812dacddd22e4e1142e9c154378dc412b117c47485302f86fc43"
     },
     {
       "imageId": "justisse-8ckg",
@@ -141,7 +141,7 @@
       "internalId": "A04",
       "sourceImageOrder": 5,
       "localAssetPath": "./rps02-blind-assets/RPS02-A04.jpg",
-      "sha256": "f380b4ee15aad8e775abcc734f6d3bfc69acf0715894b761355e6944b8c15dab"
+      "sha256": "ba0842379dc40a92f40549fcdc1b55058737eaf168ad28c5ad4ba4be6c6cee54"
     },
     {
       "imageId": "justisse-10ckg",
@@ -176,7 +176,7 @@
       "internalId": "A05",
       "sourceImageOrder": 6,
       "localAssetPath": "./rps02-blind-assets/RPS02-A05.jpg",
-      "sha256": "39d2f22ce998202f9e5d78d7ab0ffd55b7b9217eb3990c34eab85a81a80640ff"
+      "sha256": "7810060d3a7c27d6accc2a28269fe05f20fa13fe57f3e71a1f112881aaa3a36a"
     },
     {
       "imageId": "justisse-6k",
@@ -211,7 +211,7 @@
       "internalId": "A06",
       "sourceImageOrder": 7,
       "localAssetPath": "./rps02-blind-assets/RPS02-A06.jpg",
-      "sha256": "25657c815efd77b5dcb1a44cfdb706321313d5e6fb8c0e75a8d3a092b8af585a"
+      "sha256": "012ee3aea1ec573139ec4a30d3ce75ad10e490533ed432134a4bf92859f44bd5"
     },
     {
       "imageId": "justisse-10c-01",
@@ -246,7 +246,7 @@
       "accessDate": "2026-09-29",
       "internalId": "A07",
       "localAssetPath": "./rps02-blind-assets/RPS02-A07.jpg",
-      "sha256": "72558de7167b67e6da7e6334250cd66b774f172c5daa11c77282cd04c7df6bba"
+      "sha256": "284611add1ede4c4af272d4fb1037be1e671fb6d59a72a8276967367423a166d"
     },
     {
       "imageId": "justisse-10k-clear-stretchy",
@@ -281,7 +281,7 @@
       "internalId": "A08",
       "sourceImageOrder": 12,
       "localAssetPath": "./rps02-blind-assets/RPS02-A08.jpg",
-      "sha256": "7ffdfb34441da1e6091ad18a59d5c6fc65a9f9c879e28e9512898b303ba51ba0"
+      "sha256": "256152e7ad2eee406ed170c745cf2eba9d06136e7564daffcd07932d90b8a1d2"
     },
     {
       "imageId": "justisse-6ck-01",
@@ -316,7 +316,7 @@
       "accessDate": "2026-09-29",
       "internalId": "A09",
       "localAssetPath": "./rps02-blind-assets/RPS02-A09.jpg",
-      "sha256": "d1af89dab479daa646cd7e7bc92552310097b130f2c82d675cadc4c5cbe5970f"
+      "sha256": "e53d1d7c58d55fc612b827fbc27bd819279590b5c4ee6bfcceb279f40ea5563b"
     }
   ],
   "selectionNote": "Sélection A01-A09 figée le 29 septembre 2026 d'après l'ordre de la galerie Justisse : A01=10CK, A02=8K, A03=6CKG, A04=8CKG, A05=10CKG, A06=6K, A07=10C, A08=10K, A09=6CK.",
