@@ -13,6 +13,10 @@ test('RPS-02 visual workshop keeps observation descriptive and local-first', () 
   assert.match(visualJs, /Apparence \/ consistance/);
   assert.match(visualJs, /Transparence apparente/);
   assert.match(visualJs, /Étirement observé/);
+  assert.match(visualJs, /Ce que vos réponses peuvent évoquer/);
+  assert.match(visualJs, /Votre observation ressemble à un mucus de période fertile/);
+  assert.match(visualJs, /autour de l’ovulation/);
+  assert.match(visualJs, /ne permettent pas de dire que vous ovulez aujourd’hui/);
   assert.match(visualJs, /n.?est pas téléversée, analysée ni sauvegardée/i);
   assert.doesNotMatch(visualJs, /photo[^\n]*(fertile|fertilité|ovulation)/i);
   assert.doesNotMatch(visualJs, /10CK.*fertil/i);
