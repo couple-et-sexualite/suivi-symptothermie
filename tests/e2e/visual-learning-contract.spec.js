@@ -68,7 +68,7 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     await workshop.locator('[data-next="3"]').click();
 
     const feedback = workshop.locator('#rps02-feedback');
-    await expect(feedback).toContainText('Photo A01');
+    await expect(feedback).toContainText('photo A01');
     expect(await feedback.innerText()).not.toMatch(/10CK|10C|6CK|8CKG|10CKG|6K|10K|8K/);
     expect(await feedback.innerText()).not.toMatch(/vous ovulez|vous êtes fertile|c'est votre glaire fertile/i);
   });
