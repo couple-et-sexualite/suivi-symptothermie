@@ -173,3 +173,32 @@ test.describe('professional end-to-end and mobile QA', () => {
     if (browserName === 'chromium') expect(result.registered).toBeTruthy();
   });
 });
+
+
+test('production GitHub Pages serves and renders all RPS-02 reference images', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.goto('https://couple-et-sexualite.github.io/suivi-symptothermie/', {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000
+  });
+
+  await page.locator('nav a[href="#apprendre"]').click();
+  const compare = page.locator('#rps02-photo-compare');
+  await expect(compare).toBeVisible();
+  await expect(compare.locator('img')).toHaveCount(9, { timeout: 15000 });
+
+  const images = await compare.locator('img').evaluateAll(items => items.map(img => ({
+    src: img.currentSrc || img.src,
+    complete: img.complete,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight
+  })));
+
+  expect(images).toHaveLength(9);
+  expect(images.every(image =>
+    image.complete &&
+    image.naturalWidth > 0 &&
+    image.naturalHeight > 0 &&
+    image.src.includes('/data/rps02-blind-assets/RPS02-A')
+  )).toBeTruthy();
+});
