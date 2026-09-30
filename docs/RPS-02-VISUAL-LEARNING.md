@@ -387,10 +387,12 @@ Sorties :
 
 Il ne retourne pas :
 - diagnostic ;
-- ovulation ;
-- fertilité ;
+- confirmation d'ovulation ;
+- décision de fertilité ;
 - contraception ;
 - date de Peak.
+
+Il peut retourner un **repère pédagogique descriptif** tel que « ressemble à un mucus de période fertile » ou « peut apparaître autour de l'ovulation », à condition de préciser les limites et de ne pas transformer ce repère en décision méthodologique.
 
 ## 16. Raison méthodologique
 
