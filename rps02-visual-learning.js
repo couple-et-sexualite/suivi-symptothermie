@@ -387,7 +387,7 @@
     showStep(1);
   });
 
-  const renderCorpus = records => {
+  const renderCorpus = (records, corpusUrl) => {
     const list = card.querySelector('#rps02-corpus-list');
     const compare = card.querySelector('#rps02-photo-compare');
     if (!Array.isArray(records) || !records.length) {
@@ -398,8 +398,7 @@
 
     compare.innerHTML = records.map(record => {
       const reference = esc(record.internalId || 'Référence');
-      const asset = String(record.localAssetPath || '').replace(/^\.\//, '');
-      const imagePath = `./data/${asset}`;
+      const imagePath = new URL(String(record.localAssetPath || ''), corpusUrl).href;
       return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
         <img src="${esc(imagePath)}" alt="Photo de référence ${reference}" loading="lazy">
         <strong>Photo ${reference}</strong>
@@ -424,9 +423,10 @@
     }).join('');
   };
 
-  fetch('./data/rps02-visual-corpus.json', {cache:'no-store'})
+  const corpusUrl = new URL('./data/rps02-visual-corpus.json', document.baseURI);
+  fetch(corpusUrl, {cache:'no-store'})
     .then(response => { if (!response.ok) throw new Error('corpus'); return response.json(); })
-    .then(data => renderCorpus(data.records))
+    .then(data => renderCorpus(data.records, corpusUrl))
     .catch(() => {
       card.querySelector('#rps02-corpus-list').textContent =
         'Le registre du corpus n’est pas disponible hors connexion. L’atelier reste utilisable sans les photos.';
