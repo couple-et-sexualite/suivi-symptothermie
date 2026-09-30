@@ -20,7 +20,10 @@ test('RPS-02 visual workshop keeps observation descriptive and local-first', () 
   assert.match(visualJs, /n.?est pas téléversée, analysée ni sauvegardée/i);
   assert.doesNotMatch(visualJs, /photo[^\n]*(diagnostic|contraception)/i);
   assert.doesNotMatch(visualJs, /10CK.*fertil/i);
-  assert.match(visualJs, /Justisse College Cervical Mucus Gallery/);\n  assert.match(visualJs, /CC BY-SA 4\.0/);\n  assert.match(visualJs, /creativecommons\.org\/licenses\/by-sa\/4\.0/);\n  assert.doesNotMatch(visualJs, /referenceLabel|sourceName/);
+  assert.match(visualJs, /Justisse College Cervical Mucus Gallery/);
+  assert.match(visualJs, /CC BY-SA 4\.0/);
+  assert.match(visualJs, /creativecommons\.org\/licenses\/by-sa\/4\.0/);
+  assert.doesNotMatch(visualJs, /referenceLabel|sourceName/);
 });
 
 test('RPS-02 corpus remains unvalidated until expert mapping and local asset mirroring', () => {
