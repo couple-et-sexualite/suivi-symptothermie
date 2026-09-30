@@ -400,7 +400,7 @@
       const reference = esc(record.internalId || 'Référence');
       const imagePath = new URL(String(record.localAssetPath || ''), corpusUrl).href;
       return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
-        <img src="${esc(imagePath)}" alt="Photo de référence ${reference}" loading="lazy">
+        <img src="${esc(imagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
         <strong>Photo ${reference}</strong>
         <small>Décris seulement ce que tu observes.</small>
       </button>`;

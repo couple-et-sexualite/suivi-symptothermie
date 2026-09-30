@@ -1,6 +1,8 @@
 name: RPS-02 local asset mirror
 on:
   workflow_dispatch:
+  push:
+    branches: ["fix/rps02-asset-quality"]
 permissions:
   contents: write
 jobs:
@@ -9,18 +11,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: spec/rps02-visual-learning
+          ref: fix/rps02-asset-quality
           fetch-depth: 0
+      - name: Install Node dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
       - name: Mirror assets
         run: node scripts/mirror-rps02-assets.mjs
       - name: Validate blind manifest
         run: node scripts/validate-rps02-blind-manifest.js
+      - name: Validate image dimensions and file types
+        run: |
+          set -euo pipefail
+          for f in data/rps02-blind-assets/RPS02-A0{1..9}.jpg; do
+            identify -format '%f %m %wx%h\n' "$f"
+            test "$(identify -format '%m' "$f")" = "JPEG"
+            width="$(identify -format '%w' "$f")"
+            height="$(identify -format '%h' "$f")"
+            test "$width" -ge 200
+            test "$height" -ge 200
+          done
       - name: Commit mirror
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/rps02-blind-assets data/rps02-local-asset-manifest.json
-          git diff --cached --quiet || git commit -m "RPS-02: mirror blind assets locally"
-          git push origin HEAD:spec/rps02-visual-learning
+          git diff --cached --quiet || git commit -m "RPS-02: replace page captures with source photos"
+          git push origin HEAD:fix/rps02-asset-quality
