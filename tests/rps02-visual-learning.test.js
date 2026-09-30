@@ -24,6 +24,9 @@ test('RPS-02 visual workshop keeps observation descriptive and local-first', () 
   assert.match(visualJs, /CC BY-SA 4\.0/);
   assert.match(visualJs, /creativecommons\.org\/licenses\/by-sa\/4\.0/);
   assert.doesNotMatch(visualJs, /referenceLabel|sourceName/);
+  assert.match(visualJs, /const corpusUrl = new URL\('\.\/data\/rps02-visual-corpus\.json', document\.baseURI\)/);
+  assert.match(visualJs, /new URL\(String\(record\.localAssetPath \|\| ''\), corpusUrl\)\.href/);
+  assert.doesNotMatch(visualJs, /const imagePath = `\.\/data\/\$\{asset\}`/);
 });
 
 test('RPS-02 corpus remains unvalidated until expert mapping and local asset mirroring', () => {
