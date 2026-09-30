@@ -142,7 +142,8 @@
 
     <div class="rps02-corpus">
       <h3>Corpus photographique de référence</h3>
-      <p class="learn-meta">Les photographies réelles sont conservées localement comme références ; elles ne deviennent pas des catégories SymRella tant que leur validation pédagogique n'est pas documentée. Les codes de la méthode source restent des métadonnées internes et ne sont pas des catégories SymRella.</p>
+      <p class="learn-meta">Les photographies réelles sont conservées localement comme références ; elles ne deviennent pas des catégories SymRella tant que leur validation pédagogique n'est pas documentée. Les codes de la méthode source restent des métadonnées et ne sont pas des catégories SymRella.</p>
+      <p class="learn-meta">Crédit des photographies : Justisse College Cervical Mucus Gallery — CC BY-SA 4.0. Source : <a href="https://mucus.justisse.ca/finger-testable-observations" target="_blank" rel="noreferrer">galerie Justisse</a>. Licence : <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="license noreferrer">CC BY-SA 4.0</a>. Les photographies restent soumises à leur licence ; ce crédit ne signifie pas que Justisse soutient SymRella.</p>
       <div id="rps02-corpus-list" class="rps02-corpus-list" aria-live="polite">Chargement du registre…</div>
     </div>
   `;
