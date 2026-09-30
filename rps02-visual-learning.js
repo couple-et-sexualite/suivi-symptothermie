@@ -133,9 +133,10 @@
     </section>
 
     <section class="rps02-panel" data-panel="5" hidden>
-      <h3>5. Vous progressez par observation</h3>
+      <h3>5. Ce que vos réponses peuvent évoquer</h3>
       <div id="rps02-final" class="notice"></div>
-      <p class="learn-meta">L'objectif est de mieux décrire vos propres observations, pas d'obtenir un score médical.</p>
+      <div id="rps02-interpretation" class="notice" aria-live="polite"></div>
+      <p class="learn-meta">Ce repère est pédagogique : il s'appuie sur vos observations déclarées, pas sur la reconnaissance automatique d'une photo. Il ne confirme pas à lui seul une ovulation et ne remplace pas l'interprétation d'une série d'observations du cycle.</p>
       <button class="btn btn-secondary" type="button" id="rps02-restart">Recommencer</button>
     </section>
 
@@ -232,6 +233,79 @@
     stretch: selectedLabel('stretch', stretchLabels)
   });
 
+  const buildInterpretation = () => {
+    const raw = {
+      sensation: selected('sensation'),
+      appearance: selected('appearance'),
+      transparency: selected('transparency'),
+      stretch: selected('stretch')
+    };
+
+    const unknownCount = Object.values(raw).filter(value =>
+      value === 'unknown' || value === 'uncertain'
+    ).length;
+
+    if (unknownCount >= 3 || raw.appearance === 'mixed') {
+      return {
+        title: 'Observation encore difficile à interpréter',
+        body: 'Vos réponses ne donnent pas assez de caractéristiques concordantes pour rapprocher cette observation d’un profil précis.',
+        detail: 'Ce n’est pas une mauvaise réponse : dans ce cas, l’apprentissage consiste à continuer à observer la sensation et l’apparence séparément.'
+      };
+    }
+
+    const lubricativeSensation = ['lubricative', 'wet'].includes(raw.sensation);
+    const moistSensation = ['moist', 'lubricative', 'wet'].includes(raw.sensation);
+    const visuallyFluid = ['watery', 'stretchy'].includes(raw.appearance);
+    const clearAppearance = ['transparent', 'translucent'].includes(raw.transparency);
+    const clearlyStretchy = raw.stretch === 'clear' || raw.appearance === 'stretchy';
+
+    const fertileLikeSignals = [
+      lubricativeSensation,
+      visuallyFluid,
+      clearAppearance,
+      clearlyStretchy
+    ].filter(Boolean).length;
+
+    if (fertileLikeSignals >= 3) {
+      return {
+        title: 'Votre observation ressemble à un mucus de période fertile',
+        body: 'Plusieurs caractéristiques que vous avez décrites — sensation humide/lubrifiée, aspect fluide ou filant, transparence et/ou étirement — correspondent à des caractéristiques classiquement associées à la période fertile.',
+        detail: 'Ce profil peut apparaître autour de l’ovulation. Mais ces réponses seules ne permettent pas de dire que vous ovulez aujourd’hui ni de fixer le jour de l’ovulation. Pour une interprétation symptothermique, il faut replacer cette observation dans la suite du cycle et la croiser avec les autres signes pertinents.'
+      };
+    }
+
+    if (
+      (moistSensation && visuallyFluid) ||
+      (clearAppearance && clearlyStretchy) ||
+      (lubricativeSensation && clearAppearance)
+    ) {
+      return {
+        title: 'Votre observation présente des caractéristiques pouvant évoluer vers un profil fertile',
+        body: 'Certaines caractéristiques que vous avez décrites sont compatibles avec une évolution du mucus vers une observation plus fertile.',
+        detail: 'Cela peut se produire avant ou autour de l’ovulation, mais une observation isolée ne permet pas de déterminer où vous vous trouvez exactement dans le cycle.'
+      };
+    }
+
+    if (
+      ['dry', 'smooth'].includes(raw.sensation) &&
+      ['sticky', 'creamy'].includes(raw.appearance) &&
+      ['opaque', 'translucent'].includes(raw.transparency) &&
+      ['none', 'little', 'unknown', 'uncertain'].includes(raw.stretch)
+    ) {
+      return {
+        title: 'Votre observation ressemble davantage à un profil moins fertile',
+        body: 'Les caractéristiques décrites sont plutôt sèches/lisses ou épaisses et peu étirables, sans ensemble marqué de signes fluides, transparents ou nettement étirables.',
+        detail: 'Cela ne suffit toutefois pas à déclarer un jour infertile : l’interprétation d’une phase du cycle dépend de la série d’observations et des règles de la méthode.'
+      };
+    }
+
+    return {
+      title: 'Votre observation présente un profil intermédiaire ou variable',
+      body: 'Vos réponses montrent certaines caractéristiques, mais pas un ensemble suffisamment concordant pour rapprocher clairement cette observation d’un profil fertile ou moins fertile.',
+      detail: 'Continuez à noter séparément la sensation, l’apparence, la transparence et l’étirement. L’évolution de plusieurs jours est plus informative qu’une observation isolée.'
+    };
+  };
+
   const updateFeedback = () => {
     const feedback = card.querySelector('#rps02-feedback');
     const choice = state.visualChoice;
@@ -240,7 +314,7 @@
       return;
     }
     feedback.textContent =
-      `Tu as sélectionné la photo ${choice}. Observe uniquement ce qui est visible : couleur, texture, transparence, quantité apparente et éventuel étirement. La photo ne permet pas de déduire une sensation, une phase du cycle, l’ovulation ou la fertilité.`;
+      `Tu as sélectionné la photo ${choice}. Observe uniquement ce qui est visible : couleur, texture, transparence, quantité apparente et éventuel étirement. La photo ne permet pas de déduire une sensation, une phase du cycle ou un événement d’ovulation.`;
   };
 
   const updateSummary = () => {
@@ -292,8 +366,11 @@
 
   const completeProgress = () => {
     try { localStorage.setItem(state.progressKey, '1'); } catch (error) { /* local-first best effort */ }
+    const interpretation = buildInterpretation();
     card.querySelector('#rps02-final').textContent =
-      'Exercice terminé. Tu as pratiqué la description, la comparaison et la conservation de l’incertitude. Aucune conclusion de fertilité ou de santé n’a été produite.';
+      'Exercice terminé. Voici ce que tes réponses évoquent dans une perspective pédagogique :';
+    card.querySelector('#rps02-interpretation').innerHTML =
+      `<strong>${esc(interpretation.title)}</strong><p>${esc(interpretation.body)}</p><p>${esc(interpretation.detail)}</p>`;
   };
 
   card.querySelector('#rps02-restart').addEventListener('click', () => {
