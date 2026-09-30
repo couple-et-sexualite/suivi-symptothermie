@@ -72,4 +72,28 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     expect(await feedback.innerText()).not.toMatch(/10CK|10C|6CK|8CKG|10CKG|6K|10K|8K/);
     expect(await feedback.innerText()).not.toMatch(/vous ovulez|vous êtes fertile|c'est votre glaire fertile/i);
   });
+
+  test('the questionnaire produces a pedagogical interpretation of a fertile-like observation', async ({ page }) => {
+    await page.goto('/');
+    const workshop = page.locator('#rps02-visual-workshop');
+
+    await workshop.locator('[data-group="sensation"] button[data-value="lubricative"]').click();
+    await workshop.locator('[data-group="appearance"] button[data-value="stretchy"]').click();
+    await workshop.locator('[data-group="transparency"] button[data-value="transparent"]').click();
+    await workshop.locator('[data-group="stretch"] button[data-value="clear"]').click();
+
+    await workshop.locator('[data-next="2"]').click();
+    await workshop.locator('[data-next="3"]').click();
+    await workshop.locator('[data-next="4"]').click();
+    await workshop.locator('[data-next="5"]').click();
+
+    const result = workshop.locator('#rps02-interpretation');
+    await expect(result).toContainText('Votre observation ressemble à un mucus de période fertile');
+    await expect(result).toContainText('autour de l’ovulation');
+    await expect(result).toContainText('ne permettent pas de dire que vous ovulez aujourd’hui');
+    await expect(result).not.toContainText('10CK');
+    await expect(result).not.toContainText('10C');
+    await expect(result).not.toContainText('6CK');
+  });
+
 });
