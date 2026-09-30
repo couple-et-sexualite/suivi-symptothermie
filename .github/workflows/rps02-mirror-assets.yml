@@ -13,6 +13,10 @@ jobs:
         with:
           ref: fix/rps02-asset-quality
           fetch-depth: 0
+      - name: Install Node dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
       - name: Mirror assets
