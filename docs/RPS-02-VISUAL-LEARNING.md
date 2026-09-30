@@ -50,7 +50,7 @@ CTA : « Comparer avec des exemples ».
 
 ### P2 — Comparaison
 
-Afficher au maximum 3 ou 4 exemples pédagogiquement proches.
+Afficher les 9 photos locales du corpus initial, avec une sélection libre ; le filtrage en 3 ou 4 exemples proches reste une évolution pédagogique possible après validation du corpus.
 
 Pour chaque exemple :
 - image ;
