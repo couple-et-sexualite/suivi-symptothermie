@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
   "purpose": "Corpus de référence de 9 photos Justisse pour apprentissage visuel RPS-02. Les codes de la méthode source restent des métadonnées et ne sont pas des catégories SymRella.",
-  "productionStatus": "pilot_external_references_pending_local_asset_mirroring",
+  "productionStatus": "local_mirror_complete_pending_expert_validation",
   "records": [
     {
-      "imageId": "justisse-10c-01",
+      "imageId": "justisse-10ck-01",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sxUeGvOG_dpK15pAO3lBHuPw7w_zCsf9yaSOzfM1lAyzctb4DG_Redc9jVgab76Lh8NPA2l9GhxlZBAR-DgPK8s_x3-ADbIIjYpWyuwoPSbEGXhS7PuPESqaIuXObPFsbxdpuSSVV0BSK56hKruFzbLlq6eitNKXFAEoY1EQdFl75FoYloia4eHcHu3uO-C6NfYILPYZ8rW7oDnLhzVMynDbzr2xn2dlp6RzgUr4o=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v--0c0ROp0PoUcCQLyB_ldFyUAw7XURYZ7qi3SzYYTFynaXQpUBa9PQNuqwoAPhphuYuKz9Kc17cqqWjRzRF1JBjny4tLZgtGEyC5qpVYAP6bOvRbJ6LvslUt7PGXAostn8-flQJI8l0sdw1xQ86xKlggSuErkCfEO33lXRIOVmfn7PE4q7eLEbvV2LHc=w16383",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -18,7 +18,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Le code 10CK appartient à la méthode Justisse et ne doit pas être affiché comme une catégorie SymRella.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -33,14 +33,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A01"
+      "internalId": "A01",
+      "sourceImageOrder": 1,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A01.jpg",
+      "sha256": "a282fccd38b59d18e6fdc729907511858d6ee132663dcdaf000994dbd5fc1d2b"
     },
     {
       "imageId": "justisse-8k",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72u5bF-Bn1qbTbJI_jKmjVPTOnY-iZ_eItZWe0GdYFPZLhLfvbAL_05__Qp5Rqg-umpj1t7L_RQ7QtXpcTDHs8Ioar1yztRd9tt4ySouxcBAawNwlg1gUN0wtUFjIsMSey51y0vOHpwEUB6iU29nloxeFEj97F3RlxlJQ2ZITKbokxMDydwb_YrCJ2uTXKrEfB7utDhITHMVgMIqkuf5KXQa6C-6XjJfi_rts0grkDY=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vUocbUEInQz-zgeCNPdXTcSIX7IiHlDCsebnVCv3nkZLLhxFdWdcqziuuxD7_CFINwTcbnkEX_rWsKOhtweCJfi1gGLpv-elEmMhX8Y09xx5jDp1WjYPkdHBFlybNM1RPyBjuv2zoJA4QHa6BCQnIbcCU17kvFyVgI-7LDLLF4AxO7s00Wy7PqNLsXKFV7khvCmfngerx1CdRiO5QnsAr-PY8wQTKPB1h0DqqsYpY=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -50,7 +53,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -65,14 +68,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A02"
+      "internalId": "A02",
+      "sourceImageOrder": 3,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A02.jpg",
+      "sha256": "1516222107394788d96b96e67080b7481e00a107ef7a030cf2c67792454190d5"
     },
     {
       "imageId": "justisse-6ckg",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sKStYJhYS6YilYdsv0jYve3SaMxVFpPHhUj-ZS3tYMnMprPrvUdcXYrmCxrT2_okSjSwGPwXuqCVYW_hzOm2GSwjEGtwQvRamJwZOAVg1kcVsevkELdXgCB3kEdH8GI2isCRIQ-QGD9Fnbvjxo09qI2G2lAT0mh-shpCQkVutCJWtD7DSkabCfCOmGXubGRqdpAEjgm3D8L5QA8_ui_SPzbm-DwCIdtz9KTi8fNLU=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uXQuaccS8jume5WiwbBxRNM9poI6stjGVWcHo0HEltKY7ZqfHBZLIwXj1DHFwckNKX62QyKQU12_3waeMAmgNCIb_JTQMcTaE3pbzYUsiyTc2cjfELvbUHbJlNPTN_6LXa5xr66on96HL-HvYcJf6Is3Po_HjYJo56jwpw51UUJhutMSjm8YRhI4sIW8Wa3G0rG63lR60BI3yiudNASSbMIexiBZhaZDngF4rtR8o=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -82,7 +88,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -97,14 +103,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A03"
+      "internalId": "A03",
+      "sourceImageOrder": 4,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A03.jpg",
+      "sha256": "2567b1cf9fbcb8d90eb016f147bfdc6a19eb38935ee3acf59c70f2774e78894a"
     },
     {
       "imageId": "justisse-8ckg",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72trqAj4Fp3aEXcEo9_VXDsJEuOuzshp9qtv7SZyrJvS2tvEd7KwC6kjVObsKWOPXeIA0o_x_I3EKmgkog82opiX7wn8uFSJ7sx2FmvsOCdMuCACZlDIip_UhwgYNMaxRbU2Y1TDLaYvkFHCE5mS8fcjOR9paXKhl0iBt17Fk2JEnO93z-qsp5jtNZ5SepGECBIN1gQFuicdm61Hfzp3YO7Lla7wDUhMy8DY3YEBIQY=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tK6GuD3d6l1aUeDoZYBhIThIfT31DEbTXlAE6_chmnsv38Y9UrPteJWT-l8xANjdei43FFjRnU0DxysUhQjKLHR06qz-bwI48UGpn5kJEiSNP0u65oSTOexhbGmW7hYF1INwsEx66KWcblSX9n9GgtoPl120qXvfsa-0kCJ9z9BOMc6MY7i1OXkaLZFWTsBVC5SBJNp7B4j5p8tlwjdfnyzWF480yfPluuA6CTL38=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -114,7 +123,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -129,14 +138,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A04"
+      "internalId": "A04",
+      "sourceImageOrder": 5,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A04.jpg",
+      "sha256": "f380b4ee15aad8e775abcc734f6d3bfc69acf0715894b761355e6944b8c15dab"
     },
     {
       "imageId": "justisse-10ckg",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vwJ5mr8-lVejPP1kg9waQD18Sh-qvlKXKSoym7pvfkOoYU1XmdGak1gtLwfl51gk9F6PSq7xI4dOUdnR9hrsKQR9Lvuj304HMBJKWtp_ezMDDba9d-ry_6oi805MdUzxXCcFbCAx45KTp-Kej9QlEQOJZ9i95VdukM_BsN9Zo83lIRJGzmiSjwxOfqOuX8T_0YAioLgcBedkuE36gItwgqXV9xObRCIHMX7q6R=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vIoC40Yqzgz3JylxDGoajI8djtStPujPNKnTncKiQmVWqwxmxgJsPdRU72Vbrxp53ByuHzLsbIam4edNS845_A8Raa87R-ZlzPO-pUKFQL51DHPuFKLPXJ3wXmpJt1jEAASFZuf0F2_9YnRf_UQSOKPwcCGvv2Ea5jQw0FqBcsVdrccxT_HHynYb-qicVUEN7qxeb1oXeV2c4XlJ3880CGSpEdDVVRaliAA2ep49s=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -146,7 +158,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -161,14 +173,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A05"
+      "internalId": "A05",
+      "sourceImageOrder": 6,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A05.jpg",
+      "sha256": "39d2f22ce998202f9e5d78d7ab0ffd55b7b9217eb3990c34eab85a81a80640ff"
     },
     {
       "imageId": "justisse-6k",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sPKQrMzePHT1zuD_F9Ji0wb4zBqDn5dPeMWmRCEWeIBjpX-f06Eo3SRS61wpEM8DbL4JQBp6QnG2TDGx-Eyh1pRwyngJ2LTlFi4RcbaI_wygc68mMO33FpM0RXBdGYFjRpNa6Qe0eeeJVVbsLSryehr1JtjaMgMXxsobncpZTnglHn4QTAWkQIVrCZlfbvm9mTiyVM0hfXHh6iV0A0Pa8J8FuFx_OLt8EJIxdN98A=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vgErB21U_4VC3AG_fGnWf3GoYZ3Fsqhwuau4IORuqRpZoXvAP3jTuTufL3R4Yzc9WRez56e0Rm3d5dYiwrcGMI_qBUkUiECVQ3YNGWw_e_H2MR7MqjGtqL3jn2L3P-qzy5JSuQycvZ_Be5KQS_nNdu6qPev3RM68aNarIP728FnZkKW4wE3hnnpmC15yeGIIA0G3PQBMBV_5zy5iJf8tmqrukf-bcZkn7UBD-z=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -178,7 +193,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -193,14 +208,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A06"
+      "internalId": "A06",
+      "sourceImageOrder": 7,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A06.jpg",
+      "sha256": "25657c815efd77b5dcb1a44cfdb706321313d5e6fb8c0e75a8d3a092b8af585a"
     },
     {
       "imageId": "justisse-10c-01",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uhP49SKZynZ7ue1XRI6EGlUndR_1yabUe3EENFgN2qA_rDN55KrDZiNOf0BYNDfBx9LK5T5WSG1YDQF14aVMm7RTRdF1K07GMqNhD42mVpDM7McTlskn0iuwSyv56IerTU5sS9jrouw9i9QMsjNFCvtvAU6Ehhg3zpMIoOPj0aB4SeTp8CHYXbEAMCddBQmVx2uINaMzDNGYgiLeCtGI6z6gcU_1yN4bmHfRH%3Dw1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sywkYEB__exJu-Hv6G4UBS9KZ6yO_nnvlYwYREJtVvSauUn3dxOLm255nxZvEU_WHyPnG9aHYUlAgF3fo8PMcVgs8kvlNnBdbzu7GabodkhrMrEkuBRoEgzt31PLLCGuFMIpKFx3n5tNTg2e9Lxf96fkijjcH0-ehUmUufO1hpRt6-utws_XpWJ9F5gs3FOsUDKdqlYpm1RSat5m2sVzvWAlZFb1myfUhNf-4lCA4=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -210,7 +228,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement; ne constitue pas une catégorie SymRella.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -224,16 +242,18 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "sourceImageOrder": 7,
+      "sourceImageOrder": 8,
       "accessDate": "2026-09-29",
-      "internalId": "A07"
+      "internalId": "A07",
+      "localAssetPath": "./rps02-blind-assets/RPS02-A07.jpg",
+      "sha256": "72558de7167b67e6da7e6334250cd66b774f172c5daa11c77282cd04c7df6bba"
     },
     {
       "imageId": "justisse-10k-clear-stretchy",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uctiC-PDIC9rEz3Q-U_BTFIGjl89l7JCo__tIEo68kY6ppiCii_BB1tfrxJ0PUPbAqrNAzQQNyCDaMPT4y1ei4wVZuCqkFXTA559vJsgGTtbJq2gEI1_hSy0iX9JRzTV9WLaG2a1mn1Jvxsw7N86ChsjrS7cFp1vx1bag0ihoDBS1TjZoWHYqh-e4FWNMjnxAQRwcIpYga5myOQJVdpwzTLwciWhmFrfIhJpzHPyw=w1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v60tLbN7uKsZk3YuH5YbeNC4dSC0G09ZF0Xh2jtDrcPPImmr4ZIhmllAnKIxaOwmHkNvlMnovosobQ1tMVZRZP_a3XjWN02_NRQXuIk8chEYRPjcrA6gkd78vPBaz8Ib71WY2uQNPPyEz-6b090buBlrnB0tX61N9kMIURBa2GxGsnPBuhmVDK2rfYYznbHeUckdDNsET2otUdcqAk3yCNBu-4fpKynA3psw4dZaU=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -243,7 +263,7 @@
       "teachingPurpose": "exemple réel décrit par la source comme clair, étirable et glissant",
       "limitations": "La description est celle de la source Justisse; elle ne constitue pas une règle SymRella.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -258,14 +278,17 @@
       "modificationAllowed": true,
       "attributionRequired": true,
       "accessDate": "2026-09-28",
-      "internalId": "A08"
+      "internalId": "A08",
+      "sourceImageOrder": 12,
+      "localAssetPath": "./rps02-blind-assets/RPS02-A08.jpg",
+      "sha256": "7ffdfb34441da1e6091ad18a59d5c6fc65a9f9c879e28e9512898b303ba51ba0"
     },
     {
       "imageId": "justisse-6ck-01",
       "sourceType": "licensed_external",
       "sourceName": "Justisse College Cervical Mucus Gallery",
       "sourceUrl": "https://mucus.justisse.ca/finger-testable-observations",
-      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vh5yOn4gOulADBaH-YaGZBZLeohVrMV4bTQCIlJWqpgQTV5mIRxdG1b5yunY1d5Lu07NHm8CuBuFbJEpL2CYkA4PR4kKQfkw6Gj9NKsa7FwzqxdWrpAYDLcoYiEYGk-kMPohdwjAAJ6dHzcp5H90h1el3gClelBRzD5HUNJA_OU1TxDt7uVjm3aR1IefQOR9z_aO_CpX6UUpA9aGcAWV25IIDD5eIuEgnK56RPVB%3Dw1280",
+      "assetUrl": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tho1s4jbZ9RwDkobYtxor4JIjDJph_Zd0JsfbVm_k7X-GztcB6xt8ZH84pg09o3eX6Jmwnml594uVpd6T-IuOpBKLISBvEzZW0JQALgJl0ThIovEEE41L7StbP7IJpDcM5ckDKsnWCuZ_bse5Mzv1CpNS-tV-ESSInQHMdUdK_05tYPE1aj6axJr6RDtU2d_9FfmfHfZJPzrkckEEf_-7tnfGjitOLw-cLV-3NbLQ=w1280",
       "creator": "Justisse College Cervical Mucus Gallery contributors",
       "license": "CC BY-SA",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -275,7 +298,7 @@
       "teachingPurpose": "photo réelle; comparaison visuelle",
       "limitations": "Notation source Justisse uniquement; ne constitue pas une catégorie SymRella.",
       "rightsStatus": "documented",
-      "pedagogicalStatus": "candidate",
+      "pedagogicalStatus": "candidate_pending_expert",
       "consentStatus": "not_required",
       "qualityStatus": "uncertain",
       "mappedFeatures": {
@@ -289,10 +312,13 @@
       "commercialUse": true,
       "modificationAllowed": true,
       "attributionRequired": true,
-      "sourceImageOrder": 12,
+      "sourceImageOrder": 13,
       "accessDate": "2026-09-29",
-      "internalId": "A09"
+      "internalId": "A09",
+      "localAssetPath": "./rps02-blind-assets/RPS02-A09.jpg",
+      "sha256": "d1af89dab479daa646cd7e7bc92552310097b130f2c82d675cadc4c5cbe5970f"
     }
   ],
-  "selectionNote": "Sélection A01-A09 figée le 29 septembre 2026 d'après l'ordre de la galerie Justisse : A01=10CK, A02=8K, A03=6CKG, A04=8CKG, A05=10CKG, A06=6K, A07=10C, A08=10K, A09=6CK."
+  "selectionNote": "Sélection A01-A09 figée le 29 septembre 2026 d'après l'ordre de la galerie Justisse : A01=10CK, A02=8K, A03=6CKG, A04=8CKG, A05=10CKG, A06=6K, A07=10C, A08=10K, A09=6CK.",
+  "accessDate": "2026-09-29"
 }

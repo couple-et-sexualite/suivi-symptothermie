@@ -95,27 +95,8 @@
     <section class="rps02-panel" data-panel="2" hidden>
       <h3>2. Comparer sans chercher le « bon nom »</h3>
       <p>Regardez seulement les caractéristiques visuelles. Votre sensation ne peut pas être déduite d'une photo.</p>
-      <div class="rps02-compare-grid">
-        <button type="button" class="rps02-example" data-example="opaque" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-opaque" aria-hidden="true"></span>
-          <strong>Plutôt opaque</strong>
-          <span>Peu ou pas de transparence apparente.</span>
-        </button>
-        <button type="button" class="rps02-example" data-example="translucent" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-translucent" aria-hidden="true"></span>
-          <strong>Plutôt translucide</strong>
-          <span>La lumière semble passer partiellement.</span>
-        </button>
-        <button type="button" class="rps02-example" data-example="transparent" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-transparent" aria-hidden="true"></span>
-          <strong>Plutôt transparent</strong>
-          <span>Aspect clair avec transparence apparente.</span>
-        </button>
-        <button type="button" class="rps02-example" data-example="stretchy" aria-pressed="false">
-          <span class="rps02-swatch rps02-swatch-stretchy" aria-hidden="true"></span>
-          <strong>Plutôt étirable</strong>
-          <span>Un fil peut sembler se former lorsqu'il est étiré.</span>
-        </button>
+      <div id="rps02-photo-compare" class="rps02-photo-compare" aria-live="polite">
+        Chargement des photographies de référence…
       </div>
       <button class="btn btn-secondary" type="button" id="rps02-none">Aucune ne correspond</button>
       <div class="actions">
@@ -152,15 +133,17 @@
     </section>
 
     <section class="rps02-panel" data-panel="5" hidden>
-      <h3>5. Vous progressez par observation</h3>
+      <h3>5. Ce que vos réponses peuvent évoquer</h3>
       <div id="rps02-final" class="notice"></div>
-      <p class="learn-meta">L'objectif est de mieux décrire vos propres observations, pas d'obtenir un score médical.</p>
+      <div id="rps02-interpretation" class="notice" aria-live="polite"></div>
+      <p class="learn-meta">Ce repère est pédagogique : il s'appuie sur vos observations déclarées, pas sur la reconnaissance automatique d'une photo. Il ne confirme pas à lui seul une ovulation et ne remplace pas l'interprétation d'une série d'observations du cycle.</p>
       <button class="btn btn-secondary" type="button" id="rps02-restart">Recommencer</button>
     </section>
 
     <div class="rps02-corpus">
       <h3>Corpus photographique de référence</h3>
-      <p class="learn-meta">Les photographies réelles sont conservées comme références externes tant qu'elles n'ont pas été validées et copiées localement. Les codes de la méthode source restent des métadonnées internes et ne sont pas des catégories SymRella.</p>
+      <p class="learn-meta">Les photographies réelles sont conservées localement comme références ; elles ne deviennent pas des catégories SymRella tant que leur validation pédagogique n'est pas documentée. Les codes de la méthode source restent des métadonnées et ne sont pas des catégories SymRella.</p>
+      <p class="learn-meta">Crédit des photographies : Justisse College Cervical Mucus Gallery — CC BY-SA 4.0. Source : <a href="https://mucus.justisse.ca/finger-testable-observations" target="_blank" rel="noreferrer">galerie Justisse</a>. Licence : <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="license noreferrer">CC BY-SA 4.0</a>. Les photographies restent soumises à leur licence ; ce crédit ne signifie pas que Justisse soutient SymRella.</p>
       <div id="rps02-corpus-list" class="rps02-corpus-list" aria-live="polite">Chargement du registre…</div>
     </div>
   `;
@@ -180,11 +163,12 @@
     #rps02-visual-workshop .rps02-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
     #rps02-visual-workshop .rps02-example{display:flex;flex-direction:column;gap:6px}
     #rps02-visual-workshop .rps02-example span:last-child{font-size:.85rem;color:var(--text-muted)}
-    #rps02-visual-workshop .rps02-swatch{height:70px;border-radius:8px;border:1px solid var(--border)}
-    #rps02-visual-workshop .rps02-swatch-opaque{background:#eee}
-    #rps02-visual-workshop .rps02-swatch-translucent{background:linear-gradient(135deg,#eef8f8,#cfe2e2)}
-    #rps02-visual-workshop .rps02-swatch-transparent{background:linear-gradient(135deg,#fff,#d8eef4)}
-    #rps02-visual-workshop .rps02-swatch-stretchy{background:linear-gradient(90deg,#f8ffff,#cbe8ee,#fff)}
+    #rps02-visual-workshop .rps02-photo-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+    #rps02-visual-workshop .rps02-photo-example{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;text-align:left;cursor:pointer}
+    #rps02-visual-workshop .rps02-photo-example[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:1px}
+    #rps02-visual-workshop .rps02-photo-example img{display:block;width:100%;height:150px;object-fit:contain;border-radius:7px;background:var(--bg);border:1px solid var(--border)}
+    #rps02-visual-workshop .rps02-photo-example strong{display:block;margin-top:7px}
+    #rps02-visual-workshop .rps02-photo-example small{display:block;color:var(--text-muted);margin-top:3px}
     #rps02-visual-workshop .rps02-photo-preview{display:block;max-width:100%;max-height:280px;margin-top:10px;border:1px solid var(--border);border-radius:12px;object-fit:contain;background:var(--bg)}
     #rps02-visual-workshop .rps02-corpus{margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
     #rps02-visual-workshop .rps02-corpus-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -193,7 +177,7 @@
     #rps02-visual-workshop .rps02-corpus-item small{display:block;color:var(--text-muted);margin-top:4px}
     @media(min-width:700px){
       #rps02-visual-workshop .rps02-options{grid-template-columns:repeat(3,minmax(0,1fr))}
-      #rps02-visual-workshop .rps02-compare-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      #rps02-visual-workshop .rps02-photo-compare{grid-template-columns:repeat(3,minmax(0,1fr))}
       #rps02-visual-workshop .rps02-corpus-list{grid-template-columns:repeat(3,minmax(0,1fr))}
     }
   `;
@@ -250,18 +234,88 @@
     stretch: selectedLabel('stretch', stretchLabels)
   });
 
+  const buildInterpretation = () => {
+    const raw = {
+      sensation: selected('sensation'),
+      appearance: selected('appearance'),
+      transparency: selected('transparency'),
+      stretch: selected('stretch')
+    };
+
+    const unknownCount = Object.values(raw).filter(value =>
+      value === 'unknown' || value === 'uncertain'
+    ).length;
+
+    if (unknownCount >= 3 || raw.appearance === 'mixed') {
+      return {
+        title: 'Observation encore difficile à interpréter',
+        body: 'Vos réponses ne donnent pas assez de caractéristiques concordantes pour rapprocher cette observation d’un profil précis.',
+        detail: 'Ce n’est pas une mauvaise réponse : dans ce cas, l’apprentissage consiste à continuer à observer la sensation et l’apparence séparément.'
+      };
+    }
+
+    const lubricativeSensation = ['lubricative', 'wet'].includes(raw.sensation);
+    const moistSensation = ['moist', 'lubricative', 'wet'].includes(raw.sensation);
+    const visuallyFluid = ['watery', 'stretchy'].includes(raw.appearance);
+    const clearAppearance = ['transparent', 'translucent'].includes(raw.transparency);
+    const clearlyStretchy = raw.stretch === 'clear' || raw.appearance === 'stretchy';
+
+    const fertileLikeSignals = [
+      lubricativeSensation,
+      visuallyFluid,
+      clearAppearance,
+      clearlyStretchy
+    ].filter(Boolean).length;
+
+    if (fertileLikeSignals >= 3) {
+      return {
+        title: 'Votre observation ressemble à un mucus de période fertile',
+        body: 'Plusieurs caractéristiques que vous avez décrites — sensation humide/lubrifiée, aspect fluide ou filant, transparence et/ou étirement — correspondent à des caractéristiques classiquement associées à la période fertile.',
+        detail: 'Ce profil peut apparaître autour de l’ovulation. Mais ces réponses seules ne permettent pas de dire que vous ovulez aujourd’hui ni de fixer le jour de l’ovulation. Pour une interprétation symptothermique, il faut replacer cette observation dans la suite du cycle et la croiser avec les autres signes pertinents.'
+      };
+    }
+
+    if (
+      (moistSensation && visuallyFluid) ||
+      (clearAppearance && clearlyStretchy) ||
+      (lubricativeSensation && clearAppearance)
+    ) {
+      return {
+        title: 'Votre observation présente des caractéristiques pouvant évoluer vers un profil fertile',
+        body: 'Certaines caractéristiques que vous avez décrites sont compatibles avec une évolution du mucus vers une observation plus fertile.',
+        detail: 'Cela peut se produire avant ou autour de l’ovulation, mais une observation isolée ne permet pas de déterminer où vous vous trouvez exactement dans le cycle.'
+      };
+    }
+
+    if (
+      ['dry', 'smooth'].includes(raw.sensation) &&
+      ['sticky', 'creamy'].includes(raw.appearance) &&
+      ['opaque', 'translucent'].includes(raw.transparency) &&
+      ['none', 'little', 'unknown', 'uncertain'].includes(raw.stretch)
+    ) {
+      return {
+        title: 'Votre observation ressemble davantage à un profil moins fertile',
+        body: 'Les caractéristiques décrites sont plutôt sèches/lisses ou épaisses et peu étirables, sans ensemble marqué de signes fluides, transparents ou nettement étirables.',
+        detail: 'Cela ne suffit toutefois pas à déclarer un jour infertile : l’interprétation d’une phase du cycle dépend de la série d’observations et des règles de la méthode.'
+      };
+    }
+
+    return {
+      title: 'Votre observation présente un profil intermédiaire ou variable',
+      body: 'Vos réponses montrent certaines caractéristiques, mais pas un ensemble suffisamment concordant pour rapprocher clairement cette observation d’un profil fertile ou moins fertile.',
+      detail: 'Continuez à noter séparément la sensation, l’apparence, la transparence et l’étirement. L’évolution de plusieurs jours est plus informative qu’une observation isolée.'
+    };
+  };
+
   const updateFeedback = () => {
     const feedback = card.querySelector('#rps02-feedback');
     const choice = state.visualChoice;
-    const messages = {
-      opaque:'Tu as choisi un exemple plutôt opaque. Observe surtout la transparence apparente ; ne déduis pas la sensation de cette image.',
-      translucent:'Tu as choisi un exemple plutôt translucide. Compare maintenant la quantité de lumière qui semble traverser l’observation.',
-      transparent:'Tu as choisi un exemple plutôt transparent. La transparence est une caractéristique visuelle parmi d’autres.',
-      stretchy:'Tu as choisi un exemple plutôt étirable. L’étirement visible est une caractéristique d’apparence ; il ne suffit pas à conclure sur l’ovulation ou la fertilité.',
-      none:'Aucun exemple ne te paraît suffisamment proche. C’est une réponse valable : il vaut mieux conserver l’incertitude que forcer une catégorie.',
-      null:'Tu n’as pas besoin de choisir un exemple. Tu peux comparer à nouveau ou continuer avec « je ne sais pas ».'
-    };
-    feedback.textContent = messages[choice || 'null'];
+    if (!choice) {
+      feedback.textContent = 'Tu n’as pas besoin de choisir une photo. Tu peux comparer les exemples ou continuer avec « je ne sais pas ».';
+      return;
+    }
+    feedback.textContent =
+      `Tu as sélectionné la photo ${choice}. Observe uniquement ce qui est visible : couleur, texture, transparence, quantité apparente et éventuel étirement. La photo ne permet pas de déduire une sensation, une phase du cycle ou un événement d’ovulation.`;
   };
 
   const updateSummary = () => {
@@ -280,18 +334,11 @@
     button.addEventListener('click', () => showStep(Number(button.dataset.next)));
   });
 
-  card.querySelectorAll('.rps02-example').forEach(button => {
-    button.addEventListener('click', () => {
-      card.querySelectorAll('.rps02-example').forEach(item => item.setAttribute('aria-pressed','false'));
-      button.setAttribute('aria-pressed','true');
-      state.visualChoice = button.dataset.example;
-    });
-  });
-
-  card.querySelector('#rps02-none').addEventListener('click', () => {
-    card.querySelectorAll('.rps02-example').forEach(item => item.setAttribute('aria-pressed','false'));
-    state.visualChoice = 'none';
-  });
+  const selectReferencePhoto = button => {
+    card.querySelectorAll('.rps02-photo-example').forEach(item => item.setAttribute('aria-pressed','false'));
+    button.setAttribute('aria-pressed','true');
+    state.visualChoice = button.dataset.example;
+  };
 
   let objectUrl = null;
   const photo = card.querySelector('#rps02-photo');
@@ -320,14 +367,17 @@
 
   const completeProgress = () => {
     try { localStorage.setItem(state.progressKey, '1'); } catch (error) { /* local-first best effort */ }
+    const interpretation = buildInterpretation();
     card.querySelector('#rps02-final').textContent =
-      'Exercice terminé. Tu as pratiqué la description, la comparaison et la conservation de l’incertitude. Aucune conclusion de fertilité ou de santé n’a été produite.';
+      'Exercice terminé. Voici ce que tes réponses évoquent dans une perspective pédagogique :';
+    card.querySelector('#rps02-interpretation').innerHTML =
+      `<strong>${esc(interpretation.title)}</strong><p>${esc(interpretation.body)}</p><p>${esc(interpretation.detail)}</p>`;
   };
 
   card.querySelector('#rps02-restart').addEventListener('click', () => {
     state.visualChoice = null;
     state.photoSelected = false;
-    card.querySelectorAll('.rps02-options button,.rps02-example').forEach(button => button.setAttribute('aria-pressed','false'));
+    card.querySelectorAll('.rps02-options button,.rps02-photo-example').forEach(button => button.setAttribute('aria-pressed','false'));
     photo.value = '';
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     objectUrl = null;
@@ -339,17 +389,36 @@
 
   const renderCorpus = records => {
     const list = card.querySelector('#rps02-corpus-list');
+    const compare = card.querySelector('#rps02-photo-compare');
     if (!Array.isArray(records) || !records.length) {
       list.textContent = 'Aucun enregistrement de corpus disponible.';
+      compare.textContent = 'Aucune photographie de référence disponible.';
       return;
     }
+
+    compare.innerHTML = records.map(record => {
+      const reference = esc(record.internalId || 'Référence');
+      const asset = String(record.localAssetPath || '').replace(/^\.\//, '');
+      const imagePath = `./data/${asset}`;
+      return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
+        <img src="${esc(imagePath)}" alt="Photo de référence ${reference}" loading="lazy">
+        <strong>Photo ${reference}</strong>
+        <small>Décris seulement ce que tu observes.</small>
+      </button>`;
+    }).join('');
+
+    compare.querySelectorAll('.rps02-photo-example').forEach(button => {
+      button.addEventListener('click', () => selectReferencePhoto(button));
+      button.querySelector('img').addEventListener('error', () => {
+        button.querySelector('img').alt = `Photo de référence ${button.dataset.example} indisponible`;
+      });
+    });
+
     list.innerHTML = records.map(record => {
-      const code = record.referenceLabel ? esc(record.referenceLabel) : 'Référence';
-      const source = esc(record.sourceName || 'Source non précisée');
+      const reference = esc(record.internalId || 'Référence');
       const status = esc(record.pedagogicalStatus || 'non validé');
       return `<article class="rps02-corpus-item">
-        <strong>${code}</strong>
-        <small>${source}</small>
+        <strong>Photo ${reference}</strong>
         <small>Statut pédagogique : ${status}</small>
       </article>`;
     }).join('');

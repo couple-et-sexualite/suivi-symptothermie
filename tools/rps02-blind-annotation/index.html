@@ -82,7 +82,7 @@ function download(){
 }
 document.getElementById('export').addEventListener('click',download);
 document.getElementById('save').addEventListener('click',()=>{localStorage.setItem('rps02-blind-annotations',JSON.stringify(payload()));document.getElementById('status').textContent='Sauvegarde locale effectuée.';});
-fetch(manifestUrl).then(r=>{if(!r.ok)throw new Error('manifest inaccessible');return r.json();}).then(m=>{records=m.records.map(x=>({blindImageId:x.blindImageId,assetPath:x.assetPath,annotation:{}}));render();}).catch(e=>{document.getElementById('status').textContent='Impossible de charger le jeu aveugle : '+e.message;});
+fetch(manifestUrl).then(r=>{if(!r.ok)throw new Error('manifest inaccessible');return r.json();}).then(m=>{records=m.records.map(x=>({blindImageId:x.blindImageId,assetPath:new URL(x.assetPath,new URL(manifestUrl,document.baseURI)).href,annotation:{}}));render();}).catch(e=>{document.getElementById('status').textContent='Impossible de charger le jeu aveugle : '+e.message;});
 </script>
 </body>
 </html>
