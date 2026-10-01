@@ -402,7 +402,7 @@
     imageUrl.searchParams.set('v', String(assetVersion));
     const imagePath = imageUrl.href;
       return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
-        <img src="${esc(imagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
+        <img src="${esc(imagePath)}" data-fallback-src="${esc(record.assetUrl || '')}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
         <strong>Photo ${reference}</strong>
         <small>Décris seulement ce que tu observes.</small>
       </button>`;
@@ -410,8 +410,14 @@
 
     compare.querySelectorAll('.rps02-photo-example').forEach(button => {
       button.addEventListener('click', () => selectReferencePhoto(button));
-      button.querySelector('img').addEventListener('error', () => {
-        button.querySelector('img').alt = `Photo de référence ${button.dataset.example} indisponible`;
+      button.querySelector('img').addEventListener('error', event => {
+        const image = event.currentTarget;
+        const fallback = image.dataset.fallbackSrc;
+        if (fallback && image.src !== fallback) {
+          image.src = fallback;
+          return;
+        }
+        image.alt = `Photo de référence ${button.dataset.example} indisponible`;
       });
     });
 
