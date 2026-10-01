@@ -95,3 +95,5 @@ test('static informational pages also declare restrictive CSP', () => {
     assert.ok(html.includes("object-src 'none'"));
   }
 });
+
+// RPS-02 local reference assets are restored on the PR branch.
