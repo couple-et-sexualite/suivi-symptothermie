@@ -71,7 +71,7 @@ test('PWA shell and service worker use an explicit allowlist', () => {
   assert.equal(data.scope, './');
   assert.equal(data.display, 'standalone');
   assert.ok(source.includes('navigator.serviceWorker.register("./sw.js")'));
-  assert.ok(serviceWorker.includes("const CACHE_NAME = 'symptothermie-shell-v5'"));
+  assert.ok(serviceWorker.includes("const CACHE_NAME = 'symptothermie-shell-v6'"));
   assert.ok(serviceWorker.includes('const CACHEABLE_PATHS'));
   assert.ok(serviceWorker.includes('./app.js'));
   assert.ok(serviceWorker.includes('./icons/icon.svg'));
@@ -95,3 +95,5 @@ test('static informational pages also declare restrictive CSP', () => {
     assert.ok(html.includes("object-src 'none'"));
   }
 });
+
+// RPS-02 local reference assets are restored on the PR branch.
