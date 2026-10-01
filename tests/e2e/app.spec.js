@@ -184,6 +184,7 @@ test('production GitHub Pages serves and renders all RPS-02 reference images', a
 
   await page.locator('nav a[href="#apprendre"]').click();
   const compare = page.locator('#rps02-photo-compare');
+  await page.locator('#rps02-visual-workshop [data-next="2"]').click();
   await expect(compare).toBeVisible();
   await expect(compare.locator('img')).toHaveCount(9, { timeout: 15000 });
 
