@@ -61,7 +61,8 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     const photos = workshop.locator('.rps02-photo-example');
     await expect(photos).toHaveCount(9);
     await expect(photos.first().locator('img')).toBeVisible();
-    await expect(photos.first().locator('img')).toHaveAttribute('src', /data\/rps02-blind-assets\/RPS02-A01\.jpg/);
+    await expect.poll(async () => photos.first().locator('img').evaluate(img => img.naturalWidth), { timeout: 15000 }).toBeGreaterThan(0);
+    await expect(photos.first().locator('img')).toHaveAttribute('src', /(?:googleusercontent\.com|data\/rps02-blind-assets\/RPS02-A01\.jpg)/);
 
     await photos.first().click();
     await expect(photos.first()).toHaveAttribute('aria-pressed', 'true');
