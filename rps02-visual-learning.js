@@ -398,8 +398,9 @@
 
     compare.innerHTML = records.map(record => {
       const reference = esc(record.internalId || 'Référence');
-      const imageUrl = new URL(String(record.localAssetPath || ''), corpusUrl);
-    imageUrl.searchParams.set('v', String(assetVersion));
+      const localAssetName = String(record.localAssetPath || '').split('/').pop();
+      const imageUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
+      imageUrl.searchParams.set('v', String(assetVersion));
     const imagePath = imageUrl.href;
       return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
         <img src="${esc(imagePath)}" data-fallback-src="${esc(record.assetUrl || '')}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
