@@ -399,11 +399,14 @@
     compare.innerHTML = records.map(record => {
       const reference = esc(record.internalId || 'Référence');
       const localAssetName = String(record.localAssetPath || '').split('/').pop();
-      const imageUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
-      imageUrl.searchParams.set('v', String(assetVersion));
-    const imagePath = imageUrl.href;
+      const localUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
+      localUrl.searchParams.set('v', String(assetVersion));
+      const localImagePath = localUrl.href;
+      const sourceImagePath = String(record.assetUrl || '');
+      const primaryImagePath = sourceImagePath || localImagePath;
+      const fallbackImagePath = sourceImagePath ? localImagePath : '';
       return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
-        <img src="${esc(imagePath)}" data-fallback-src="${esc(record.assetUrl || '')}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
+        <img src="${esc(primaryImagePath)}" data-fallback-src="${esc(fallbackImagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
         <strong>Photo ${reference}</strong>
         <small>Décris seulement ce que tu observes.</small>
       </button>`;
@@ -419,6 +422,7 @@
           return;
         }
         image.alt = `Photo de référence ${button.dataset.example} indisponible`;
+        button.classList.add('rps02-photo-unavailable');
       });
     });
 
