@@ -403,10 +403,8 @@
       localUrl.searchParams.set('v', String(assetVersion));
       const localImagePath = localUrl.href;
       const sourceImagePath = String(record.assetUrl || '');
-      const primaryImagePath = sourceImagePath || localImagePath;
-      const fallbackImagePath = sourceImagePath ? localImagePath : '';
       return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
-        <img src="${esc(primaryImagePath)}" data-fallback-src="${esc(fallbackImagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
+        <img src="${esc(localImagePath)}" data-fallback-src="${esc(sourceImagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
         <strong>Photo ${reference}</strong>
         <small>Décris seulement ce que tu observes.</small>
       </button>`;
