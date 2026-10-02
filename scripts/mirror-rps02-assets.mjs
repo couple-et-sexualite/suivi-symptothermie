@@ -28,7 +28,7 @@ const imageEntries=await gallery.locator('img').evaluateAll(imgs=>imgs.map((img,
 const unique=[...new Map(imageEntries.map(x=>[x.url,x])).values()];
 if(unique.length<13) throw new Error('La galerie n’expose pas les 13 premières images attendues; trouvé '+unique.length+'.');
 
-const sourceIndexes=[0,2,3,4,5,6,7,11,12];
+const sourceIndexes=[1,2,3,4,5,6,7,11,12];
 const local=[];
 
 for(let i=0;i<records.length;i++){
