@@ -189,12 +189,14 @@
   const stepLabel = card.querySelector('#rps02-step-label');
   const progressBar = card.querySelector('#rps02-progress-bar');
   const labels = ['Votre observation','Comparaison','Explication','Observation personnelle','Progression'];
+  let refreshComparison = () => {};
 
   const showStep = step => {
     state.step = step;
     panels.forEach(panel => { panel.hidden = Number(panel.dataset.panel) !== step; });
     stepLabel.textContent = `Étape ${step} sur 5 — ${labels[step - 1]}`;
     progressBar.style.width = `${step * 20}%`;
+    if (step === 2) refreshComparison();
     if (step === 3) updateFeedback();
     if (step === 4) updateSummary();
     if (step === 5) completeProgress();
@@ -397,33 +399,36 @@
       return;
     }
 
-    compare.innerHTML = records.map(record => {
-      const reference = esc(record.internalId || 'Référence');
-      const localAssetName = String(record.localAssetPath || '').split('/').pop();
-      const localUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
-      localUrl.searchParams.set('v', String(assetVersion));
-      const localImagePath = localUrl.href;
-      const sourceImagePath = String(record.assetUrl || '');
-      return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
-        <img src="${esc(localImagePath)}" data-fallback-src="${esc(sourceImagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async">
-        <strong>Photo ${reference}</strong>
-        <small>Décris seulement ce que tu observes.</small>
-      </button>`;
-    }).join('');
+    refreshComparison = () => {
+      compare.innerHTML = records.map(record => {
+        const reference = esc(record.internalId || 'Référence');
+        const localAssetName = String(record.localAssetPath || '').split('/').pop();
+        const localUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
+        localUrl.searchParams.set('v', String(assetVersion));
+        const localImagePath = localUrl.href;
+        const sourceImagePath = String(record.assetUrl || '');
+        return `<button type="button" class="rps02-photo-example" data-example="${reference}" aria-pressed="false">
+          <img src="${esc(localImagePath)}" data-fallback-src="${esc(sourceImagePath)}" alt="Photo de référence ${reference}" loading="eager" decoding="async" fetchpriority="high">
+          <strong>Photo ${reference}</strong>
+          <small>Décris seulement ce que tu observes.</small>
+        </button>`;
+      }).join('');
 
-    compare.querySelectorAll('.rps02-photo-example').forEach(button => {
-      button.addEventListener('click', () => selectReferencePhoto(button));
-      button.querySelector('img').addEventListener('error', event => {
-        const image = event.currentTarget;
-        const fallback = image.dataset.fallbackSrc;
-        if (fallback && image.src !== fallback) {
-          image.src = fallback;
-          return;
-        }
-        image.alt = `Photo de référence ${button.dataset.example} indisponible`;
-        button.classList.add('rps02-photo-unavailable');
+      compare.querySelectorAll('.rps02-photo-example').forEach(button => {
+        button.addEventListener('click', () => selectReferencePhoto(button));
+        button.querySelector('img').addEventListener('error', event => {
+          const image = event.currentTarget;
+          const fallback = image.dataset.fallbackSrc;
+          if (fallback && image.src !== fallback) {
+            image.src = fallback;
+            return;
+          }
+          image.alt = `Photo de référence ${button.dataset.example} indisponible`;
+          button.classList.add('rps02-photo-unavailable');
+        });
       });
-    });
+    };
+    refreshComparison();
 
     list.innerHTML = records.map(record => {
       const reference = esc(record.internalId || 'Référence');
