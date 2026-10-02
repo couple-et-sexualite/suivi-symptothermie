@@ -98,7 +98,7 @@ test.describe('RPS-02 visual learning — contract tests', () => {
           Number(style.opacity) > 0;
       });
       expect(visible, `RPS-02 comparison photo A0${i + 1} must be visibly rendered`).toBe(true);
-      await expect(image).toHaveAttribute('src', new RegExp(`data/rps02-blind-assets/RPS02-A0${i + 1}\\\\.jpg`));
+      await expect(image).toHaveAttribute('src', new RegExp(`data/rps02-blind-assets/RPS02-A0${i + 1}\\.jpg`));
     }
 
     await photos.first().click();
