@@ -173,6 +173,7 @@
     #rps02-visual-workshop .rps02-corpus{margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
     #rps02-visual-workshop .rps02-corpus-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     #rps02-visual-workshop .rps02-corpus-item{padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg)}
+    #rps02-visual-workshop .rps02-corpus-image{display:block;width:100%;height:150px;object-fit:contain;border-radius:7px;background:var(--bg);border:1px solid var(--border);margin-bottom:8px}
     #rps02-visual-workshop .rps02-corpus-item strong{display:block}
     #rps02-visual-workshop .rps02-corpus-item small{display:block;color:var(--text-muted);margin-top:4px}
     @media(min-width:700px){
@@ -427,11 +428,29 @@
     list.innerHTML = records.map(record => {
       const reference = esc(record.internalId || 'Référence');
       const status = esc(record.pedagogicalStatus || 'non validé');
+      const localAssetName = String(record.localAssetPath || '').split('/').pop();
+      const localUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
+      localUrl.searchParams.set('v', String(assetVersion));
+      const sourceImagePath = String(record.assetUrl || '');
       return `<article class="rps02-corpus-item">
+        <img class="rps02-corpus-image" src="${esc(localUrl.href)}" data-fallback-src="${esc(sourceImagePath)}" alt="Photo de référence ${reference}" loading="lazy" decoding="async">
         <strong>Photo ${reference}</strong>
         <small>Statut pédagogique : ${status}</small>
       </article>`;
     }).join('');
+
+    list.querySelectorAll('.rps02-corpus-image').forEach(image => {
+      image.addEventListener('error', event => {
+        const current = event.currentTarget;
+        const fallback = current.dataset.fallbackSrc;
+        if (fallback && current.src !== fallback) {
+          current.src = fallback;
+          return;
+        }
+        current.alt = 'Photo de référence indisponible';
+        current.classList.add('rps02-photo-unavailable');
+      });
+    });
   };
 
   const corpusUrl = new URL('./data/rps02-visual-corpus.json', document.baseURI);
