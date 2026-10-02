@@ -93,7 +93,7 @@
     </section>
 
     <section class="rps02-panel" data-panel="2" hidden>
-      <h3>2. Comparer sans chercher le « bon nom »</h3>
+      <h3>2. Comparer avant de nommer</h3>
       <p>Regardez seulement les caractéristiques visuelles. Votre sensation ne peut pas être déduite d'une photo.</p>
       <div id="rps02-photo-compare" class="rps02-photo-compare" aria-live="polite">
         Chargement des photographies de référence…
@@ -390,7 +390,7 @@
     showStep(1);
   });
 
-  const renderCorpus = (records, corpusUrl, assetVersion = '1') => {
+  const renderCorpus = (records, corpusUrl, assetVersion = '1.2.5') => {
     const list = card.querySelector('#rps02-corpus-list');
     const compare = card.querySelector('#rps02-photo-compare');
     if (!Array.isArray(records) || !records.length) {
