@@ -461,7 +461,7 @@
   const corpusUrl = new URL('./data/rps02-visual-corpus.json', document.baseURI);
   fetch(corpusUrl, {cache:'no-store'})
     .then(response => { if (!response.ok) throw new Error('corpus'); return response.json(); })
-    .then(data => renderCorpus(data.records, corpusUrl, data.version || '1'))
+    .then(data => { renderCorpus(data.records, corpusUrl, data.version || '1.2.5'); if (state.step === 2) refreshComparison(); })
     .catch(() => {
       card.querySelector('#rps02-corpus-list').textContent =
         'Le registre du corpus n’est pas disponible hors connexion. L’atelier reste utilisable sans les photos.';
