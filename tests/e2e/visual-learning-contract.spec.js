@@ -60,9 +60,46 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     await workshop.locator('[data-next="2"]').click();
     const photos = workshop.locator('.rps02-photo-example');
     await expect(photos).toHaveCount(9);
-    await expect(photos.first().locator('img')).toBeVisible();
-    await expect.poll(async () => photos.first().locator('img').evaluate(img => img.naturalWidth), { timeout: 15000 }).toBeGreaterThan(0);
-    await expect(photos.first().locator('img')).toHaveAttribute('src', /(?:googleusercontent\.com|data\/rps02-blind-assets\/RPS02-A01\.jpg)/);
+
+    for (let i = 0; i < 9; i += 1) {
+      const photo = photos.nth(i);
+      const image = photo.locator('img');
+      await expect(photo).toBeVisible();
+      await expect(image).toBeVisible();
+
+      const metrics = await expect.poll(async () => image.evaluate(img => {
+        const style = getComputedStyle(img);
+        const rect = img.getBoundingClientRect();
+        return {
+          naturalWidth: img.naturalWidth,
+          naturalHeight: img.naturalHeight,
+          width: rect.width,
+          height: rect.height,
+          display: style.display,
+          visibility: style.visibility,
+          opacity: Number(style.opacity)
+        };
+      }), { timeout: 15000 }).toEqual(expect.objectContaining({
+        naturalWidth: expect.any(Number),
+        naturalHeight: expect.any(Number),
+        width: expect.any(Number),
+        height: expect.any(Number)
+      }));
+
+      const visible = await image.evaluate(img => {
+        const style = getComputedStyle(img);
+        const rect = img.getBoundingClientRect();
+        return img.naturalWidth > 0 &&
+          img.naturalHeight > 0 &&
+          rect.width > 0 &&
+          rect.height > 0 &&
+          style.display !== 'none' &&
+          style.visibility !== 'hidden' &&
+          Number(style.opacity) > 0;
+      });
+      expect(visible, `RPS-02 comparison photo A0${i + 1} must be visibly rendered`).toBe(true);
+      await expect(image).toHaveAttribute('src', new RegExp(`data/rps02-blind-assets/RPS02-A0${i + 1}\\\\.jpg`));
+    }
 
     await photos.first().click();
     await expect(photos.first()).toHaveAttribute('aria-pressed', 'true');
