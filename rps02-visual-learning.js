@@ -463,8 +463,17 @@
     .then(response => { if (!response.ok) throw new Error('corpus'); return response.json(); })
     .then(data => { renderCorpus(data.records, corpusUrl, data.version || '1.2.5'); if (state.step === 2) refreshComparison(); })
     .catch(() => {
-      card.querySelector('#rps02-corpus-list').textContent =
-        'Le registre du corpus n’est pas disponible hors connexion. L’atelier reste utilisable sans les photos.';
+      const fallbackRecords = Array.from({ length: 9 }, (_, index) => {
+        const number = String(index + 1).padStart(2, '0');
+        return {
+          internalId: `A${number}`,
+          localAssetPath: `./rps02-blind-assets/RPS02-A${number}.jpg`,
+          pedagogicalStatus: 'candidate_pending_expert',
+          assetUrl: ''
+        };
+      });
+      renderCorpus(fallbackRecords, corpusUrl, '1.2.8-fallback');
+      if (state.step === 2) refreshComparison();
     });
 
   window.addEventListener('beforeunload', () => {
