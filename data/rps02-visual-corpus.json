@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.4",
   "purpose": "Corpus de référence de 9 photos Justisse pour apprentissage visuel RPS-02. Les codes de la méthode source restent des métadonnées et ne sont pas des catégories SymRella.",
   "productionStatus": "local_mirror_complete_pending_expert_validation",
   "records": [
