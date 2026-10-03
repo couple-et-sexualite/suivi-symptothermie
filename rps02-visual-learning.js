@@ -100,7 +100,7 @@
       </div>
       <button class="btn btn-secondary" type="button" id="rps02-none">Aucune ne correspond</button>
       <div class="actions">
-        <button class="btn" type="button" data-next="3">Voir ce que l'exemple permet d'observer</button>
+        <button class="btn" type="button" id="rps02-compare-next" data-next="3" disabled>Voir ce que l'exemple permet d'observer</button>
       </div>
     </section>
 
@@ -314,7 +314,11 @@
     const feedback = card.querySelector('#rps02-feedback');
     const choice = state.visualChoice;
     if (!choice) {
-      feedback.textContent = 'Tu n’as pas besoin de choisir une photo. Tu peux comparer les exemples ou continuer avec « je ne sais pas ».';
+      feedback.textContent = 'Aucun exemple n’a été sélectionné.';
+      return;
+    }
+    if (choice === 'none') {
+      feedback.textContent = 'Tu as indiqué qu’aucune des photos ne correspondait. Tu peux maintenant observer l’explication sans forcer une correspondance.';
       return;
     }
     feedback.textContent =
@@ -337,11 +341,25 @@
     button.addEventListener('click', () => showStep(Number(button.dataset.next)));
   });
 
+  const compareNext = card.querySelector('#rps02-compare-next');
+  const noneButton = card.querySelector('#rps02-none');
+
+  const updateCompareAction = () => {
+    compareNext.disabled = !state.visualChoice;
+  };
+
   const selectReferencePhoto = button => {
     card.querySelectorAll('.rps02-photo-example').forEach(item => item.setAttribute('aria-pressed','false'));
     button.setAttribute('aria-pressed','true');
     state.visualChoice = button.dataset.example;
+    updateCompareAction();
   };
+
+  noneButton.addEventListener('click', () => {
+    card.querySelectorAll('.rps02-photo-example').forEach(item => item.setAttribute('aria-pressed','false'));
+    state.visualChoice = 'none';
+    updateCompareAction();
+  });
 
   let objectUrl = null;
   const photo = card.querySelector('#rps02-photo');
@@ -381,6 +399,7 @@
     state.visualChoice = null;
     state.photoSelected = false;
     card.querySelectorAll('.rps02-options button,.rps02-photo-example').forEach(button => button.setAttribute('aria-pressed','false'));
+    updateCompareAction();
     photo.value = '';
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     objectUrl = null;
