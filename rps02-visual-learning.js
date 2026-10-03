@@ -403,7 +403,7 @@
       compare.innerHTML = records.map(record => {
         const reference = esc(record.internalId || 'Référence');
         const localAssetName = String(record.localAssetPath || '').split('/').pop();
-        const localUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
+        const localUrl = new URL(String(record.localAssetPath || `./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`), corpusUrl);
         localUrl.searchParams.set('v', String(assetVersion));
         const localImagePath = localUrl.href;
         const sourceImagePath = String(record.assetUrl || '');
