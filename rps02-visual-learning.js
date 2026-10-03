@@ -95,6 +95,36 @@
     <section class="rps02-panel" data-panel="2" hidden>
       <h3>2. Comparer avant de nommer</h3>
       <p>Regardez seulement les caractéristiques visuelles. Votre sensation ne peut pas être déduite d'une photo.</p>
+      <div class="rps02-visual-choice" aria-labelledby="rps02-visual-choice-title">
+        <h4 id="rps02-visual-choice-title">Comparer avant de nommer</h4>
+        <p class="learn-meta">Ces vignettes sont des <strong>repères visuels simplifiés</strong>, pas des photographies médicales. Choisissez celle qui vous paraît la plus proche, ou « aucune ».</p>
+        <div id="rps02-visual-options" class="rps02-visual-options" role="group" aria-label="Repères visuels">
+          <button type="button" class="rps02-visual-card" data-visual="opaque" aria-pressed="false">
+            <span class="rps02-visual-art" aria-hidden="true">
+              <svg viewBox="0 0 220 150" role="img"><rect width="220" height="150" rx="14" fill="#f5f0e8"/><ellipse cx="110" cy="76" rx="72" ry="43" fill="#fff" stroke="#d6c9b8" stroke-width="5"/><path d="M67 76c18-17 68-17 86 0-18 17-68 17-86 0Z" fill="#fff"/><circle cx="88" cy="69" r="4" fill="#c7bcae"/></svg>
+            </span>
+            <strong>Blanc / opaque</strong><small>Aspect blanc et peu transparent.</small>
+          </button>
+          <button type="button" class="rps02-visual-card" data-visual="translucent" aria-pressed="false">
+            <span class="rps02-visual-art" aria-hidden="true">
+              <svg viewBox="0 0 220 150" role="img"><defs><linearGradient id="rps02-t" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#dcecf0"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="220" height="150" rx="14" fill="#eef7f8"/><circle cx="110" cy="75" r="48" fill="url(#rps02-t)" stroke="#9fc5cc" stroke-width="5"/><circle cx="110" cy="75" r="22" fill="#b9dfe3" opacity=".45"/></svg>
+            </span>
+            <strong>Translucide</strong><small>La lumière passe, mais les détails restent diffus.</small>
+          </button>
+          <button type="button" class="rps02-visual-card" data-visual="transparent" aria-pressed="false">
+            <span class="rps02-visual-art" aria-hidden="true">
+              <svg viewBox="0 0 220 150" role="img"><rect width="220" height="150" rx="14" fill="#edf7fb"/><circle cx="110" cy="75" r="48" fill="rgba(255,255,255,.28)" stroke="#78b9ca" stroke-width="5"/><path d="M82 88c15-31 41-31 56 0" fill="none" stroke="#78b9ca" stroke-width="4"/><circle cx="95" cy="62" r="4" fill="#78b9ca"/><circle cx="125" cy="62" r="4" fill="#78b9ca"/></svg>
+            </span>
+            <strong>Transparent</strong><small>Clair et visuellement transparent.</small>
+          </button>
+          <button type="button" class="rps02-visual-card" data-visual="stretchy" aria-pressed="false">
+            <span class="rps02-visual-art" aria-hidden="true">
+              <svg viewBox="0 0 220 150" role="img"><rect width="220" height="150" rx="14" fill="#f1f8fb"/><circle cx="62" cy="75" r="24" fill="#d8edf0" stroke="#75aeb9" stroke-width="4"/><circle cx="158" cy="75" r="24" fill="#d8edf0" stroke="#75aeb9" stroke-width="4"/><path d="M80 75c24-13 36-13 60 0-24 13-36 13-60 0Z" fill="#b7dfe4" stroke="#75aeb9" stroke-width="4"/></svg>
+            </span>
+            <strong>Étirable</strong><small>Aspect filant pouvant former un fil.</small>
+          </button>
+        </div>
+      </div>
       <div id="rps02-photo-compare" class="rps02-photo-compare" aria-live="polite">
         Chargement des photographies de référence…
       </div>
@@ -163,6 +193,14 @@
     #rps02-visual-workshop .rps02-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
     #rps02-visual-workshop .rps02-example{display:flex;flex-direction:column;gap:6px}
     #rps02-visual-workshop .rps02-example span:last-child{font-size:.85rem;color:var(--text-muted)}
+    #rps02-visual-workshop .rps02-visual-choice{margin:16px 0;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+    #rps02-visual-workshop .rps02-visual-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+    #rps02-visual-workshop .rps02-visual-card{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:8px;text-align:left;cursor:pointer}
+    #rps02-visual-workshop .rps02-visual-card[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:2px}
+    #rps02-visual-workshop .rps02-visual-art{display:block;border-radius:9px;overflow:hidden;background:#fff}
+    #rps02-visual-workshop .rps02-visual-art svg{display:block;width:100%;height:auto}
+    #rps02-visual-workshop .rps02-visual-card strong{display:block;margin-top:8px}
+    #rps02-visual-workshop .rps02-visual-card small{display:block;color:var(--text-muted);margin-top:3px}
     #rps02-visual-workshop .rps02-photo-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
     #rps02-visual-workshop .rps02-photo-example{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;text-align:left;cursor:pointer}
     #rps02-visual-workshop .rps02-photo-example[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:1px}
@@ -178,6 +216,7 @@
     #rps02-visual-workshop .rps02-corpus-item small{display:block;color:var(--text-muted);margin-top:4px}
     @media(min-width:700px){
       #rps02-visual-workshop .rps02-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+      #rps02-visual-workshop .rps02-visual-options{grid-template-columns:repeat(4,minmax(0,1fr))}
       #rps02-visual-workshop .rps02-photo-compare{grid-template-columns:repeat(3,minmax(0,1fr))}
       #rps02-visual-workshop .rps02-corpus-list{grid-template-columns:repeat(3,minmax(0,1fr))}
     }
@@ -211,6 +250,13 @@
   card.querySelectorAll('.rps02-options button').forEach(button => {
     button.setAttribute('aria-pressed','false');
     button.addEventListener('click', () => selectOption(button));
+  });
+
+  card.querySelectorAll('.rps02-visual-card').forEach(button => {
+    button.addEventListener('click', () => {
+      card.querySelectorAll('.rps02-visual-card').forEach(item => item.setAttribute('aria-pressed','false'));
+      button.setAttribute('aria-pressed','true');
+    });
   });
 
   const selected = group => card.querySelector(`[data-group="${group}"] button[aria-pressed="true"]`)?.dataset.value || 'unknown';
