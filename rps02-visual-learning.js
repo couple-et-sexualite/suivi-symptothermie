@@ -434,7 +434,7 @@
       const reference = esc(record.internalId || 'Référence');
       const status = esc(record.pedagogicalStatus || 'non validé');
       const localAssetName = String(record.localAssetPath || '').split('/').pop();
-      const localUrl = new URL(`./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`, document.baseURI);
+      const localUrl = new URL(String(record.localAssetPath || `./data/rps02-blind-assets/${encodeURIComponent(localAssetName)}`), corpusUrl);
       localUrl.searchParams.set('v', String(assetVersion));
       const sourceImagePath = String(record.assetUrl || '');
       return `<article class="rps02-corpus-item">
