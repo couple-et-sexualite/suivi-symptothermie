@@ -11,7 +11,7 @@ const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const source = page + '\n' + app;
 
 test('application JavaScript is external and protected by same-origin CSP', () => {
-  assert.match(page, /<script src="\\.\\/app\\.js(?:\\?[^"']*)?"><\\/script>/);
+  assert.match(page, /<script src="\.\/app\.js(?:\?[^"']*)?"><\/script>/);
   assert.ok(!/<script(?![^>]*src=)[^>]*>/i.test(page));
   assert.ok(page.includes('Content-Security-Policy'));
   assert.ok(page.includes("script-src 'self'"));
