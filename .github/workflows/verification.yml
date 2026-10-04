@@ -1,4 +1,5 @@
 name: Vérification
+# CI trigger: explicit verification request for the main branch.
 
 on:
   pull_request:
