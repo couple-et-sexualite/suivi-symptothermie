@@ -122,7 +122,7 @@ test.describe('RPS-02 visual learning — contract tests', () => {
     await workshop.locator('[data-group="stretch"] button[data-value="clear"]').click();
 
     await workshop.locator('[data-next="2"]').click();
-    await workshop.locator('.rps02-visual-card[data-visual="stretchy"]').click();
+    await workshop.locator('.rps02-photo-example').first().click();
     await workshop.locator('[data-next="3"]').click();
     await workshop.locator('[data-next="4"]').click();
     await workshop.locator('[data-next="5"]').click();
