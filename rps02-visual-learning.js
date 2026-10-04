@@ -395,8 +395,11 @@
   };
 
   const selectReferencePhoto = button => {
-    card.querySelectorAll('.rps02-photo-example').forEach(item => item.setAttribute('aria-pressed','false'));
-    button.setAttribute('aria-pressed','true');
+    // Explicitly expose the photo selection state to assistive technologies.
+    card.querySelectorAll('.rps02-photo-example').forEach(item => {
+      item.setAttribute('aria-pressed', 'false');
+    });
+    button.setAttribute('aria-pressed', 'true');
     state.visualChoice = button.dataset.example;
     updateCompareAction();
   };
