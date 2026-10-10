@@ -1,4 +1,4 @@
-# Suivi Symptothermie
+# SymRella
 
 Application web/PWA de suivi des observations du cycle et d'apprentissage, conçue selon une approche **local-first**.
 
@@ -95,7 +95,7 @@ La suite E2E couvre Chromium, Firefox, WebKit, Chrome mobile et Safari mobile, a
 
 ## État du projet
 
-Le projet est préparé pour une utilisation publique et une future commercialisation. Les éléments qui dépendent du contexte de commercialisation — paiement, comptes, synchronisation cloud, traitement de données à distance, obligations réglementaires et validation juridique dans les pays ciblés — doivent être ajoutés et vérifiés séparément avant leur mise en production.
+SymRella est une application d’observation et d’apprentissage du cycle, conçue selon une approche local-first. Le nom et l’identité visuelle sont harmonisés dans l’interface et les icônes de l’application. Le produit reste un outil descriptif et éducatif, pas un dispositif de diagnostic. Les éléments qui dépendent du contexte de commercialisation — paiement, comptes, synchronisation cloud, traitement de données à distance, obligations réglementaires et validation juridique dans les pays ciblés — doivent être ajoutés et vérifiés séparément avant leur mise en production.
 
 ## Licence et propriété
 
