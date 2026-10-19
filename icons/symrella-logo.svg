@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 190" role="img" aria-labelledby="title desc">
+<title id="title">SymRella</title><desc id="desc">Logo SymRella avec un symbole de cycle, courbe thermique, thermomètre et feuilles.</desc>
+<g transform="translate(12 8)">
+  <path d="M138 18 A78 78 0 0 0 31 90" fill="none" stroke="#0B4F8A" stroke-width="12" stroke-linecap="round"/>
+  <path d="M34 105 C62 105 77 72 99 72 C116 72 124 92 142 92" fill="none" stroke="#00A7B5" stroke-width="10" stroke-linecap="round"/>
+  <path d="M46 117 C50 140 64 153 85 161 C82 140 72 126 46 117Z" fill="#00A7B5"/>
+  <path d="M80 151 C94 139 105 126 105 110 C88 119 80 133 80 151Z" fill="#00A7B5"/>
+  <path d="M104 160 A78 78 0 0 0 153 125" fill="none" stroke="#0B4F8A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M151 56 V112" fill="none" stroke="#0B4F8A" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="151" cy="123" r="13" fill="none" stroke="#0B4F8A" stroke-width="9"/>
+  <circle cx="133" cy="37" r="10" fill="#FF765E"/>
+</g>
+<text x="205" y="118" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="700" letter-spacing="-4"><tspan fill="#0B3C78">Sym</tspan><tspan fill="#00A7B5">Rella</tspan></text>
+</svg>
