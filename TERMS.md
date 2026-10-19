@@ -1,10 +1,10 @@
-# Conditions d'utilisation — Suivi Symptothermie
+# Conditions d'utilisation — SymRella
 
 **Dernière mise à jour : 23 septembre 2026**
 
 ## 1. Objet
 
-Suivi Symptothermie fournit des fonctions de saisie, de visualisation, de sauvegarde et d'apprentissage liées à l'observation du cycle.
+SymRella fournit des fonctions de saisie, de visualisation, de sauvegarde et d'apprentissage liées à l'observation du cycle.
 
 ## 2. Nature du service
 

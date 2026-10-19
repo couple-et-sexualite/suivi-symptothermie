@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#173f5f"/><circle cx="256" cy="256" r="150" fill="#fdf6f8"/><path d="M256 128v190" stroke="#173f5f" stroke-width="28" stroke-linecap="round"/><circle cx="256" cy="352" r="46" fill="#173f5f"/><path d="M208 274h96" stroke="#173f5f" stroke-width="28" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 512 512" role="img" aria-label="SymRella">
+<rect width="512" height="512" rx="112" fill="#fbf9fc"/>
+<circle cx="256" cy="246" r="194" fill="none" stroke="#238FB0" stroke-width="15" stroke-dasharray="760 300" transform="rotate(-48 256 246)"/>
+<path d="M287 91c-62-25-129 3-157 58-29 56-13 122 30 160 29 25 46 58 46 96 0 20-4 35-11 48 56-20 84-61 78-107-4-31-22-52-45-72-25-22-38-44-34-70 4-29 28-50 58-53 32-4 57 12 73 34 22-31 8-75-38-94Z" fill="#A66DA9" stroke="#8A568D" stroke-width="5" stroke-linejoin="round"/>
+<path d="M188 183c24-36 67-50 105-36-21 4-40 14-54 31-15 18-22 39-19 61-24-13-41-32-32-56Z" fill="#FBF9FC"/>
+<path d="M170 329c-28-20-50-43-62-69-3 48 18 92 59 121 17 12 31 27 38 44 7-35-5-71-35-96Z" fill="#7D263F" stroke="#C7A34A" stroke-width="9" stroke-linejoin="round"/>
+<path d="M148 301l51 92m-39-62 30-2m-14 27 31-8" fill="none" stroke="#E6C77C" stroke-width="7" stroke-linecap="round"/>
+<path d="M286 304l39-45 17 40 26-98 22 104 23-34" fill="none" stroke="#C7A34A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="291" cy="305" r="13" fill="#C7A34A"/>
+<path d="M363 245v62a29 29 0 1 0 25 0v-62a13 13 0 0 0-25 0Z" fill="none" stroke="#C7A34A" stroke-width="10"/>
+</svg>

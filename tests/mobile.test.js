@@ -77,7 +77,7 @@ test('English is an explicit supported language with automatic detection and UI 
   assert.match(page, /<option value="en">English<\/option>/);
   assert.match(page, /code==='fr'.*code==='en'.*code==='es'.*code==='ar'/);
   assert.match(page, /\['fr','en','es','ar'\]\.includes\(v\)/);
-  assert.match(page, /en:\{title:'🌡️ Symptothermal Tracking'/);
+  assert.match(page, /en:\{title:'SymRella'/);
   assert.match(page, /en:\{saved:'✓ Saved'/);
   assert.match(page, /savedJournal:'✓ Observation saved/);
   assert.match(page, /MODULE_TRANSLATIONS=\{\nen:\[/);

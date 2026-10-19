@@ -1,10 +1,10 @@
-# Politique de confidentialité — Suivi Symptothermie
+# Politique de confidentialité — SymRella
 
 **Dernière mise à jour : 23 septembre 2026**
 
 ## 1. Principe
 
-Suivi Symptothermie est conçu selon une approche **local-first**. Les observations saisies dans l'application sont enregistrées dans le stockage local du navigateur utilisé pour l'application.
+SymRella est conçu selon une approche **local-first**. Les observations saisies dans l'application sont enregistrées dans le stockage local du navigateur utilisé pour l'application.
 
 L'application ne nécessite pas la création d'un compte pour enregistrer les observations et, dans sa version actuelle, n'envoie pas automatiquement ces observations à un serveur applicatif.
 
