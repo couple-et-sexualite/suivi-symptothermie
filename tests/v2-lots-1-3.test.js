@@ -372,7 +372,7 @@ test('l’import ne met à jour les caches mémoire qu’après les écritures r
 });
 
 test('la page possède une description adaptée au référencement et à la confidentialité', () => {
-  assert.match(page, /<meta name="description" content="SymRella : application locale de suivi des observations du cycle/);
+  assert.match(page, /<meta name="description" content="SymRella : application locale d’observation du cycle/);
   assert.match(page, /Les données restent dans le navigateur/);
 });
 
