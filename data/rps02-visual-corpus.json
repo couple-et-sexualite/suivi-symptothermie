@@ -1,7 +1,7 @@
 {
   "version": "1.2.4",
   "purpose": "Corpus de référence de 9 photos Justisse pour apprentissage visuel RPS-02. Les codes de la méthode source restent des métadonnées et ne sont pas des catégories SymRella.",
-  "productionStatus": "local_mirror_complete_pending_expert_validation",
+  "productionStatus": "local_assets_missing_pending_expert_validation",
   "records": [
     {
       "imageId": "justisse-10ck-01",
@@ -35,8 +35,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A01",
       "sourceImageOrder": 1,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A01.jpg",
-      "sha256": "8f87950f5c8811ca8287bc95144f0598c4144918fc2eb5fe1b08f19d35205687"
+      "sha256": "8f87950f5c8811ca8287bc95144f0598c4144918fc2eb5fe1b08f19d35205687",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A01.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-8k",
@@ -70,8 +72,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A02",
       "sourceImageOrder": 3,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A02.jpg",
-      "sha256": "e69a696ec58c5056089bc1d8ea76c2ad501b2ed3524b9911a10120fb7d27f923"
+      "sha256": "e69a696ec58c5056089bc1d8ea76c2ad501b2ed3524b9911a10120fb7d27f923",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A02.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-6ckg",
@@ -105,8 +109,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A03",
       "sourceImageOrder": 4,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A03.jpg",
-      "sha256": "f63755f33911812dacddd22e4e1142e9c154378dc412b117c47485302f86fc43"
+      "sha256": "f63755f33911812dacddd22e4e1142e9c154378dc412b117c47485302f86fc43",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A03.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-8ckg",
@@ -140,8 +146,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A04",
       "sourceImageOrder": 5,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A04.jpg",
-      "sha256": "ba0842379dc40a92f40549fcdc1b55058737eaf168ad28c5ad4ba4be6c6cee54"
+      "sha256": "ba0842379dc40a92f40549fcdc1b55058737eaf168ad28c5ad4ba4be6c6cee54",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A04.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-10ckg",
@@ -175,8 +183,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A05",
       "sourceImageOrder": 6,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A05.jpg",
-      "sha256": "7810060d3a7c27d6accc2a28269fe05f20fa13fe57f3e71a1f112881aaa3a36a"
+      "sha256": "7810060d3a7c27d6accc2a28269fe05f20fa13fe57f3e71a1f112881aaa3a36a",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A05.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-6k",
@@ -210,8 +220,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A06",
       "sourceImageOrder": 7,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A06.jpg",
-      "sha256": "012ee3aea1ec573139ec4a30d3ce75ad10e490533ed432134a4bf92859f44bd5"
+      "sha256": "012ee3aea1ec573139ec4a30d3ce75ad10e490533ed432134a4bf92859f44bd5",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A06.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-10c-01",
@@ -245,8 +257,10 @@
       "sourceImageOrder": 8,
       "accessDate": "2026-09-29",
       "internalId": "A07",
-      "localAssetPath": "./rps02-blind-assets/RPS02-A07.jpg",
-      "sha256": "284611add1ede4c4af272d4fb1037be1e671fb6d59a72a8276967367423a166d"
+      "sha256": "284611add1ede4c4af272d4fb1037be1e671fb6d59a72a8276967367423a166d",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A07.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-10k-clear-stretchy",
@@ -280,8 +294,10 @@
       "accessDate": "2026-09-28",
       "internalId": "A08",
       "sourceImageOrder": 12,
-      "localAssetPath": "./rps02-blind-assets/RPS02-A08.jpg",
-      "sha256": "256152e7ad2eee406ed170c745cf2eba9d06136e7564daffcd07932d90b8a1d2"
+      "sha256": "256152e7ad2eee406ed170c745cf2eba9d06136e7564daffcd07932d90b8a1d2",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A08.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     },
     {
       "imageId": "justisse-6ck-01",
@@ -315,10 +331,13 @@
       "sourceImageOrder": 13,
       "accessDate": "2026-09-29",
       "internalId": "A09",
-      "localAssetPath": "./rps02-blind-assets/RPS02-A09.jpg",
-      "sha256": "e53d1d7c58d55fc612b827fbc27bd819279590b5c4ee6bfcceb279f40ea5563b"
+      "sha256": "e53d1d7c58d55fc612b827fbc27bd819279590b5c4ee6bfcceb279f40ea5563b",
+      "expectedLocalAssetPath": "./rps02-blind-assets/RPS02-A09.jpg",
+      "assetStatus": "missing_from_repository",
+      "integrityStatus": "unverified_local_asset_missing"
     }
   ],
   "selectionNote": "Sélection A01-A09 figée le 29 septembre 2026 d'après l'ordre de la galerie Justisse : A01=10CK, A02=8K, A03=6CKG, A04=8CKG, A05=10CKG, A06=6K, A07=10C, A08=10K, A09=6CK.",
-  "accessDate": "2026-09-29"
+  "accessDate": "2026-09-29",
+  "validationNote": "Les chemins locaux attendus ne sont pas présents dans la branche vérifiée. Les empreintes SHA-256 déclarées ne peuvent pas être confirmées sans les fichiers locaux. Aucun mapping pédagogique ni conclusion sur la fertilité ou l’ovulation n’est validé."
 }
