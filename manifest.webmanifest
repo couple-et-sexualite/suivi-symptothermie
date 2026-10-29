@@ -9,11 +9,20 @@
   "display": "standalone",
   "theme_color": "#0b3c78",
   "background_color": "#f4fafb",
-  "categories": [
-    "health",
-    "lifestyle"
-  ],
+  "categories": ["health", "lifestyle"],
   "icons": [
+    {
+      "src": "./icons/icon-192.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "./icons/symrella-logo.png",
       "sizes": "910x811",
