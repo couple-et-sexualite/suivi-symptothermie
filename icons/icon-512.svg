@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#173f5f"/><circle cx="256" cy="256" r="150" fill="#fdf6f8"/><path d="M256 128v190" stroke="#173f5f" stroke-width="28" stroke-linecap="round"/><circle cx="256" cy="352" r="46" fill="#173f5f"/><path d="M208 274h96" stroke="#173f5f" stroke-width="28" stroke-linecap="round"/></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 910 910" role="img" aria-labelledby="title">
+  <title id="title">SymRella — icône 512</title>
+  <image href="./symrella-logo.png" x="0" y="49.5" width="910" height="811" preserveAspectRatio="xMidYMid meet"/>
+</svg>
