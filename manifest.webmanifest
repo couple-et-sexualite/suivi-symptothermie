@@ -15,6 +15,12 @@
   ],
   "icons": [
     {
+      "src": "./icons/symrella-logo.png",
+      "sizes": "910x811",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "./icons/icon-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
