@@ -153,3 +153,43 @@ Cette matrice est une **base de travail documentaire**, pas encore une spécific
 6. Faire relire chaque règle et chaque cycle de test par une personne formée et habilitée à enseigner Sensiplan.
 
 **Décision technique à ce stade :** ne pas coder les règles M-01 à M-10 à partir de résumés tiers. Les sources publiques confirment les grands principes, mais le manuel et les exemples officiels sont requis pour figer les cas limites.
+
+
+## 10. Vérification complémentaire des documents officiels Sensiplan
+
+La consultation des ressources officielles publiques fait apparaître deux éléments structurants qui doivent être intégrés au projet.
+
+### 10.1. Les règles ne sont qu'un des piliers de Sensiplan
+
+Le document officiel « Guidelines for Sensiplan teachers » présente cinq piliers :
+1. les règles de l'AG NFP publiées dans le manuel *Natural and Safe* et son cahier d'exercices ;
+2. la formation standardisée des enseignantes et enseignants Sensiplan ;
+3. l'accompagnement personnel des femmes et des couples par une personne certifiée, selon la pédagogie et les supports standardisés ;
+4. une formation continue obligatoire tous les deux ans ;
+5. au moins une consultation annuelle.
+
+Ce document indique que les écarts à ces spécifications ne permettent pas de garantir le niveau de sécurité revendiqué et ne doivent pas être déclarés comme Sensiplan. **Conséquence pour SymRella :** reproduire certaines règles dans un algorithme ne suffit pas, à lui seul, à autoriser une présentation du produit comme application officielle ou certifiée Sensiplan. Toute utilisation du nom, du logo, des supports ou une revendication d'équivalence doit être clarifiée directement avec l'AG NFP / les ayants droit. En attendant, employer une formulation descriptive et prudente, sans laisser entendre une affiliation ou une approbation.
+
+Source officielle : https://www.sensiplan.de/storage/media/documents/433/richtlinien-englisch-ohne-unterschrift.pdf
+
+### 10.2. Ressources officielles actuellement disponibles
+
+La page officielle de téléchargements met à disposition des tableaux de cycle dans plusieurs langues, dont le français, ainsi que des tableaux spécifiques à l'allaitement. Le tableau anglais comporte notamment des champs pour le mode de mesure, la température, les observations de glaire, les perturbations et le calcul de l'ouverture précoce à partir des cycles précédents. Ces documents aident à concevoir les champs de SymRella, mais ne remplacent pas le manuel de règles.
+
+- Page officielle : https://www.sensiplan.de/downloads
+- Tableau de cycle anglais : https://www.sensiplan.de/storage/media/documents/22/sensiplan-cyclesheet-englisch.pdf
+
+Le site officiel présente également une application Sensiplan disponible sur App Store et Google Play. Il faudra donc positionner clairement SymRella par rapport à cette application existante : public visé, langues, accessibilité, fonctionnalités complémentaires et éventuelle intégration pédagogique, sans supposer un partenariat.
+
+Source officielle : https://www.sensiplan.de/unser-angebot
+
+### 10.3. Mise à jour des conditions de poursuite
+
+Avant tout affichage de jours infertiles ou toute communication commerciale fondée sur Sensiplan, ajouter les vérifications suivantes :
+- clarification écrite des droits d'utilisation du nom « Sensiplan », des marques, des documents et des éventuels éléments pédagogiques ;
+- clarification écrite de la possibilité de développer une application indépendante reproduisant les règles, et des conditions d'une éventuelle revendication de conformité ;
+- confirmation de la portée des cinq piliers pour un outil logiciel indépendant qui ne remplace pas la formation et l'accompagnement ;
+- définition explicite de la formulation publique autorisée pour décrire la méthode implémentée ;
+- comparaison fonctionnelle avec l'application Sensiplan officielle, sans copier son interface ni ses contenus protégés.
+
+Ces vérifications ne changent pas l'objectif de SymRella : développer une application symptothermique qui aide à repérer la fertilité pour les projets de conception et d'évitement d'une grossesse. Elles évitent en revanche de confondre « moteur inspiré de règles documentées » et « méthode Sensiplan officiellement reconnue ».
