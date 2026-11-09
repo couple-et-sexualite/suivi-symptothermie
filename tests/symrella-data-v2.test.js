@@ -140,3 +140,18 @@ test("schema accepts the planned daily classification states and rejects unknown
   invalid.currentCycle.derived.status = "safe";
   assert.equal(validateV2Data(invalid), false);
 });
+
+
+test("default migration IDs stay unique across current and archived cycles", () => {
+  const migrated = migrateLegacyData({
+    current: [entry("2026-01-02")],
+    history: [{ start: "2025-12-01", end: "2025-12-28", entries: [entry("2025-12-03")] }]
+  });
+  const ids = [
+    migrated.currentCycle.id,
+    ...migrated.currentCycle.observations.map(o => o.id),
+    ...migrated.history.flatMap(c => [c.id, ...c.observations.map(o => o.id)])
+  ];
+  assert.equal(new Set(ids).size, ids.length);
+  assert.equal(validateV2Data(migrated), true);
+});
