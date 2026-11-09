@@ -118,3 +118,25 @@ test("optional legacy notes are preserved as empty text rather than blocking mig
   assert.equal(migrated.currentCycle.observations[0].generalNotes, "");
   assert.equal(validateV2Data(migrated), true);
 });
+
+
+test("schema accepts the planned daily classification states and rejects unknown states", () => {
+  const migrated = migrateLegacyData({ current: [entry("2026-01-01")] }, {
+    idFactory: (() => { let n = 0; return kind => `${kind}-${++n}`; })()
+  });
+  for (const status of [
+    "not_evaluated",
+    "potentially_fertile",
+    "fertile",
+    "end_pending",
+    "postovulatory_infertile",
+    "indeterminate"
+  ]) {
+    const candidate = structuredClone(migrated);
+    candidate.currentCycle.derived.status = status;
+    assert.equal(validateV2Data(candidate), true, status);
+  }
+  const invalid = structuredClone(migrated);
+  invalid.currentCycle.derived.status = "safe";
+  assert.equal(validateV2Data(invalid), false);
+});
