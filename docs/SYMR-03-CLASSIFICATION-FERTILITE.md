@@ -241,3 +241,237 @@ Le tableau officiel comporte une question sur l'intention de grossesse pour le c
 - **Objectif non défini :** permettre la saisie et l'affichage neutre des observations, sans supposer l'intention.
 
 La classification doit être identique quel que soit l'objectif ; seul le conseil d'usage et la présentation peuvent différer.
+
+
+## 12. Modèle de données cible — spécification consolidée
+
+### 12.1. Principes non négociables
+
+- Conserver les observations brutes telles que saisies ; ne jamais les remplacer par une interprétation calculée.
+- Séparer les faits observés, le contexte, les paramètres du référentiel, les résultats du moteur et les explications affichées.
+- Une donnée inconnue reste `null` ou absente selon le contrat du champ ; elle ne devient jamais une valeur normale par défaut.
+- Une donnée perturbée reste conservée et visible, même si une règle documentée l'exclut d'un calcul.
+- Les résultats sont recalculables à partir des observations et de la version des règles ; ne pas enregistrer un statut calculé comme s'il s'agissait d'une observation.
+- Toute modification rétroactive d'une observation invalide les résultats dérivés du cycle et des cycles dépendants.
+- Le modèle doit fonctionner sans connexion, avec export/import local, et sans compte obligatoire.
+
+### 12.2. Enveloppe de stockage
+
+Conserver provisoirement les clés locales actuelles afin de ne pas casser les installations existantes :
+- `symptothermie_current_cycle`
+- `symptothermie_history`
+- `symptothermie_learning_progress`
+- `symptothermie_profile`
+
+Le format cible des données de cycle et de sauvegarde est versionné indépendamment de la version de l'interface :
+
+```json
+{
+  "schema": "symrella.cycle",
+  "schemaVersion": 2,
+  "id": "cycle-uuid",
+  "createdAt": "2026-01-01T12:00:00.000Z",
+  "updatedAt": "2026-01-01T12:00:00.000Z",
+  "startDate": "2026-01-01",
+  "endDate": null,
+  "goal": "observe",
+  "method": {
+    "id": "sensiplan",
+    "edition": null,
+    "rulesetVersion": null,
+    "reviewStatus": "not_approved"
+  },
+  "observations": [],
+  "derived": {
+    "engineVersion": null,
+    "calculatedAt": null,
+    "status": "not_evaluated",
+    "days": []
+  }
+}
+```
+
+Les valeurs `edition` et `rulesetVersion` restent nulles tant que la version exacte du manuel et la validation des règles ne sont pas établies. Le code ne doit pas sélectionner silencieusement une version.
+
+### 12.3. Observation quotidienne
+
+Une observation est un enregistrement indépendant daté. Plusieurs signes du même jour peuvent être corrigés sans écraser les autres champs.
+
+```json
+{
+  "id": "observation-uuid",
+  "date": "2026-01-06",
+  "cycleDay": 6,
+  "bleeding": {
+    "level": "none",
+    "notes": ""
+  },
+  "temperature": {
+    "valueC": 36.45,
+    "originalValue": 97.61,
+    "originalUnit": "F",
+    "measuredAt": "06:35",
+    "measurementRoute": "oral",
+    "device": null,
+    "disturbanceIds": [],
+    "quality": "usable",
+    "notes": ""
+  },
+  "cervicalMucus": {
+    "sensation": "slippery",
+    "appearance": ["clear", "stretchy"],
+    "legacyCategory": null,
+    "peakQualityCandidate": null,
+    "notes": ""
+  },
+  "cervix": {
+    "position": null,
+    "opening": null,
+    "consistency": null,
+    "notes": ""
+  },
+  "disturbances": [],
+  "intercourse": {
+    "occurred": null,
+    "details": null
+  },
+  "generalNotes": "",
+  "source": "user"
+}
+```
+
+Contrat des champs :
+- `date` : date locale ISO `YYYY-MM-DD`, unique dans un cycle ; pas de conversion UTC pour déterminer le jour du cycle.
+- `cycleDay` : valeur dérivée et vérifiable depuis `startDate`, jamais saisie comme vérité indépendante.
+- `temperature.valueC` : nombre Celsius normalisé ou null ; conserver aussi valeur et unité originales lorsque disponibles.
+- `measuredAt` : heure locale `HH:mm` ou null.
+- `measurementRoute` : `oral`, `vaginal`, `rectal`, `other`, `unknown` ; aucun choix implicite.
+- `quality` : `usable`, `disturbed`, `unknown`. Le motif de perturbation est porté par `disturbanceIds`.
+- `sensation` et `appearance` : deux dimensions séparées. Les valeurs autorisées doivent être établies à partir du manuel et de la grille officielle ; les exemples JSON sont des illustrations de structure, pas une transposition officielle des catégories Sensiplan.
+- `legacyCategory` : conserve la valeur historique de l'interface actuelle (`sec`, `collante`, `cremeuse`, `blanc-oeuf`) pour la traçabilité. Elle n'est pas convertie automatiquement en sensation, apparence ou qualité de pic.
+- `cervix` : signe distinct et facultatif ; aucune pondération dans le moteur avant confirmation explicite du manuel.
+- `intercourse` : champ facultatif et privé ; ne pas rendre sa saisie obligatoire pour calculer la classification.
+- `source` : `user`, `import`, `migration` ou `device`, pour distinguer la provenance.
+
+### 12.4. Perturbations structurées
+
+```json
+{
+  "id": "disturbance-uuid",
+  "type": "illness",
+  "intensity": "unknown",
+  "startTime": null,
+  "endTime": null,
+  "note": ""
+}
+```
+
+Le catalogue initial peut prévoir maladie/fièvre, sommeil perturbé, horaire inhabituel, voyage, alcool, médicament et autre. Ce catalogue sert à décrire le contexte ; il ne décide pas à lui seul qu'une température est exclue. L'exclusion ou l'utilisation d'une mesure dépendra uniquement d'une règle source documentée.
+
+### 12.5. Objectif et méthode
+
+`goal` accepte `conception`, `evitement` ou `observe`. Il modifie le parcours, les explications et les informations mises en avant, mais jamais les règles de classification sous-jacentes.
+
+Le bloc `method` doit contenir un identifiant de méthode, une édition/référence exacte et une version immuable du jeu de règles. Aucun cycle ne doit être présenté comme évalué selon Sensiplan tant que la référence exacte n'est pas configurée et que le statut de revue n'est pas approuvé.
+
+### 12.6. Résultat calculé — séparé des observations
+
+```json
+{
+  "engineVersion": "0.0.0",
+  "rulesetId": null,
+  "calculatedAt": null,
+  "status": "not_evaluated",
+  "days": [
+    {
+      "date": "2026-01-06",
+      "classification": "undetermined",
+      "reasonCodes": ["RULESET_NOT_APPROVED"],
+      "explanationKey": "classification.undetermined"
+    }
+  ],
+  "thermal": {
+    "status": "not_evaluated",
+    "referenceLineC": null,
+    "candidateDates": [],
+    "completionDate": null,
+    "reasonCodes": []
+  },
+  "mucus": {
+    "status": "not_evaluated",
+    "peakDate": null,
+    "completionDate": null,
+    "reasonCodes": []
+  },
+  "doubleCheck": {
+    "status": "not_evaluated",
+    "completionDate": null,
+    "reasonCodes": []
+  }
+}
+```
+
+États d'interface prévus : `potentially_fertile`, `fertile`, `end_check_pending`, `postovulatory_infertile`, `undetermined`. Le moteur ne doit émettre `postovulatory_infertile` qu'après validation du double contrôle selon la règle exacte approuvée. Avant cela, le résultat reste non déterminé ou potentiellement fertile selon les règles sourcées. Les libellés visibles seront localisés et accompagnés d'une explication des données/règles ayant conduit au résultat.
+
+### 12.7. Historique intercycles
+
+L'historique doit fournir au moteur les cycles antérieurs complets et vérifiables, pas seulement une durée minimale calculée sans provenance. Les données dérivées utiles (durée, premières températures hautes candidates, premier signe de glaire) peuvent être recalculées à partir des observations. Toute modification d'un cycle antérieur entraîne le recalcul des cycles suivants concernés.
+
+### 12.8. Migration depuis le modèle actuel
+
+Le modèle actuel est un tableau d'entrées quotidiennes avec notamment `date`, `temp`, `mucus`, `notes`, `factors`, `bleeding` et `time`. La migration doit être additive et réversible :
+1. Lire les clés actuelles sans les supprimer ni les écraser.
+2. Valider l'ensemble des tableaux selon les validateurs actuels.
+3. Construire une copie au nouveau format avec un identifiant stable par cycle et par observation.
+4. Convertir `temp` en `temperature.valueC` (la valeur actuelle étant déjà normalisée en Celsius dans le stockage) et conserver la valeur source disponible.
+5. Déplacer `time` vers `temperature.measuredAt`.
+6. Déplacer `factors` vers des objets `disturbances` avec `source: migration`, sans marquer automatiquement la température `disturbed`.
+7. Déplacer `mucus` dans `legacyCategory` uniquement. Ne pas fabriquer sensation, apparence ou Peak.
+8. Déplacer `bleeding` et `notes` vers les champs correspondants.
+9. Les cycles archivés reçoivent `startDate` et `endDate` depuis les valeurs existantes ; les dates de cycle ne sont pas recalculées si elles sont absentes ou ambiguës.
+10. Vérifier le nouveau contenu et l'écrire sous une nouvelle clé versionnée, par exemple `symrella_data_v2`.
+11. Relire et valider la copie écrite avant d'activer le nouveau modèle.
+12. En cas d'erreur, conserver l'ancien stockage actif et afficher une erreur explicite ; aucune suppression automatique.
+13. Garder l'ancien format intact pendant au moins une version complète et jusqu'à confirmation que l'export/import et la restauration fonctionnent.
+14. Ne jamais attribuer une classification de fertilité rétroactive aux cycles migrés.
+
+### 12.9. Contrat de sauvegarde et d'import
+
+La sauvegarde exportée doit contenir `app`, `schemaVersion`, `exportedAt`, `currentCycle`, `history`, `profile` et `learning`. L'import doit :
+- accepter explicitement les versions prises en charge ;
+- migrer en mémoire avant toute écriture ;
+- valider toutes les entrées, dates, identifiants et tailles ;
+- demander confirmation avant remplacement ;
+- écrire de manière transactionnelle avec rollback si une écriture échoue ;
+- préserver les clés existantes en cas d'échec ;
+- signaler les champs historiques conservés sans interprétation.
+
+### 12.10. Matrice minimale de tests du modèle
+
+| Cas | Résultat attendu |
+|---|---|
+| Ancienne installation avec données valides | Migration sans perte ; anciennes clés conservées |
+| Ancienne installation avec données illisibles | Aucune écriture destructive ; message de récupération |
+| Entrée avec température absente | Observation conservée ; valeur null |
+| Température avec heure absente | Heure null, jamais inventée |
+| Température avec perturbation | Mesure conservée ; statut distinct du motif |
+| Ancienne catégorie de glaire | Catégorie brute conservée ; aucun mapping automatique |
+| Sensation et apparence indépendantes | Les deux valeurs restent distinctes |
+| Modification/suppression d'une observation | Résultats dérivés invalidés et recalculables |
+| Modification d'un cycle antérieur | Cycles dépendants marqués à recalculer |
+| Import version antérieure | Migration contrôlée avant écriture |
+| Import invalide ou trop volumineux | Refus sans modifier les données actuelles |
+| Export puis import | Aller-retour sans perte des champs connus |
+| Données inconnues d'une version future | Refus contrôlé ou conservation opaque documentée, jamais suppression silencieuse |
+
+### 12.11. Découpage d'implémentation et critères d'acceptation
+
+**Lot A — modèle et persistance :** définir les validateurs de schéma, identifiants, lecture/écriture versionnée, migration non destructive et sauvegarde compatible. Accepté lorsque tous les tests de migration et de round-trip passent.
+
+**Lot B — saisie enrichie :** ajouter heure, voie de mesure, sensation, apparence, col et perturbations structurées dans l'interface FR/EN/ES/AR. Les nouveaux champs doivent rester facultatifs quand le référentiel ne les exige pas ; aucune donnée historique n'est écrasée.
+
+**Lot C — moteur méthodologique :** implémenter seulement les règles transcrites depuis le manuel autorisé, chaque règle reliée à une page/exemple et à un test. Les règles M-01 à M-10 restent bloquées jusqu'à revue qualifiée.
+
+**Lot D — restitution :** afficher la classification quotidienne et ses raisons, distinguer les parcours conception/évitement, gérer l'indétermination et les corrections rétroactives. Aucun jour infertile n'est affiché sur la base d'une donnée manquante, d'un calendrier seul ou d'une règle non approuvée.
+
+**État à la date de cette spécification :** ce modèle cible est documenté, mais les lots A à D ne sont pas déclarés implémentés. Le code actuel continue d'utiliser les clés et structures historiques. Aucun test d'application n'est déclaré exécuté dans le cadre de cette mise à jour.
