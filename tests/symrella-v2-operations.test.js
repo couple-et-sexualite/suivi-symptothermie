@@ -77,9 +77,16 @@ test("failed write rolls back to the previous complete store",()=>{
   assert.throws(()=>updateV2Observation(store,fixture().currentCycle.observations[0].id,{generalNotes:"x"}),/quota/);
   assert.equal(store.getItem(V2_STORAGE_KEY),before);
 });
-test("clear removes only v2 data and can be followed by a fresh migration",()=>{
-  const {store}=setup();store.setItem("symptothermie_current_cycle","[]");
+test("clear removes v2 and all legacy data to prevent accidental resurrection",()=>{
+  const {store}=setup();
+  for(const key of ["symptothermie_current_cycle","symptothermie_history","symptothermie_profile","symptothermie_learning_progress"]) store.setItem(key,"legacy");
   assert.equal(clearV2Store(store),true);
-  assert.equal(store.getItem(V2_STORAGE_KEY),null);
-  assert.equal(store.getItem("symptothermie_current_cycle"),"[]");
+  for(const key of [V2_STORAGE_KEY,"symptothermie_current_cycle","symptothermie_history","symptothermie_profile","symptothermie_learning_progress"]) assert.equal(store.getItem(key),null);
+});
+test("clear rolls back every key if a deletion fails",()=>{
+  const {store}=setup();store.setItem("symptothermie_current_cycle","legacy");
+  const before=store.snapshot(),remove=store.removeItem.bind(store);let count=0;
+  store.removeItem=key=>{if(++count===2)throw new Error("blocked");remove(key);};
+  assert.throws(()=>clearV2Store(store),/blocked/);
+  assert.deepEqual(store.snapshot(),before);
 });
