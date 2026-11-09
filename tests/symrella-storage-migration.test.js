@@ -85,3 +85,21 @@ test("missing legacy keys do not create an empty v2 database", () => {
   assert.equal(migrateBrowserStorage(storage).status, "legacy_missing");
   assert.equal(storage.getItem(V2_STORAGE_KEY), null);
 });
+
+test("readback access failure rolls back the newly written v2 key", () => {
+  const base = memoryStorage({
+    [LEGACY_STORAGE_KEYS.current]: JSON.stringify([validEntry]),
+    [LEGACY_STORAGE_KEYS.history]: "[]"
+  });
+  const originalGet = base.getItem.bind(base);
+  let v2Reads = 0;
+  base.getItem = key => {
+    if (key === V2_STORAGE_KEY && ++v2Reads === 2) throw new Error("readback unavailable");
+    return originalGet(key);
+  };
+  const result = migrateBrowserStorage(base);
+  assert.equal(result.status, "blocked");
+  assert.match(result.reason, /vérifier l'écriture/);
+  assert.equal(originalGet(V2_STORAGE_KEY), null);
+  assert.equal(originalGet(LEGACY_STORAGE_KEYS.current), JSON.stringify([validEntry]));
+});
