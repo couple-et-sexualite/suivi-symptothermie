@@ -494,3 +494,18 @@ Décisions explicites dans le code :
 - les données source ne sont ni écrasées ni supprimées par ces fonctions.
 
 **Limite actuelle :** la fonction de migration doit encore être raccordée à un flux de démarrage contrôlé, avec écriture dans une nouvelle clé, relecture/validation et possibilité de restauration. Les tests ont été ajoutés au script Node existant (`node --test tests/*.test.js`), mais leur exécution n'est pas confirmée dans cette session. Le lot A n'est donc pas déclaré terminé.
+
+
+### 13.1. Durcissement du schéma et du coordinateur de stockage
+
+La tranche technique a été renforcée sur la branche de travail :
+- le validateur v2 contrôle désormais les champs structurants des cycles et observations, les plages de température, les formats de date/heure, les voies de mesure, les états de qualité, les identifiants et les liens entre perturbations et mesures ;
+- les dates et identifiants d'observation doivent être uniques dans leur périmètre ; les identifiants de cycle et d'observation ne peuvent pas entrer en collision entre cycles ;
+- les bornes d'un cycle sont cohérentes avec ses observations ;
+- les notes historiques absentes sont acceptées comme champ optionnel et migrées en texte vide ; aucune catégorie de glaire n'est déduite ;
+- le coordinateur exige les opérations de stockage nécessaires et tente de supprimer la copie v2 incomplète si l'écriture ou sa relecture échoue ;
+- des tests ciblent désormais les doublons, valeurs hors plage, voies invalides, références de perturbation cassées et panne de relecture.
+
+**Périmètre toujours non activé :** le coordinateur n'est pas appelé au démarrage de l'application. L'interface et les fonctions actuelles lisent/écrivent encore les anciennes clés. Il serait dangereux d'activer une copie v2 en parallèle sans basculer ensemble les fonctions de lecture, d'écriture, d'édition, de suppression, d'export/import et de restauration. La bascule reste donc bloquée jusqu'à ce que ce parcours complet soit implémenté et testé de bout en bout.
+
+**État des vérifications :** les tests unitaires sont ajoutés mais leur résultat doit provenir de l'exécution effective du workflow CI ; leur simple présence dans le dépôt ne vaut pas validation.
