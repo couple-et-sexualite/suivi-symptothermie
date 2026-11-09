@@ -33,16 +33,19 @@ function legacyEntryIsValid(entry) {
     typeof entry.mucus === "string" && LEGACY_MUCUS.has(entry.mucus) &&
     (entry.time === undefined || entry.time === null || (typeof entry.time === "string" && ISO_TIME.test(entry.time))) &&
     (entry.bleeding === undefined || LEGACY_BLEEDING.has(entry.bleeding)) &&
-    (entry.factors === undefined || (Array.isArray(entry.factors) && entry.factors.every(x => LEGACY_FACTORS.has(x)))) &&
+    (entry.factors === undefined || (Array.isArray(entry.factors) &&
+      entry.factors.every(x => LEGACY_FACTORS.has(x)) && new Set(entry.factors).size === entry.factors.length)) &&
     typeof entry.notes === "string";
 }
 function uniqueSortedEntries(entries) {
   const seen = new Set();
-  return [...entries].sort((a, b) => a.date.localeCompare(b.date)).filter(entry => {
-    if (seen.has(entry.date)) return false;
+  for (const entry of entries) {
+    if (seen.has(entry.date)) {
+      throw new TypeError(`Plusieurs observations portent la même date : ${entry.date}.`);
+    }
     seen.add(entry.date);
-    return true;
-  });
+  }
+  return [...entries].sort((a, b) => a.date.localeCompare(b.date));
 }
 function migrateEntry(entry, id) {
   const disturbances = (entry.factors || []).map((type, i) => ({
