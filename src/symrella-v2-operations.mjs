@@ -75,7 +75,15 @@ export function importV2Store(storage,jsonText) {
   return commitStore(storage,storage.getItem(V2_STORAGE_KEY),clone(imported));
 }
 export function clearV2Store(storage) {
-  const {raw}=readStore(storage);
-  try {storage.removeItem(V2_STORAGE_KEY);if(storage.getItem(V2_STORAGE_KEY)!==null)throw new Error("La suppression n'a pas pu être vérifiée.");return true;}
-  catch(error){try{storage.setItem(V2_STORAGE_KEY,raw);}catch{}throw error;}
+  const keys=[V2_STORAGE_KEY,"symptothermie_current_cycle","symptothermie_history","symptothermie_profile","symptothermie_learning_progress"];
+  const previous={};
+  keys.forEach(key=>{previous[key]=storage.getItem(key);});
+  try {
+    keys.forEach(key=>storage.removeItem(key));
+    if(keys.some(key=>storage.getItem(key)!==null)) throw new Error("La suppression n'a pas pu être vérifiée.");
+    return true;
+  } catch(error) {
+    try {keys.forEach(key=>{if(previous[key]===null)storage.removeItem(key);else storage.setItem(key,previous[key]);});} catch {}
+    throw error;
+  }
 }
