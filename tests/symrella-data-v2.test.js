@@ -87,3 +87,34 @@ test("duplicate dates in an archived cycle are rejected", () => {
     }]
   }, { idFactory: ids }), /même date/);
 });
+
+test("schema validation rejects duplicate observation dates and IDs", () => {
+  const migrated = migrateLegacyData({ current: [entry("2026-01-01"), entry("2026-01-02")] }, { idFactory: (() => { let n = 0; return kind => `${kind}-${++n}`; })() });
+  const duplicateDate = structuredClone(migrated);
+  duplicateDate.currentCycle.observations[1].date = duplicateDate.currentCycle.observations[0].date;
+  assert.equal(validateV2Data(duplicateDate), false);
+  const duplicateId = structuredClone(migrated);
+  duplicateId.currentCycle.observations[1].id = duplicateId.currentCycle.observations[0].id;
+  assert.equal(validateV2Data(duplicateId), false);
+});
+
+test("schema validation rejects out-of-range temperature, invalid route and broken disturbance links", () => {
+  const migrated = migrateLegacyData({ current: [entry("2026-01-01")] }, { idFactory: (() => { let n = 0; return kind => `${kind}-${++n}`; })() });
+  const badTemperature = structuredClone(migrated);
+  badTemperature.currentCycle.observations[0].temperature.valueC = 99;
+  assert.equal(validateV2Data(badTemperature), false);
+  const badRoute = structuredClone(migrated);
+  badRoute.currentCycle.observations[0].temperature.measurementRoute = "forehead";
+  assert.equal(validateV2Data(badRoute), false);
+  const badLink = structuredClone(migrated);
+  badLink.currentCycle.observations[0].temperature.disturbanceIds = ["missing"];
+  assert.equal(validateV2Data(badLink), false);
+});
+
+test("optional legacy notes are preserved as empty text rather than blocking migration", () => {
+  const legacy = entry("2026-01-01");
+  delete legacy.notes;
+  const migrated = migrateLegacyData({ current: [legacy] }, { idFactory: (() => { let n = 0; return kind => `${kind}-${++n}`; })() });
+  assert.equal(migrated.currentCycle.observations[0].generalNotes, "");
+  assert.equal(validateV2Data(migrated), true);
+});
