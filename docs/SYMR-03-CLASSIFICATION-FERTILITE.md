@@ -475,3 +475,22 @@ La sauvegarde exportée doit contenir `app`, `schemaVersion`, `exportedAt`, `cur
 **Lot D — restitution :** afficher la classification quotidienne et ses raisons, distinguer les parcours conception/évitement, gérer l'indétermination et les corrections rétroactives. Aucun jour infertile n'est affiché sur la base d'une donnée manquante, d'un calendrier seul ou d'une règle non approuvée.
 
 **État à la date de cette spécification :** ce modèle cible est documenté, mais les lots A à D ne sont pas déclarés implémentés. Le code actuel continue d'utiliser les clés et structures historiques. Aucun test d'application n'est déclaré exécuté dans le cadre de cette mise à jour.
+
+
+## 13. Première tranche technique livrée — migration pure v2
+
+Deux fichiers ont été ajoutés à la branche de travail :
+- `src/symrella-data-v2.mjs` : fonctions pures de transformation et de validation du modèle local v2 ;
+- `tests/symrella-data-v2.test.js` : tests ciblant la conservation des champs, les valeurs inconnues, les perturbations et les données invalides.
+
+Cette première tranche ne modifie pas encore le stockage de l'application et n'est pas appelée par `app.js`. Elle prépare une migration isolée et testable avant raccordement à l'interface.
+
+Décisions explicites dans le code :
+- le premier jour observé n'est pas considéré automatiquement comme le premier jour du cycle ; `startDate` et `cycleDay` restent inconnus pour le cycle courant ;
+- les anciennes catégories de glaire sont conservées dans `legacyCategory`, sans conversion en sensation, apparence ou Peak ;
+- les facteurs historiques deviennent des événements de contexte ; ils ne suffisent pas à déclarer une température perturbée ou exclue ;
+- la voie de mesure reste `unknown` si elle n'a pas été saisie ;
+- aucune classification de fertilité n'est générée pendant la migration ;
+- les données source ne sont ni écrasées ni supprimées par ces fonctions.
+
+**Limite actuelle :** la fonction de migration doit encore être raccordée à un flux de démarrage contrôlé, avec écriture dans une nouvelle clé, relecture/validation et possibilité de restauration. Les tests ont été ajoutés au script Node existant (`node --test tests/*.test.js`), mais leur exécution n'est pas confirmée dans cette session. Le lot A n'est donc pas déclaré terminé.
