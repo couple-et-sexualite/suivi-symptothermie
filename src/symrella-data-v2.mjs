@@ -28,8 +28,10 @@ function validDate(value) {
   const d = new Date(value + "T00:00:00Z");
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
 }
+let generatedIdSequence = 0;
 function defaultId(prefix, index) {
-  return `${prefix}-${Date.now().toString(36)}-${index.toString(36)}`;
+  generatedIdSequence += 1;
+  return `${prefix}-${Date.now().toString(36)}-${generatedIdSequence.toString(36)}-${index.toString(36)}`;
 }
 function cleanText(value, max = 2000) {
   return typeof value === "string" ? value.slice(0, max) : "";
