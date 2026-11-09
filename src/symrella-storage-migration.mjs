@@ -64,7 +64,12 @@ export function migrateBrowserStorage(storage, options = {}) {
     }
 
     const serialized = JSON.stringify(data);
-    storage.setItem(V2_STORAGE_KEY, serialized);
+    try {
+      storage.setItem(V2_STORAGE_KEY, serialized);
+    } catch (error) {
+      try { storage.removeItem(V2_STORAGE_KEY); } catch {}
+      throw error;
+    }
     const readBack = storage.getItem(V2_STORAGE_KEY);
     if (readBack !== serialized) {
       try { storage.removeItem(V2_STORAGE_KEY); } catch {}
