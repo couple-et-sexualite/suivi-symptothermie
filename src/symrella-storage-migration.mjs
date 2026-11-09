@@ -30,7 +30,7 @@ function readJson(storage, key, fallback) {
  */
 export function migrateBrowserStorage(storage, options = {}) {
   if (!storage || typeof storage.getItem !== "function" ||
-      typeof storage.setItem !== "function") {
+      typeof storage.setItem !== "function" || typeof storage.removeItem !== "function") {
     return { status: "blocked", reason: "storage_unavailable" };
   }
 
@@ -70,7 +70,13 @@ export function migrateBrowserStorage(storage, options = {}) {
       try { storage.removeItem(V2_STORAGE_KEY); } catch {}
       throw error;
     }
-    const readBack = storage.getItem(V2_STORAGE_KEY);
+    let readBack;
+    try {
+      readBack = storage.getItem(V2_STORAGE_KEY);
+    } catch (error) {
+      try { storage.removeItem(V2_STORAGE_KEY); } catch {}
+      throw new Error(`Impossible de vérifier l'écriture locale : ${error instanceof Error ? error.message : "erreur de lecture"}`);
+    }
     if (readBack !== serialized) {
       try { storage.removeItem(V2_STORAGE_KEY); } catch {}
       return { status: "blocked", reason: "write_verification_failed" };
