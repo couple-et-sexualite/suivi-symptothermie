@@ -193,3 +193,51 @@ Avant tout affichage de jours infertiles ou toute communication commerciale fond
 - comparaison fonctionnelle avec l'application Sensiplan officielle, sans copier son interface ni ses contenus protégés.
 
 Ces vérifications ne changent pas l'objectif de SymRella : développer une application symptothermique qui aide à repérer la fertilité pour les projets de conception et d'évitement d'une grossesse. Elles évitent en revanche de confondre « moteur inspiré de règles documentées » et « méthode Sensiplan officiellement reconnue ».
+
+
+## 11. Écart fonctionnel entre le tableau Sensiplan et l'interface actuelle
+
+La comparaison du tableau de cycle officiel français avec l'interface SymRella actuelle fait ressortir des écarts concrets.
+
+| Donnée figurant dans le tableau Sensiplan | SymRella actuelle | Action nécessaire |
+|---|---|---|
+| Date et jour du cycle | Date/jour dérivés des observations | Vérifier la gestion du premier jour des règles et des cycles longs |
+| Température quotidienne | Oui | Ajouter/valider la voie de mesure, l'heure et la qualité de la mesure dans le modèle |
+| Heure de mesure | Pas de champ dédié identifié dans le modèle courant | Ajouter un champ explicite |
+| Voie de mesure (orale, vaginale, rectale) | Pas de champ dédié identifié | Ajouter un choix explicite et conserver la voie par observation |
+| Perturbations / événements inhabituels | Contexte partiel | Structurer les perturbations et leur lien avec une mesure donnée |
+| Sensation liée à la glaire | Catégories globales sec/collante/crémeuse/blanc d'œuf | Séparer sensation et aspect ; ne pas inférer l'un depuis l'autre |
+| Aspect de la glaire | Catégories globales uniquement | Ajouter les attributs nécessaires à la grille officielle, après vérification du manuel |
+| Col : position, ouverture, consistance | Absent de l'interface actuelle examinée | Ajouter comme signe secondaire facultatif, sans le substituer aux signes principaux |
+| Premières températures hautes des cycles précédents | Pas de synthèse dédiée identifiée | Créer un historique intercycles exploitable pour le calcul d'ouverture précoce |
+| Premier signe de glaire / sensation non sèche | Données trop agrégées | Conserver le premier changement observé avec date et détail |
+| Intention du cycle (conception ou évitement) | Pas de parcours explicite identifié | Ajouter un choix d'objectif ; même moteur de classification, présentation adaptée |
+| Interprétation du cycle | Décalage thermique descriptif seulement | À implémenter ultérieurement, après règles sourcées et revue experte |
+
+Source du tableau français : https://sensiplan.be/telechargements/?lang=fr
+Source de la page officielle de téléchargements : https://www.sensiplan.de/downloads
+
+### 11.1. Règle d'ouverture précoce : formule de travail à confirmer
+
+Une revue scientifique comparative des méthodes de connaissance de la fertilité décrit pour Sensiplan le début de la phase potentiellement fertile comme le premier des repères suivants :
+- le 6e jour du cycle ;
+- six jours avant la première montée thermique la plus précoce observée dans les cycles précédents ;
+- le jour correspondant à la durée du cycle le plus court parmi les cycles précédents, moins 19 jours ;
+- le premier jour où apparaît de la glaire cervicale.
+
+Cette formulation est consignée ici comme **règle de travail issue d'une revue comparative**, et non comme règle prête à coder. La formule doit être comparée mot à mot au manuel officiel, notamment le nombre de cycles antérieurs requis, le traitement des cycles atypiques et la règle de glaire/sensation à appliquer. Source de comparaison : Peragallo Urrutia et al., systematic review, tableau 1 : https://www.sensiplan.nl/wp-content/uploads/2025/02/Effectiveness-of-Fertility-Awareness%E2%80%93Based-Methods-for-Pregnancy-Prevention_A-Systematic-Review.pdf
+
+### 11.2. Signe du col de l'utérus
+
+Le tableau officiel français comprend les observations de position, d'ouverture et de consistance du col. Le site Sensiplan Belgique indique que ce signe peut être utile dans certaines situations, notamment la préménopause ou après une grossesse. Il doit donc être prévu dans le modèle de données comme observation distincte, mais son poids dans les règles de classification ne doit pas être inventé ni ajouté au double contrôle sans référence explicite au manuel.
+
+Source : https://sensiplan.be/telechargements/?lang=fr
+
+### 11.3. Parcours conception et évitement
+
+Le tableau officiel comporte une question sur l'intention de grossesse pour le cycle. SymRella doit donc demander l'objectif de l'utilisateur, tout en conservant une seule classification méthodologique sous-jacente :
+- **Conception :** rendre lisibles les observations et la fenêtre de fertilité, sans prétendre prédire avec certitude le jour de l'ovulation.
+- **Évitement :** rendre visibles les jours potentiellement fertiles et ne classer la phase post-ovulatoire comme infertile qu'après validation complète des critères et des conditions d'utilisation applicables.
+- **Objectif non défini :** permettre la saisie et l'affichage neutre des observations, sans supposer l'intention.
+
+La classification doit être identique quel que soit l'objectif ; seul le conseil d'usage et la présentation peuvent différer.
