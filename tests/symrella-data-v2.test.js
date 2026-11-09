@@ -53,10 +53,37 @@ test("invalid legacy records are rejected without partial migration", () => {
   }, { idFactory: ids }), /invalides/);
 });
 
-test("duplicate dates are collapsed deterministically to the first sorted occurrence", () => {
-  const migrated = migrateLegacyData({
+test("duplicate dates are rejected instead of silently losing an observation", () => {
+  assert.throws(() => migrateLegacyData({
     current: [entry("2026-01-01"), entry("2026-01-01", { notes: "doublon" })]
+  }, { idFactory: ids }), /même date/);
+});
+
+test("legacy records matching the current app format remain migratable", () => {
+  const migrated = migrateLegacyData({
+    current: [entry("2026-01-01", { temp: null, time: null, factors: [], bleeding: "aucun" })],
+    history: [{
+      start: "2025-12-01",
+      end: "2025-12-28",
+      entries: [entry("2025-12-03", { temp: null, time: null, factors: [] })]
+    }],
+    profile: { version: 1, goal: "observer", language: "fr", unit: "c" },
+    learning: { version: 1, completed: {}, lastModule: null }
   }, { idFactory: ids });
-  assert.equal(migrated.currentCycle.observations.length, 1);
-  assert.equal(migrated.currentCycle.observations[0].generalNotes, "Note conservée");
+  assert.equal(migrated.currentCycle.observations[0].temperature.valueC, null);
+  assert.equal(migrated.currentCycle.observations[0].temperature.measuredAt, null);
+  assert.equal(migrated.history[0].observations[0].temperature.valueC, null);
+  assert.equal(migrated.profile.goal, "observer");
+  assert.equal(migrated.learning.version, 1);
+});
+
+test("duplicate dates in an archived cycle are rejected", () => {
+  assert.throws(() => migrateLegacyData({
+    current: [],
+    history: [{
+      start: "2025-12-01",
+      end: "2025-12-28",
+      entries: [entry("2025-12-03"), entry("2025-12-03", { notes: "doublon" })]
+    }]
+  }, { idFactory: ids }), /même date/);
 });
