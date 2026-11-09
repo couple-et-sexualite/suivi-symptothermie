@@ -2,15 +2,15 @@
  * SymRella local data schema v2.
  * Pure migration/validation helpers. No fertility interpretation is performed here.
  */
-
 export const DATA_SCHEMA = "symrella.local-data";
 export const DATA_SCHEMA_VERSION = 2;
 
 const LEGACY_MUCUS = new Set(["sec", "collante", "cremeuse", "blanc-oeuf"]);
 const LEGACY_BLEEDING = new Set(["aucun", "regles", "spotting"]);
 const LEGACY_FACTORS = new Set(["maladie", "sommeil", "horaire", "voyage", "alcool", "medicament"]);
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const ISO_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+const DISTURBANCE_TYPES = new Set(["illness", "sleep", "unusual_time", "travel", "alcohol", "medication"]);
+const ISO_DATE = /^\\d{4}-\\d{2}-\\d{2}$/;
+const ISO_TIME = /^(?:[01]\\d|2[0-3]):[0-5]\\d$/;
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -35,7 +35,7 @@ function legacyEntryIsValid(entry) {
     (entry.bleeding === undefined || LEGACY_BLEEDING.has(entry.bleeding)) &&
     (entry.factors === undefined || (Array.isArray(entry.factors) &&
       entry.factors.every(x => LEGACY_FACTORS.has(x)) && new Set(entry.factors).size === entry.factors.length)) &&
-    typeof entry.notes === "string";
+    (entry.notes === undefined || typeof entry.notes === "string");
 }
 function uniqueSortedEntries(entries) {
   const seen = new Set();
@@ -113,11 +113,7 @@ function makeCycle(entries, { id, startDate = null, endDate = null, goal = "obse
   };
 }
 
-/**
- * Migrate the legacy current/history arrays without modifying or deleting them.
- * A current cycle start date is deliberately left null: the first recorded
- * observation is not necessarily the first day of menstruation.
- */
+/** Migrate legacy arrays without modifying or deleting them. */
 export function migrateLegacyData({ current = [], history = [], profile = null, learning = null } = {}, options = {}) {
   const idFactory = options.idFactory || defaultId;
   if (!Array.isArray(current) || !Array.isArray(history)) {
@@ -133,16 +129,10 @@ export function migrateLegacyData({ current = [], history = [], profile = null, 
   }
 
   const currentCycle = makeCycle(current, {
-    id: idFactory("cycle", 0),
-    startDate: null,
-    endDate: null,
-    idFactory
+    id: idFactory("cycle", 0), startDate: null, endDate: null, idFactory
   });
   const migratedHistory = history.map((cycle, index) => makeCycle(cycle.entries, {
-    id: idFactory("history-cycle", index),
-    startDate: cycle.start,
-    endDate: cycle.end,
-    idFactory
+    id: idFactory("history-cycle", index), startDate: cycle.start, endDate: cycle.end, idFactory
   }));
 
   return {
@@ -159,19 +149,84 @@ export function migrateLegacyData({ current = [], history = [], profile = null, 
 function structuredCloneSafe(value) {
   return JSON.parse(JSON.stringify(value));
 }
+
+function validObservation(observation) {
+  if (!isObject(observation) || typeof observation.id !== "string" || !observation.id ||
+      !validDate(observation.date) || !isObject(observation.bleeding) ||
+      !LEGACY_BLEEDING.has(observation.bleeding.level) ||
+      !isObject(observation.temperature) || !isObject(observation.cervicalMucus) ||
+      !Array.isArray(observation.cervicalMucus.appearance) ||
+      !isObject(observation.cervix) || !Array.isArray(observation.disturbances) ||
+      !isObject(observation.intercourse) ||
+      typeof observation.generalNotes !== "string") return false;
+
+  const t = observation.temperature;
+  if (!(t.valueC === null || (typeof t.valueC === "number" && Number.isFinite(t.valueC) && t.valueC >= 34 && t.valueC <= 42)) ||
+      !(t.measuredAt === null || (typeof t.measuredAt === "string" && ISO_TIME.test(t.measuredAt))) ||
+      !["oral", "vaginal", "rectal", "other", "unknown"].includes(t.measurementRoute) ||
+      !["usable", "disturbed", "unknown"].includes(t.quality) ||
+      !Array.isArray(t.disturbanceIds)) return false;
+
+  const disturbanceIds = new Set();
+  for (const d of observation.disturbances) {
+    if (!isObject(d) || typeof d.id !== "string" || !d.id ||
+        !DISTURBANCE_TYPES.has(d.type) || disturbanceIds.has(d.id)) return false;
+    disturbanceIds.add(d.id);
+  }
+  if (t.disturbanceIds.some(id => typeof id !== "string" || !disturbanceIds.has(id))) return false;
+
+  const mucus = observation.cervicalMucus;
+  if (!(mucus.legacyCategory === null || LEGACY_MUCUS.has(mucus.legacyCategory)) ||
+      mucus.appearance.some(item => typeof item !== "string")) return false;
+  return true;
+}
+
+function validCycle(cycle) {
+  if (!isObject(cycle) || cycle.schema !== "symrella.cycle" ||
+      cycle.schemaVersion !== DATA_SCHEMA_VERSION || typeof cycle.id !== "string" || !cycle.id ||
+      !(cycle.startDate === null || validDate(cycle.startDate)) ||
+      !(cycle.endDate === null || validDate(cycle.endDate)) ||
+      (cycle.startDate && cycle.endDate && cycle.startDate > cycle.endDate) ||
+      !["conception", "evitement", "observe"].includes(cycle.goal) ||
+      !isObject(cycle.method) || cycle.method.id !== "sensiplan" ||
+      !["not_approved", "pending_review", "approved"].includes(cycle.method.reviewStatus) ||
+      !Array.isArray(cycle.observations) || !isObject(cycle.derived) ||
+      cycle.derived.status !== "not_evaluated" || !Array.isArray(cycle.derived.days)) return false;
+
+  const dates = new Set();
+  const observationIds = new Set();
+  for (const observation of cycle.observations) {
+    if (!validObservation(observation) || dates.has(observation.date) ||
+        observationIds.has(observation.id)) return false;
+    if (cycle.startDate && observation.date < cycle.startDate) return false;
+    if (cycle.endDate && observation.date > cycle.endDate) return false;
+    dates.add(observation.date);
+    observationIds.add(observation.id);
+  }
+  return true;
+}
+
+/** Structural guard for local v2 data; deliberately does not validate fertility rules. */
 export function validateV2Data(value) {
-  if (!isObject(value) || value.schema !== DATA_SCHEMA || value.schemaVersion !== DATA_SCHEMA_VERSION ||
-      !isObject(value.currentCycle) || !Array.isArray(value.history) ||
-      !isObject(value.migration) || value.migration.fertilityClassification !== "not_created") return false;
-  const cycleValid = cycle => isObject(cycle) && cycle.schema === "symrella.cycle" &&
-    cycle.schemaVersion === DATA_SCHEMA_VERSION && typeof cycle.id === "string" &&
-    (cycle.startDate === null || validDate(cycle.startDate)) &&
-    (cycle.endDate === null || validDate(cycle.endDate)) &&
-    Array.isArray(cycle.observations) && cycle.observations.every(o =>
-      isObject(o) && typeof o.id === "string" && validDate(o.date) &&
-      isObject(o.temperature) && (o.temperature.valueC === null ||
-        (typeof o.temperature.valueC === "number" && Number.isFinite(o.temperature.valueC))) &&
-      isObject(o.cervicalMucus) && Array.isArray(o.cervicalMucus.appearance) &&
-      Array.isArray(o.disturbances));
-  return cycleValid(value.currentCycle) && value.history.every(cycleValid);
+  if (!isObject(value) || value.schema !== DATA_SCHEMA ||
+      value.schemaVersion !== DATA_SCHEMA_VERSION ||
+      !validCycle(value.currentCycle) || !Array.isArray(value.history) ||
+      !isObject(value.migration) ||
+      value.migration.from !== "legacy-array-v1" ||
+      value.migration.status !== "completed" ||
+      value.migration.fertilityClassification !== "not_created" ||
+      !(value.profile === null || isObject(value.profile)) ||
+      !(value.learning === null || isObject(value.learning))) return false;
+
+  const cycleIds = new Set([value.currentCycle.id]);
+  const observationIds = new Set(value.currentCycle.observations.map(o => o.id));
+  for (const cycle of value.history) {
+    if (!validCycle(cycle) || cycleIds.has(cycle.id)) return false;
+    cycleIds.add(cycle.id);
+    for (const observation of cycle.observations) {
+      if (observationIds.has(observation.id)) return false;
+      observationIds.add(observation.id);
+    }
+  }
+  return true;
 }
