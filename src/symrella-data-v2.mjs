@@ -9,6 +9,14 @@ const LEGACY_MUCUS = new Set(["sec", "collante", "cremeuse", "blanc-oeuf"]);
 const LEGACY_BLEEDING = new Set(["aucun", "regles", "spotting"]);
 const LEGACY_FACTORS = new Set(["maladie", "sommeil", "horaire", "voyage", "alcool", "medicament"]);
 const DISTURBANCE_TYPES = new Set(["illness", "sleep", "unusual_time", "travel", "alcohol", "medication"]);
+const DERIVED_STATUSES = new Set([
+  "not_evaluated",
+  "potentially_fertile",
+  "fertile",
+  "end_pending",
+  "postovulatory_infertile",
+  "indeterminate"
+]);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
@@ -191,7 +199,7 @@ function validCycle(cycle) {
       !isObject(cycle.method) || cycle.method.id !== "sensiplan" ||
       !["not_approved", "pending_review", "approved"].includes(cycle.method.reviewStatus) ||
       !Array.isArray(cycle.observations) || !isObject(cycle.derived) ||
-      cycle.derived.status !== "not_evaluated" || !Array.isArray(cycle.derived.days)) return false;
+      !DERIVED_STATUSES.has(cycle.derived.status) || !Array.isArray(cycle.derived.days)) return false;
 
   const dates = new Set();
   const observationIds = new Set();
