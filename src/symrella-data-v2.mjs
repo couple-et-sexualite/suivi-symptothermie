@@ -9,8 +9,8 @@ const LEGACY_MUCUS = new Set(["sec", "collante", "cremeuse", "blanc-oeuf"]);
 const LEGACY_BLEEDING = new Set(["aucun", "regles", "spotting"]);
 const LEGACY_FACTORS = new Set(["maladie", "sommeil", "horaire", "voyage", "alcool", "medicament"]);
 const DISTURBANCE_TYPES = new Set(["illness", "sleep", "unusual_time", "travel", "alcohol", "medication"]);
-const ISO_DATE = /^\\d{4}-\\d{2}-\\d{2}$/;
-const ISO_TIME = /^(?:[01]\\d|2[0-3]):[0-5]\\d$/;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
