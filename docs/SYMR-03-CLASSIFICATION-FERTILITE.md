@@ -116,3 +116,40 @@ Les tests automatisés vérifient que le code applique les règles spécifiées 
 Cette spécification remplace, pour la définition de la finalité produit, les formulations de RPS-02 qui interdisent à SymRella d'afficher des jours fertiles ou infertiles. Elle ne rend pas automatiquement opérationnelles les règles de calcul : celles-ci restent soumises à la matrice de traçabilité, aux tests et à l'examen méthodologique qualifié.
 
 **Priorité immédiate :** établir la matrice Sensiplan complète avant de modifier le moteur de calcul ou d'afficher des jours infertiles.
+
+
+## 9. Première matrice de traçabilité — éléments documentés et points à verrouiller
+
+Cette matrice est une **base de travail documentaire**, pas encore une spécification algorithmique exhaustive. Les sources publiques permettent de confirmer plusieurs principes, mais le manuel Sensiplan complet reste la référence nécessaire pour coder toutes les variantes et situations particulières.
+
+| ID | Domaine | Élément documenté | Source publique consultée | Statut pour le développement |
+|---|---|---|---|---|
+| M-01 | Début de fertilité | Le début de la période potentiellement fertile tient compte du premier signe de glaire/ sensation humide et d'une règle de calcul fondée sur les cycles précédents ; le signe observé le plus précoce prévaut. | IFP Familienhandbuch, section Sensiplan ; étude de conception Sensiplan | Principe confirmé ; formule exacte, nombre de cycles requis et cas de début de cycle à reprendre dans le manuel |
+| M-02 | Observation de glaire | Sensiplan distingue notamment les sensations et les caractéristiques observées ; les catégories publiques comprennent d, ø, v, S et S+. | NFP Vlaanderen / Sensiplan Belgique, tableau des abréviations | Confirmé ; l'interface actuelle à quatre niveaux ne suffit pas à reproduire cette grille |
+| M-03 | Pic de glaire | Le « Höhepunkt » correspond au dernier jour de la meilleure qualité individuelle ; il est identifié rétrospectivement après le changement de qualité. | Arbeitsgruppe NFP, support d'exercices ; documents de synthèse Sensiplan | Principe confirmé ; règles complètes de validation et de reprise du pic à extraire du manuel |
+| M-04 | Fin selon la glaire | La règle post-pic attend trois jours révolus après le jour du pic ; la disponibilité post-ovulatoire commence après l'achèvement de cette règle, sous réserve du double contrôle. | Étude sur les couples subfertiles utilisant Sensiplan ; supports Sensiplan | Principe confirmé ; convention exacte de comptage et heure de libération à vérifier dans le référentiel |
+| M-05 | Montée thermique | Règle de base : trois températures hautes consécutives au-dessus des six températures basses précédentes ; la troisième doit atteindre au moins +0,2 °C par rapport à la ligne de référence. | Sensiplan / AG NFP ; synthèse universitaire IFP Familienhandbuch | Principe confirmé ; règles de sélection et d'exclusion des températures à détailler |
+| M-06 | Exceptions thermiques | Deux règles d'exception existent ; elles ne doivent pas être combinées. L'une concerne une troisième température qui n'atteint pas +0,2 °C ; l'autre une valeur qui retombe sur ou sous la ligne de référence. | IFP Familienhandbuch ; documents de synthèse de l'évaluation symptothermique | Principe confirmé ; séquences exactes à vérifier sur les exemples officiels avant codage |
+| M-07 | Double contrôle | La phase post-ovulatoire infertile ne peut être classée qu'après achèvement des critères de glaire et de température ; le critère qui se termine en dernier gouverne la date de fin. | Étude Sensiplan publiée dans Archives of Gynecology and Obstetrics ; IFP Familienhandbuch | Principe confirmé |
+| M-08 | Projet de conception | Les jours de glaire de meilleure qualité sont particulièrement pertinents pour cibler les rapports ; le conseil de conception n'est pas identique à la conduite d'évitement d'une grossesse. | Étude Sensiplan sur les couples subfertiles | À présenter dans un parcours distinct, sans altérer la classification commune |
+| M-09 | Perturbations et données manquantes | Les données perturbées, absentes ou ambiguës doivent être traitées selon les règles explicites du manuel ; elles ne doivent pas être converties arbitrairement en données normales. | FAQ Sensiplan ; tableau de cycle Sensiplan | Détail des règles d'exclusion et de reprise à extraire du manuel |
+| M-10 | Situations particulières | Post-partum/allaitement, arrêt de contraception hormonale, cycles irréguliers, maladie, médicaments, saignements atypiques et autres situations nécessitent les règles spécifiques du référentiel. | FAQ et supports Sensiplan | Non spécifié pour le moteur tant que les règles détaillées et cas tests ne sont pas documentés |
+
+### Sources publiques de travail
+
+- Sensiplan, FAQ officielle : https://www.sensiplan.de/faqs
+- Sensiplan, téléchargements et documents de cycle : https://www.sensiplan.de/downloads
+- Sensiplan Belgique, tableau des abréviations de glaire et présentation du manuel : https://sensiplan.be/downloads/
+- IFP Familienhandbuch, section « Die symptothermale Methode Sensiplan » : https://www.familienhandbuch.de/eltern-werden/familienplanung/nat.familienplanung.php
+- Frank-Herrmann et al., étude sur les taux de conception après formation Sensiplan : https://www.sensiplan.nl/wp-content/uploads/2025/02/Natural-conception-rates-in-subfertile-couples-following-fertility-awareness-training.pdf
+
+### Points bloquants avant programmation
+
+1. Obtenir et consulter le manuel Sensiplan autorisé dans sa version actuelle, ainsi que les tableaux de cycle et exemples d'évaluation.
+2. Transcrire sans simplification les règles de début de fertilité, y compris le calcul rétrospectif et ses exceptions.
+3. Formaliser les catégories de glaire et la détermination du pic, y compris les changements de meilleure qualité et les observations contradictoires.
+4. Formaliser les deux exceptions thermiques et confirmer explicitement leur non-cumul.
+5. Documenter les situations spéciales et leurs conséquences sur la classification.
+6. Faire relire chaque règle et chaque cycle de test par une personne formée et habilitée à enseigner Sensiplan.
+
+**Décision technique à ce stade :** ne pas coder les règles M-01 à M-10 à partir de résumés tiers. Les sources publiques confirment les grands principes, mais le manuel et les exemples officiels sont requis pour figer les cas limites.
