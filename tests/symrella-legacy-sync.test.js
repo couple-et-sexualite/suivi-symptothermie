@@ -55,7 +55,7 @@ test("sync updates legacy fields while preserving richer v2 observation details"
   observation.temperature.originalValue = 97.5;
   observation.cervicalMucus.sensation = "wet";
   observation.cervicalMucus.appearance = ["stretchy"];
-  observation.cervicalMucus.peakQualityCandidate = "peak-candidate";
+  observation.cervicalMucus.peakQualityCandidate = true;
   observation.disturbances[0].note = "Détail conservé";
   observation.temperature.disturbanceIds = observation.disturbances.map(item => item.id);
   const store = memoryStorage(data);
