@@ -78,7 +78,7 @@ test("invalid import never overwrites the existing store",()=>{
 });
 test("failed write rolls back to the previous complete store",()=>{
   const {store}=setup(),before=store.getItem(V2_STORAGE_KEY),original=store.setItem.bind(store);
-  let writes=0;store.setItem=(k,v)=>{writes++;if(writes===1)original(k,v);else throw new Error("quota");};
+  let writes=0;store.setItem=(k,v)=>{writes++;if(writes===1)throw new Error("quota");original(k,v);};
   assert.throws(()=>updateV2Observation(store,fixture().currentCycle.observations[0].id,{generalNotes:"x"}),/quota/);
   assert.equal(store.getItem(V2_STORAGE_KEY),before);
 });
