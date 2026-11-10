@@ -57,6 +57,7 @@ test("sync updates legacy fields while preserving richer v2 observation details"
   observation.cervicalMucus.appearance = ["stretchy"];
   observation.cervicalMucus.peakQualityCandidate = "peak-candidate";
   observation.disturbances[0].note = "Détail conservé";
+  observation.temperature.disturbanceIds = observation.disturbances.map(item => item.id);
   const store = memoryStorage(data);
   const result = syncLegacySnapshotToV2(store, snapshot(), {
     idFactory: (prefix, index) => "new-" + prefix + "-" + index
