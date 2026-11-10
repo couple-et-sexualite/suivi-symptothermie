@@ -157,6 +157,8 @@ function addEntry() {
     const notes = document.getElementById('f-notes').value.trim();
     const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
     const time = document.getElementById('f-time').value;
+    const cervicalSensation = document.getElementById('f-mucus-sensation')?.value || '';
+    const cervicalAppearance = [...document.querySelectorAll('#mucus-appearance input:checked')].map(el => el.value);
 
     if (!date) { setActionStatus(at('chooseDate')); return; }
     if (!isValidDateKey(date)) { setActionStatus(at('invalidDate')); return; }
@@ -196,6 +198,9 @@ function addEntry() {
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
     saveCurrent(entries);
+    if (window.symrellaSaveCervicalObservation) {
+      window.symrellaSaveCervicalObservation(date, { sensation: cervicalSensation, appearance: cervicalAppearance });
+    }
 
     // Le stockage est effectué avant le rafraîchissement de l'interface.
     // Ainsi, même si un élément visuel rencontre une erreur, l'observation reste sauvegardée.
@@ -209,6 +214,8 @@ function addEntry() {
     document.getElementById('f-time').value = '';
     document.getElementById('f-bleeding').value = 'aucun';
     document.getElementById('f-mucus').value = 'sec';
+    document.getElementById('f-mucus-sensation').value = '';
+    document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
     document.getElementById('f-notes').value = '';
     document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
 
@@ -234,6 +241,14 @@ function editEntry(date) {
   document.getElementById('f-temp').value = entry.temp === null ? '' : celsiusToDisplay(entry.temp).toFixed(2);
   document.getElementById('f-time').value = entry.time || '';
   document.getElementById('f-mucus').value = entry.mucus || 'sec';
+  let cervical = null;
+  try {
+    const store = window.symrellaReadV2Store?.();
+    const cycle = store && [store.currentCycle, ...store.history].find(item => item.observations.some(observation => observation.date === date));
+    cervical = cycle?.observations.find(observation => observation.date === date)?.cervicalMucus || null;
+  } catch(error) {}
+  document.getElementById('f-mucus-sensation').value = cervical?.sensation || '';
+  document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = Array.isArray(cervical?.appearance) && cervical.appearance.includes(el.value); });
   document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
@@ -268,6 +283,9 @@ function cancelEdit() {
   if (time) time.value = '';
   if (bleeding) bleeding.value = 'aucun';
   if (mucus) mucus.value = 'sec';
+  const sensation = document.getElementById('f-mucus-sensation');
+  if (sensation) sensation.value = '';
+  document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
   if (notes) notes.value = '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
   announceEditStatus('Formulaire réinitialisé.');
