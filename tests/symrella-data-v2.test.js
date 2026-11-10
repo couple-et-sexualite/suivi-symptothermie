@@ -155,3 +155,32 @@ test("default migration IDs stay unique across current and archived cycles", () 
   assert.equal(new Set(ids).size, ids.length);
   assert.equal(validateV2Data(migrated), true);
 });
+
+
+test("v2 accepts separate rich cervical sensation and appearance fields", () => {
+  const migrated = migrateLegacyData({ current: [entry("2026-02-01")] }, { idFactory: ids });
+  const observation = migrated.currentCycle.observations[0];
+  observation.cervicalMucus.sensation = "slippery";
+  observation.cervicalMucus.appearance = ["clear", "stretchy"];
+  observation.cervicalMucus.peakQualityCandidate = true;
+  assert.equal(validateV2Data(migrated), true);
+});
+
+test("v2 rejects malformed enriched cervical observations", () => {
+  const migrated = migrateLegacyData({ current: [entry("2026-02-02")] }, { idFactory: ids });
+  migrated.currentCycle.observations[0].cervicalMucus.sensation = { value: "slippery" };
+  assert.equal(validateV2Data(migrated), false);
+
+  const second = migrateLegacyData({ current: [entry("2026-02-03")] }, { idFactory: ids });
+  second.currentCycle.observations[0].cervicalMucus.appearance = ["clear", ""];
+  assert.equal(validateV2Data(second), false);
+});
+
+test("v2 validates cervical observation fields without inventing values during migration", () => {
+  const migrated = migrateLegacyData({ current: [entry("2026-02-04")] }, { idFactory: ids });
+  const observation = migrated.currentCycle.observations[0];
+  assert.equal(observation.cervicalMucus.sensation, null);
+  assert.deepEqual(observation.cervicalMucus.appearance, []);
+  assert.equal(observation.cervicalMucus.peakQualityCandidate, null);
+  assert.equal(validateV2Data(migrated), true);
+});
