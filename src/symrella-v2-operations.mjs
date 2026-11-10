@@ -98,6 +98,10 @@ export function recalculateV2Cycle(storage, cycleId = null, language = "fr") {
     ? [next.currentCycle,...next.history].find(item=>item.id===cycleId)
     : next.currentCycle;
   if(!cycle) throw new Error("Cycle introuvable.");
+  const needsCalculation = cycle.derived?.status === "not_evaluated" ||
+    cycle.derived?.engineVersion !== "0.2.0" ||
+    cycle.derived?.days?.length !== cycle.observations.length;
+  if (!needsCalculation) return data;
   cycle.derived=classifyV2Cycle(cycle,language);
   return commitStore(storage,raw,next);
 }
