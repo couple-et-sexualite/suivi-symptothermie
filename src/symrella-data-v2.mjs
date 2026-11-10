@@ -187,7 +187,18 @@ function validObservation(observation) {
 
   const mucus = observation.cervicalMucus;
   if (!(mucus.legacyCategory === null || LEGACY_MUCUS.has(mucus.legacyCategory)) ||
-      mucus.appearance.some(item => typeof item !== "string")) return false;
+      !(mucus.sensation === null || typeof mucus.sensation === "string") ||
+      (typeof mucus.sensation === "string" && mucus.sensation.length > 80) ||
+      mucus.appearance.length > 12 ||
+      mucus.appearance.some(item => typeof item !== "string" || !item.trim() || item.length > 80) ||
+      !(mucus.peakQualityCandidate === null || typeof mucus.peakQualityCandidate === "boolean") ||
+      typeof mucus.notes !== "string" || mucus.notes.length > 2000) return false;
+
+  const cervix = observation.cervix;
+  for (const key of ["position", "opening", "consistency"]) {
+    if (!(cervix[key] === null || (typeof cervix[key] === "string" && cervix[key].length <= 80))) return false;
+  }
+  if (typeof cervix.notes !== "string" || cervix.notes.length > 2000) return false;
   return true;
 }
 
