@@ -29,7 +29,12 @@ function mergeObservation(previous, incoming) {
   for (const item of incoming.disturbances) {
     const factor = DISTURBANCE_TO_LEGACY[item.type];
     if (factor && !keptLegacy.has(factor)) {
-      kept.push({ ...clone(item), id: `${previous.id}-legacy-${factor}` });
+      const baseId = `${previous.id}-legacy-${factor}`;
+      const usedIds = new Set(kept.map(existing => existing.id));
+      let id = baseId;
+      let suffix = 2;
+      while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
+      kept.push({ ...clone(item), id });
       keptLegacy.add(factor);
     }
   }
@@ -49,7 +54,6 @@ function mergeCycle(previous, incoming, { current = false } = {}) {
   const observations = incoming.observations.map(item =>
     mergeObservation(previousByDate.get(item.date), item)
   );
-  const dates = observations.map(item => item.date).sort();
   return {
     ...clone(previous),
     startDate: current ? previous.startDate : incoming.startDate,
