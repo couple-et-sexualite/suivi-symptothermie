@@ -5,7 +5,7 @@ import { V2_STORAGE_KEY } from "../src/symrella-storage-migration.mjs";
 import {
   readV2Store, updateV2Observation, deleteV2Observation,
   archiveV2CurrentCycle, deleteV2HistoryCycle,
-  exportV2Store, importV2Store, clearV2Store
+  exportV2Store, importV2Store, clearV2Store, recalculateV2Cycle
 } from "../src/symrella-v2-operations.mjs";
 
 function storage(initial={}) {
@@ -94,4 +94,26 @@ test("clear rolls back every key if a deletion fails",()=>{
   store.removeItem=key=>{if(++count===2)throw new Error("blocked");remove(key);};
   assert.throws(()=>clearV2Store(store),/blocked/);
   assert.deepEqual(store.snapshot(),before);
+});
+
+test("recalculate stores traceable daily statuses for the selected cycle",()=>{
+  const {data,store}=setup();
+  const result=recalculateV2Cycle(store);
+  assert.equal(result.currentCycle.derived.days.length,2);
+  assert.ok(result.currentCycle.derived.days.every(day=>day.status==="potentially_fertile"));
+  assert.ok(result.currentCycle.derived.days.every(day=>day.reasonId==="DOUBLE_CHECK_NOT_COMPLETE"));
+  assert.equal(result.currentCycle.derived.engineVersion,"0.2.0");
+  assert.equal(readV2Store(store).currentCycle.derived.days.length,2);
+});
+test("recalculate can target an archived cycle without changing the current one",()=>{
+  const {data,store}=setup();
+  archiveV2CurrentCycle(store,{newCycleId:"cycle-next"});
+  const result=recalculateV2Cycle(store,data.currentCycle.id,"en");
+  assert.equal(result.history[0].derived.days.length,2);
+  assert.match(result.history[0].derived.days[0].explanation,/Fertility/);
+  assert.equal(result.currentCycle.derived.status,"not_evaluated");
+});
+test("recalculate rejects unknown cycle identifiers",()=>{
+  const {store}=setup();
+  assert.throws(()=>recalculateV2Cycle(store,"missing"),/Cycle introuvable/);
 });
