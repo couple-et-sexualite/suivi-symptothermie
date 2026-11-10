@@ -104,3 +104,21 @@ test("sync rolls back when storage write fails", () => {
   assert.throws(() => syncLegacySnapshotToV2(store, snapshot()), /quota/);
   assert.equal(store.snapshot(), before);
 });
+
+test("history keeps its v2 identity when its date bounds are adjusted", () => {
+  const data = base();
+  const originalCycleId = data.history[0].id;
+  const originalObservationId = data.history[0].observations[0].id;
+  const store = memoryStorage(data);
+  const adjusted = snapshot();
+  adjusted.history[0].start = "2026-01-31";
+  adjusted.history[0].end = "2026-03-01";
+  const result = syncLegacySnapshotToV2(store, adjusted, {
+    idFactory: (prefix, index) => "adjusted-" + prefix + "-" + index
+  });
+  assert.equal(result.history.length, 1);
+  assert.equal(result.history[0].id, originalCycleId);
+  assert.equal(result.history[0].observations[0].id, originalObservationId);
+  assert.equal(result.history[0].startDate, "2026-01-31");
+  assert.equal(result.history[0].endDate, "2026-03-01");
+});
