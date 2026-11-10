@@ -21,12 +21,15 @@ function mergeObservation(previous, incoming) {
   const requestedFactors = new Set(
     incoming.disturbances.map(item => DISTURBANCE_TO_LEGACY[item.type]).filter(Boolean)
   );
+  const incomingIds = new Set(incoming.disturbances
+    .map(item => DISTURBANCE_TO_LEGACY[item.type])
+    .filter(Boolean)
+    .map(factor => `${previous.id}-legacy-${factor}`));
   const kept = next.disturbances.filter(item => {
     const legacyFactor = DISTURBANCE_TO_LEGACY[item.type];
-    // Preserve richer v2 records carrying their own note even when the
-    // legacy interface cannot represent that detail or its removal.
-    return !legacyFactor || requestedFactors.has(legacyFactor) ||
-      (typeof item.note === "string" && item.note.trim().length > 0);
+    const collidingRichRecord = incomingIds.has(item.id) &&
+      typeof item.note === "string" && item.note.trim().length > 0;
+    return !legacyFactor || requestedFactors.has(legacyFactor) || collidingRichRecord;
   });
   const keptLegacy = new Set(kept.map(item => DISTURBANCE_TO_LEGACY[item.type]).filter(Boolean));
   for (const item of incoming.disturbances) {
