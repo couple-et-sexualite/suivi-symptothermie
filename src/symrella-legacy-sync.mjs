@@ -22,9 +22,8 @@ function mergeObservation(previous, incoming) {
     incoming.disturbances.map(item => DISTURBANCE_TO_LEGACY[item.type]).filter(Boolean)
   );
   const incomingIds = new Set(incoming.disturbances
-    .map(item => DISTURBANCE_TO_LEGACY[item.type])
-    .filter(Boolean)
-    .map(factor => `${previous.id}-legacy-${factor}`));
+    .filter(item => DISTURBANCE_TO_LEGACY[item.type])
+    .map(item => `${previous.id}-legacy-${item.type}`));
   const kept = next.disturbances.filter(item => {
     const legacyFactor = DISTURBANCE_TO_LEGACY[item.type];
     const collidingRichRecord = incomingIds.has(item.id) &&
@@ -35,7 +34,7 @@ function mergeObservation(previous, incoming) {
   for (const item of incoming.disturbances) {
     const factor = DISTURBANCE_TO_LEGACY[item.type];
     if (factor && !keptLegacy.has(factor)) {
-      const baseId = `${previous.id}-legacy-${factor}`;
+      const baseId = `${previous.id}-legacy-${item.type}`;
       const usedIds = new Set(next.disturbances.map(existing => existing.id));
       let id = baseId;
       let suffix = 2;
