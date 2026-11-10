@@ -750,7 +750,15 @@ function showCalendarDetail(date) {
   const notes = entry.notes ? '<br>' + dt('notes') + ' : ' + escapeHtml(entry.notes) : '';
   const time = entry.time ? '<br>' + dt('measurementTime') + ' : ' + escapeHtml(entry.time) : '';
   const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>' + dt('bleeding') + ' : ' + (entry.bleeding === 'regles' ? dt('period') : dt('spotting')) : '';
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes;
+  let fertilityDetail='';
+  try {
+    if (window.symrellaRecalculateCycle && window.symrellaReadV2Store) {
+      window.symrellaRecalculateCycle(null,getLanguage());
+      const day=window.symrellaReadV2Store().currentCycle.derived?.days?.find(item=>item.date===date);
+      if(day) fertilityDetail='<br><strong>'+escapeHtml(fertilityStatusLabel(day.status))+'</strong><br>'+escapeHtml(day.explanation);
+    }
+  } catch(error) {}
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes + fertilityDetail;
   detail.focus();
 }
 
