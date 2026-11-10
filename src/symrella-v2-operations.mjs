@@ -55,6 +55,7 @@ export function archiveV2CurrentCycle(storage,{newCycleId}={}) {
   if(!data.currentCycle.observations.length) throw new Error("Le cycle en cours ne contient aucune observation.");
   if(data.history.length>=MAX_HISTORY_CYCLES) throw new Error("La limite de cycles archivés est atteinte.");
   if(typeof newCycleId!=="string"||!newCycleId.trim()) throw new TypeError("Un identifiant de nouveau cycle est requis.");
+  if([data.currentCycle,...data.history].some(cycle=>cycle.id===newCycleId)) throw new Error("Cet identifiant de cycle existe déjà.");
   const next=clone(data),archived=next.currentCycle,dates=archived.observations.map(x=>x.date).sort();
   archived.startDate=dates[0]; archived.endDate=dates[dates.length-1]; archived.updatedAt=new Date().toISOString();
   next.history.unshift(archived);
