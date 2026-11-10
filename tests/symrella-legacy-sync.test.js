@@ -25,7 +25,7 @@ function base() {
       }]
     }],
     profile: { goal: "observer" }, learning: { completed: { a: true } }
-  }, { idFactory: (prefix, index) => prefix + "-" + index });
+  });
   return data;
 }
 function snapshot() {
