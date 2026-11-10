@@ -67,6 +67,24 @@ function cycleKey(cycle) {
   return `${cycle.startDate || ""}|${cycle.endDate || ""}`;
 }
 
+function findMatchingHistoryCycle(candidates, incoming) {
+  const exact = candidates.find(cycle => cycleKey(cycle) === cycleKey(incoming));
+  if (exact) return exact;
+  const incomingDates = new Set(incoming.observations.map(item => item.date));
+  let best = null;
+  let bestOverlap = 0;
+  for (const candidate of candidates) {
+    const overlap = candidate.observations.reduce(
+      (count, item) => count + (incomingDates.has(item.date) ? 1 : 0), 0
+    );
+    if (overlap > bestOverlap) {
+      best = candidate;
+      bestOverlap = overlap;
+    }
+  }
+  return bestOverlap > 0 ? best : null;
+}
+
 /**
  * Reconcile a complete legacy UI snapshot into the v2 store.
  * Existing detailed observations are retained by date; unsupported destructive
@@ -92,10 +110,10 @@ export function syncLegacySnapshotToV2(storage, snapshot, options = {}) {
     throw new Error("La base SymRella v2 est invalide ; aucune modification effectuée.");
   }
 
-  const previousHistory = new Map(previous.history.map(cycle => [cycleKey(cycle), cycle]));
+  const unmatchedHistory = previous.history.slice();
   const nextHistory = incoming.history.map(cycle => {
-    const match = previousHistory.get(cycleKey(cycle));
-    if (match) previousHistory.delete(cycleKey(cycle));
+    const match = findMatchingHistoryCycle(unmatchedHistory, cycle);
+    if (match) unmatchedHistory.splice(unmatchedHistory.indexOf(match), 1);
     return mergeCycle(match, cycle);
   });
   // If an archived cycle disappears from the legacy snapshot, deletion is
