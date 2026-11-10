@@ -23,14 +23,17 @@ function mergeObservation(previous, incoming) {
   );
   const kept = next.disturbances.filter(item => {
     const legacyFactor = DISTURBANCE_TO_LEGACY[item.type];
-    return !legacyFactor || requestedFactors.has(legacyFactor);
+    // Preserve richer v2 records carrying their own note even when the
+    // legacy interface cannot represent that detail or its removal.
+    return !legacyFactor || requestedFactors.has(legacyFactor) ||
+      (typeof item.note === "string" && item.note.trim().length > 0);
   });
   const keptLegacy = new Set(kept.map(item => DISTURBANCE_TO_LEGACY[item.type]).filter(Boolean));
   for (const item of incoming.disturbances) {
     const factor = DISTURBANCE_TO_LEGACY[item.type];
     if (factor && !keptLegacy.has(factor)) {
       const baseId = `${previous.id}-legacy-${factor}`;
-      const usedIds = new Set(kept.map(existing => existing.id));
+      const usedIds = new Set(next.disturbances.map(existing => existing.id));
       let id = baseId;
       let suffix = 2;
       while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
