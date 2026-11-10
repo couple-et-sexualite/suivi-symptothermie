@@ -122,3 +122,24 @@ test("history keeps its v2 identity when its date bounds are adjusted", () => {
   assert.equal(result.history[0].startDate, "2026-01-31");
   assert.equal(result.history[0].endDate, "2026-03-01");
 });
+
+
+test("sync generates a unique id when a legacy disturbance id collides with a richer record", () => {
+  const data = base();
+  const observation = data.currentCycle.observations[0];
+  const collisionId = observation.id + "-legacy-alcohol";
+  observation.disturbances.push({
+    id: collisionId, type: "illness", note: "Détail riche conservé"
+  });
+  observation.temperature.disturbanceIds.push(collisionId);
+  const store = memoryStorage(data);
+  const result = syncLegacySnapshotToV2(store, snapshot(), {
+    idFactory: (prefix, index) => "collision-" + prefix + "-" + index
+  });
+  const updated = result.currentCycle.observations.find(item => item.date === "2026-03-02");
+  const ids = updated.disturbances.map(item => item.id);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(ids.includes(collisionId));
+  assert.ok(ids.includes(collisionId + "-2"));
+  assert.equal(updated.disturbances.find(item => item.id === collisionId).note, "Détail riche conservé");
+});
