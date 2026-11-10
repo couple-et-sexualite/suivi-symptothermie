@@ -293,28 +293,16 @@ function startNewCycle() {
     return;
   }
   const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
-  const keys = [CURRENT_KEY, HISTORY_KEY];
-  const previous = { [CURRENT_KEY]: null, [HISTORY_KEY]: null };
   try {
-    keys.forEach(key => { previous[key] = localStorage.getItem(key); });
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
-    localStorage.setItem(CURRENT_KEY, JSON.stringify([]));
+    if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:[],history:nextHistory,profile:loadProfile(),learning:loadLearning()});
     memHistory = nextHistory;
     memCurrent = [];
     storageAvailable = true;
     setActionStatus(at('newCycle'));
   } catch (error) {
-    try {
-      keys.forEach(key => {
-        if (previous[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, previous[key]);
-      });
-    } catch (rollbackError) {}
-    storageAvailable = false;
-    memHistory = nextHistory;
-    memCurrent = [];
     setActionStatus(at('sessionArchive'));
-    setStorageStatus('Le cycle a été conservé pendant cette session, mais le navigateur n’a pas permis de confirmer la sauvegarde durable.');
+    setStorageStatus('L’archivage n’a pas été confirmé. Les données précédentes ont été conservées.');
   }
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
@@ -752,28 +740,19 @@ function showCalendarDetail(date) {
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
 function clearAllData(){
   if(!confirm(at('clearConfirm'))) return;
-  const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY], previous={};
-  keys.forEach(key => { previous[key]=null; });
   let persistent=true;
   try {
-    keys.forEach(key => { previous[key]=localStorage.getItem(key); });
-    keys.forEach(key => localStorage.removeItem(key));
-  } catch (error) {
-    persistent=false;
-    try {
-      keys.forEach(key => {
-        if (previous[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, previous[key]);
-      });
-    } catch (rollbackError) {}
+    if(!window.symrellaClearAllStores) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaClearAllStores();
+  } catch(error) { persistent=false; }
+  if(persistent) {
+    memCurrent=[]; memHistory=[];
+    memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
+    memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   }
-  memCurrent=[];
-  memHistory=[];
-  memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
-  memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   storageAvailable=persistent;
   setActionStatus(persistent?at('clear'):at('storageSession'));
-  if(!persistent) setStorageStatus('Le navigateur n’a pas permis de modifier durablement les données locales. Les données sont toutefois effacées de la session en cours.');
+  if(!persistent) setStorageStatus('L’effacement n’a pas pu être confirmé. Les données précédentes ont été conservées.');
   document.getElementById('action-status')?.focus();
   renderProfile();renderLearning();renderCalendar();render();
 }
@@ -876,7 +855,7 @@ function isValidDateKey(value) {
 }
 
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!validEntryCollection(value.current)||!Array.isArray(value.history)||value.history.length>MAX_HISTORY_CYCLES)return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))||(p.language!==undefined&&!['fr','en','es','ar'].includes(p.language))||(p.unit!==undefined&&!['c','f'].includes(p.unit))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus(at('importTooLarge'));const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus(at('imported'));const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus(at('importFailed'));const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus(at('importTooLarge'));const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');window.symrellaPersistSnapshot({current:p.current,history:p.history,profile:nextProfile,learning:nextLearning});memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus(at('imported'));const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus(at('importFailed'));const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
 document.addEventListener('click', (event) => {
   const calendarTarget = event.target.closest('[data-calendar-date]');
   if (calendarTarget) {
