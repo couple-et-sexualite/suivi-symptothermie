@@ -47,6 +47,11 @@ test("archive moves the complete current cycle and creates an empty current cycl
   assert.equal(result.currentCycle.id,"cycle-next");
   assert.equal(result.currentCycle.observations.length,0);
 });
+test("archive rejects a new cycle identifier already used by the current cycle",()=>{
+  const {data,store}=setup();
+  assert.throws(()=>archiveV2CurrentCycle(store,{newCycleId:data.currentCycle.id}),/existe déjà/);
+  assert.equal(readV2Store(store).history.length,0);
+});
 test("archive refuses an empty current cycle and missing new identifier",()=>{
   const {store}=setup();
   const data=JSON.parse(store.getItem(V2_STORAGE_KEY));data.currentCycle.observations=[];
