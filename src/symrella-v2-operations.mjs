@@ -1,5 +1,6 @@
 import { validateV2Data } from "./symrella-data-v2.mjs";
 import { V2_STORAGE_KEY } from "./symrella-storage-migration.mjs";
+import { classifyV2Cycle } from "./symrella-v2-classification.mjs";
 
 const MAX_HISTORY_CYCLES = 200;
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -87,4 +88,16 @@ export function clearV2Store(storage) {
     try {keys.forEach(key=>{if(previous[key]===null)storage.removeItem(key);else storage.setItem(key,previous[key]);});} catch {}
     throw error;
   }
+}
+
+
+/** Recalculate daily fertility statuses for the current or selected archived cycle. */
+export function recalculateV2Cycle(storage, cycleId = null, language = "fr") {
+  const {raw,data}=readStore(storage),next=clone(data);
+  const cycle=cycleId
+    ? [next.currentCycle,...next.history].find(item=>item.id===cycleId)
+    : next.currentCycle;
+  if(!cycle) throw new Error("Cycle introuvable.");
+  cycle.derived=classifyV2Cycle(cycle,language);
+  return commitStore(storage,raw,next);
 }
