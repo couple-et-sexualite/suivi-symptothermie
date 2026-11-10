@@ -10,13 +10,16 @@ const FACTOR_BY_DISTURBANCE = Object.freeze({
 });
 
 function legacyEntry(observation) {
+  if (!observation.cervicalMucus.legacyCategory) {
+    throw new Error(`La glaire du ${observation.date} utilise le nouveau format ; l’ancienne interface ne peut pas la représenter sans perte.`);
+  }
   const factorSet = new Set(
     observation.disturbances.map(item => FACTOR_BY_DISTURBANCE[item.type]).filter(Boolean)
   );
   return {
     date: observation.date,
     temp: observation.temperature.valueC,
-    mucus: observation.cervicalMucus.legacyCategory || "sec",
+    mucus: observation.cervicalMucus.legacyCategory,
     notes: observation.generalNotes,
     factors: [...factorSet],
     bleeding: observation.bleeding.level,
