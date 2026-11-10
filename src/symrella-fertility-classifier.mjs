@@ -96,8 +96,7 @@ export function classifyFertilityDays({
       ? engineResult.cervical.fertileDates.filter(validDate)
       : []
   );
-  const blocked = engineResult?.state === "UNRESOLVED" ||
-    engineResult?.cervical?.interpretationBlocked === true;
+  const unresolved = engineResult?.state === "UNRESOLVED";
 
   const days = sorted.map(observation => {
     let status;
@@ -109,7 +108,7 @@ export function classifyFertilityDays({
       status = STATUS.FERTILE;
     } else if (oneEndCriterion) {
       status = STATUS.END_PENDING;
-    } else if (blocked && !observation.temperature?.valueC && !observation.cervicalMucus) {
+    } else if (unresolved) {
       status = STATUS.INDETERMINATE;
     } else {
       status = STATUS.POTENTIALLY_FERTILE;
