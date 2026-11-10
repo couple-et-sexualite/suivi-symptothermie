@@ -286,7 +286,7 @@ assert.match(page, /name\.length>80/);
 test('les erreurs de stockage local disposent d’un retour accessible', () => {
   assert.match(page, /id="storage-status"[^>]*role="status"[^>]*aria-live="polite"/);
   assert.match(page, /setStorageStatus\(message\)/);
-  assert.match(page, /n’ont pas pu être enregistrées durablement/);
+  assert.match(page, /La sauvegarde coordonnée a échoué/);
 });
 
 
@@ -359,11 +359,8 @@ test('l’import valide la progression pédagogique avant toute écriture', () =
   assert.match(page, /!validBackup\(p\)\|\|\('learning'in p&&p\.learning!==undefined&&!validLearning\(p\.learning\)\)/);
 });
 
-test('l’import sauvegarde les anciennes données avant les écritures et prévoit un rollback', () => {
-  assert.match(page, /const keys=\[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY\],previous=\{\}/);
-  assert.match(page, /localStorage\.setItem\(CURRENT_KEY,JSON\.stringify\(p\.current\)\)/);
-  assert.match(page, /localStorage\.setItem\(HISTORY_KEY,JSON\.stringify\(p\.history\)\)/);
-assert.match(page, /previous\[key\]===null.*localStorage\.removeItem\(key\)/);
+test('l’import utilise la transaction commune et ne confirme qu’après sa réussite', () => {
+  assert.match(page, /window\.symrellaPersistSnapshot\(\{current:p\.current,history:p\.history,profile:nextProfile,learning:nextLearning\}\)/);
 });
 
 test('l’import ne met à jour les caches mémoire qu’après les écritures réussies', () => {
