@@ -138,8 +138,15 @@ function saveCurrent(entries, cervicalObservation = null) {
 function loadHistory(){if(memHistory!==null)return memHistory;try{const raw=localStorage.getItem(HISTORY_KEY),parsed=raw?JSON.parse(raw):[];if(!Array.isArray(parsed)||parsed.length>MAX_HISTORY_CYCLES||!parsed.every(validStoredHistoryCycle))throw new Error('format');memHistory=parsed;}catch(e){storageAvailable=false;memHistory=[];setStorageStatus('L’historique local est illisible ou incomplet. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');}return memHistory;}
 function saveHistory(hist){
   const previous=memHistory; memHistory=hist;
-  try { if(!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.'); window.symrellaPersistSnapshot({current:loadCurrent(),history:hist,profile:loadProfile(),learning:loadLearning()}); }
-  catch(e) { memHistory=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); }
+  try {
+    if(!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:loadCurrent(),history:hist,profile:loadProfile(),learning:loadLearning()});
+    return true;
+  } catch(e) {
+    memHistory=previous; storageAvailable=false;
+    setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.');
+    return false;
+  }
 }
 
 document.getElementById('f-date').valueAsDate = new Date();
@@ -335,7 +342,10 @@ function deleteHistoryCycle(idx) {
   if (!cycle) return;
   if (!confirm(at('deleteHistoryConfirm').replace('{start}',formatDate(cycle.start)).replace('{end}',formatDate(cycle.end)))) return;
   hist.splice(idx, 1);
-  saveHistory(hist);
+  if (!saveHistory(hist)) {
+    setActionStatus(at('saveFail'));
+    return;
+  }
   setActionStatus(at('historyDeleted'));
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
