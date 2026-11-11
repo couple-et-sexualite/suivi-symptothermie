@@ -101,7 +101,7 @@ test("recalculate stores traceable daily statuses for the selected cycle",()=>{
   const result=recalculateV2Cycle(store);
   assert.equal(result.currentCycle.derived.days.length,2);
   assert.ok(result.currentCycle.derived.days.every(day=>day.status==="potentially_fertile"));
-  assert.ok(result.currentCycle.derived.days.every(day=>day.reasonId==="DOUBLE_CHECK_NOT_COMPLETE"));
+  assert.ok(result.currentCycle.derived.days.every(day=>day.reasonId==="CERVICAL_RULES_NOT_AVAILABLE"));
   assert.equal(result.currentCycle.derived.engineVersion,"0.2.0");
   assert.equal(readV2Store(store).currentCycle.derived.days.length,2);
 });
