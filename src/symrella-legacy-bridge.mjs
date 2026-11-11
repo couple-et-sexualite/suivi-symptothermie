@@ -1,8 +1,13 @@
 import { commitLegacySnapshot } from "./symrella-legacy-transaction.mjs";
 import { clearV2Store, recalculateV2Cycle, readV2Store, updateV2Observation } from "./symrella-v2-operations.mjs";
 
-window.symrellaPersistSnapshot = snapshot =>
-  commitLegacySnapshot(window.localStorage, snapshot);
+window.symrellaPersistSnapshot = (snapshot, cervicalObservation = null) =>
+  commitLegacySnapshot(window.localStorage, {
+    ...snapshot,
+    cervicalObservations: cervicalObservation
+      ? [cervicalObservation]
+      : (snapshot.cervicalObservations || [])
+  });
 window.symrellaClearAllStores = () =>
   clearV2Store(window.localStorage);
 window.symrellaRecalculateCycle = (cycleId = null, language = "fr") =>
