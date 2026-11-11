@@ -120,9 +120,18 @@ export function syncLegacySnapshotToV2(storage, snapshot, options = {}) {
   }
 
   const unmatchedHistory = previous.history.slice();
+  let currentCycleArchived = false;
   const nextHistory = incoming.history.map(cycle => {
-    const match = findMatchingHistoryCycle(unmatchedHistory, cycle);
-    if (match) unmatchedHistory.splice(unmatchedHistory.indexOf(match), 1);
+    let match = findMatchingHistoryCycle(unmatchedHistory, cycle);
+    if (match) {
+      unmatchedHistory.splice(unmatchedHistory.indexOf(match), 1);
+    } else if (!currentCycleArchived) {
+      // The legacy UI archives the current cycle by moving its entries into
+      // history. Match that new history record against the previous current
+      // cycle so richer cervical and measurement details survive the move.
+      match = findMatchingHistoryCycle([previous.currentCycle], cycle);
+      if (match) currentCycleArchived = true;
+    }
     return mergeCycle(match, cycle);
   });
   // If an archived cycle disappears from the legacy snapshot, deletion is
