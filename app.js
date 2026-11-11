@@ -131,7 +131,7 @@ function saveCurrent(entries) {
   memCurrent = entries;
   try {
     if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
-    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()}, {date: entries[entries.length - 1].date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance}});
+    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()}, {date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance}});
     return true;
   } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); return false; }
 }
