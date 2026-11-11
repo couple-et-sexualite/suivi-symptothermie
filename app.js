@@ -131,7 +131,7 @@ function saveCurrent(entries) {
   memCurrent = entries;
   try {
     if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
-    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()});
+    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()}, {date: entries[entries.length - 1].date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance}});
     return true;
   } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); return false; }
 }
@@ -202,17 +202,6 @@ function addEntry() {
       setActionStatus(at('saveFail'));
       return;
     }
-    if (window.symrellaSaveCervicalObservation) {
-      try {
-        window.symrellaSaveCervicalObservation(date, { sensation: cervicalSensation, appearance: cervicalAppearance });
-      } catch (cervicalError) {
-        console.error('Erreur lors de la sauvegarde des observations cervicales :', cervicalError);
-        setStorageStatus('Les données générales ont été enregistrées, mais les observations cervicales n’ont pas pu être sauvegardées. Réessayez la modification de cette date.');
-        setActionStatus(at('saveFail'));
-        return;
-      }
-    }
-
     // Le stockage est effectué avant le rafraîchissement de l'interface.
     // Ainsi, même si un élément visuel rencontre une erreur, l'observation reste sauvegardée.
     render();
