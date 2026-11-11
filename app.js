@@ -65,7 +65,11 @@ function loadLearning() {
   catch (e) { storageAvailable = false; memLearning = {version:LEARNING_VERSION, completed:{}, lastModule:null}; setStorageStatus('La progression pédagogique locale est illisible. Elle a été réinitialisée pour cette session.'); }
   return memLearning;
 }
-function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
+function saveLearning(value) {
+  const previous=memLearning; memLearning=value;
+  try { if(!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.'); window.symrellaPersistSnapshot({current:loadCurrent(),history:loadHistory(),profile:loadProfile(),learning:value}); }
+  catch(e) { memLearning=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. La progression précédente a été conservée.'); }
+}
 function renderLearning() {
   const progress = loadLearning(), completed = Object.keys(progress.completed).length;
   const progressBar = document.getElementById('overall-progress');
@@ -123,11 +127,20 @@ function loadCurrent(){
 }
 function setStorageStatus(message){const status=document.getElementById('storage-status');if(status)status.textContent=message;}
 function saveCurrent(entries) {
+  const previous = memCurrent;
   memCurrent = entries;
-  try { localStorage.setItem(CURRENT_KEY, JSON.stringify(entries)); } catch (e) { storageAvailable = false; setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.'); }
+  try {
+    if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()});
+    return true;
+  } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); return false; }
 }
 function loadHistory(){if(memHistory!==null)return memHistory;try{const raw=localStorage.getItem(HISTORY_KEY),parsed=raw?JSON.parse(raw):[];if(!Array.isArray(parsed)||parsed.length>MAX_HISTORY_CYCLES||!parsed.every(validStoredHistoryCycle))throw new Error('format');memHistory=parsed;}catch(e){storageAvailable=false;memHistory=[];setStorageStatus('L’historique local est illisible ou incomplet. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');}return memHistory;}
-function saveHistory(hist){memHistory=hist;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(hist));}catch(e){storageAvailable=false;setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.');}}
+function saveHistory(hist){
+  const previous=memHistory; memHistory=hist;
+  try { if(!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.'); window.symrellaPersistSnapshot({current:loadCurrent(),history:hist,profile:loadProfile(),learning:loadLearning()}); }
+  catch(e) { memHistory=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); }
+}
 
 document.getElementById('f-date').valueAsDate = new Date();
 document.getElementById('f-date').max = localDateKey();
@@ -145,6 +158,8 @@ function addEntry() {
     const notes = document.getElementById('f-notes').value.trim();
     const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
     const time = document.getElementById('f-time').value;
+    const cervicalSensation = document.getElementById('f-mucus-sensation')?.value || '';
+    const cervicalAppearance = [...document.querySelectorAll('#mucus-appearance input:checked')].map(el => el.value);
 
     if (!date) { setActionStatus(at('chooseDate')); return; }
     if (!isValidDateKey(date)) { setActionStatus(at('invalidDate')); return; }
@@ -183,7 +198,20 @@ function addEntry() {
       return;
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
-    saveCurrent(entries);
+    if (!saveCurrent(entries)) {
+      setActionStatus(at('saveFail'));
+      return;
+    }
+    if (window.symrellaSaveCervicalObservation) {
+      try {
+        window.symrellaSaveCervicalObservation(date, { sensation: cervicalSensation, appearance: cervicalAppearance });
+      } catch (cervicalError) {
+        console.error('Erreur lors de la sauvegarde des observations cervicales :', cervicalError);
+        setStorageStatus('Les données générales ont été enregistrées, mais les observations cervicales n’ont pas pu être sauvegardées. Réessayez la modification de cette date.');
+        setActionStatus(at('saveFail'));
+        return;
+      }
+    }
 
     // Le stockage est effectué avant le rafraîchissement de l'interface.
     // Ainsi, même si un élément visuel rencontre une erreur, l'observation reste sauvegardée.
@@ -197,6 +225,8 @@ function addEntry() {
     document.getElementById('f-time').value = '';
     document.getElementById('f-bleeding').value = 'aucun';
     document.getElementById('f-mucus').value = 'sec';
+    document.getElementById('f-mucus-sensation').value = '';
+    document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
     document.getElementById('f-notes').value = '';
     document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
 
@@ -222,6 +252,14 @@ function editEntry(date) {
   document.getElementById('f-temp').value = entry.temp === null ? '' : celsiusToDisplay(entry.temp).toFixed(2);
   document.getElementById('f-time').value = entry.time || '';
   document.getElementById('f-mucus').value = entry.mucus || 'sec';
+  let cervical = null;
+  try {
+    const store = window.symrellaReadV2Store?.();
+    const cycle = store && [store.currentCycle, ...store.history].find(item => item.observations.some(observation => observation.date === date));
+    cervical = cycle?.observations.find(observation => observation.date === date)?.cervicalMucus || null;
+  } catch(error) {}
+  document.getElementById('f-mucus-sensation').value = cervical?.sensation || '';
+  document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = Array.isArray(cervical?.appearance) && cervical.appearance.includes(el.value); });
   document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
@@ -256,6 +294,9 @@ function cancelEdit() {
   if (time) time.value = '';
   if (bleeding) bleeding.value = 'aucun';
   if (mucus) mucus.value = 'sec';
+  const sensation = document.getElementById('f-mucus-sensation');
+  if (sensation) sensation.value = '';
+  document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
   if (notes) notes.value = '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
   announceEditStatus('Formulaire réinitialisé.');
@@ -281,28 +322,16 @@ function startNewCycle() {
     return;
   }
   const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
-  const keys = [CURRENT_KEY, HISTORY_KEY];
-  const previous = { [CURRENT_KEY]: null, [HISTORY_KEY]: null };
   try {
-    keys.forEach(key => { previous[key] = localStorage.getItem(key); });
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
-    localStorage.setItem(CURRENT_KEY, JSON.stringify([]));
+    if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:[],history:nextHistory,profile:loadProfile(),learning:loadLearning()});
     memHistory = nextHistory;
     memCurrent = [];
     storageAvailable = true;
     setActionStatus(at('newCycle'));
   } catch (error) {
-    try {
-      keys.forEach(key => {
-        if (previous[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, previous[key]);
-      });
-    } catch (rollbackError) {}
-    storageAvailable = false;
-    memHistory = nextHistory;
-    memCurrent = [];
     setActionStatus(at('sessionArchive'));
-    setStorageStatus('Le cycle a été conservé pendant cette session, mais le navigateur n’a pas permis de confirmer la sauvegarde durable.');
+    setStorageStatus('L’archivage n’a pas été confirmé. Les données précédentes ont été conservées.');
   }
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
@@ -702,13 +731,19 @@ function applyLanguage(){
   const buttons=document.querySelectorAll('[data-action="export-data"],[data-action="import-data"],[data-action="clear-all-data"]');if(buttons[0])buttons[0].textContent=d.ui.export;if(buttons[1])buttons[1].textContent=d.ui.import;if(buttons[2])buttons[2].textContent=d.ui.clear;
   const goal=document.getElementById('profile-goal');if(goal)goal.querySelectorAll('option').forEach((o,i)=>{if(d.goals[i])o.textContent=d.goals[i];});
   const labels={
-    fr:{bleeding:['Aucun renseigné','Règles','Spotting (saignement léger)'],mucus:['Sec / absent','Collante','Crémeuse',"Blanc d'œuf (observation)"],factors:['Maladie / fièvre','Sommeil perturbé','Horaire inhabituel','Voyage / déplacement','Alcool','Médicament']},
-    en:{bleeding:['None indicated','Period','Spotting (light bleeding)'],mucus:['Dry / absent','Sticky','Creamy','Egg white (observation)'],factors:['Illness / fever','Disturbed sleep','Unusual schedule','Travel / displacement','Alcohol','Medication']},
-    es:{bleeding:['Ninguno indicado','Regla','Spotting (sangrado leve)'],mucus:['Seco / ausente','Pegajoso','Cremoso',"Clara de huevo (observación)"],factors:['Enfermedad / fiebre','Sueño alterado','Horario inusual','Viaje / desplazamiento','Alcohol','Medicamento']},
-    ar:{bleeding:['لا يوجد','الدورة الشهرية','نزيف خفيف'],mucus:['جاف / غير موجود','لزج','كريمي','مثل بياض البيض (ملاحظة)'],factors:['مرض / حمى','اضطراب النوم','وقت غير معتاد','سفر / تنقّل','كحول','دواء']}
+    fr:{bleeding:['Aucun renseigné','Règles','Spotting (saignement léger)'],mucus:['Sec / absent','Collante','Crémeuse',"Blanc d'œuf (observation)"],factors:['Maladie / fièvre','Sommeil perturbé','Horaire inhabituel','Voyage / déplacement','Alcool','Médicament'],sensation:['Non renseignée','Sèche','Humide','Mouillée','Glissante'],appearance:['Aucun écoulement visible','Épais','Crémeux','Aqueux','Filant / élastique','Transparent','Blanchâtre'],sensationLabel:'Sensation vulvaire (facultatif)',sensationHelp:'Note la sensation ressentie à la vulve, indépendamment de l’aspect observé.',appearanceLabel:'Aspect observé (plusieurs choix possibles)',appearanceHelp:'Ces descriptions sont conservées séparément de l’ancienne catégorie de glaire.'},
+    en:{bleeding:['None indicated','Period','Spotting (light bleeding)'],mucus:['Dry / absent','Sticky','Creamy','Egg white (observation)'],factors:['Illness / fever','Disturbed sleep','Unusual schedule','Travel / displacement','Alcohol','Medication'],sensation:['Not specified','Dry','Moist','Wet','Slippery'],appearance:['No visible discharge','Thick','Creamy','Watery','Stretchy / elastic','Transparent','Whitish'],sensationLabel:'Vulvar sensation (optional)',sensationHelp:'Record the sensation at the vulva separately from the observed appearance.',appearanceLabel:'Observed appearance (select all that apply)',appearanceHelp:'These descriptions are stored separately from the legacy mucus category.'},
+    es:{bleeding:['Ninguno indicado','Regla','Spotting (sangrado leve)'],mucus:['Seco / ausente','Pegajoso','Cremoso',"Clara de huevo (observación)"],factors:['Enfermedad / fiebre','Sueño alterado','Horario inusual','Viaje / desplazamiento','Alcohol','Medicamento'],sensation:['No indicado','Seca','Húmeda','Mojada','Resbaladiza'],appearance:['Sin secreción visible','Espesa','Cremosa','Acuosa','Elástica','Transparente','Blanquecina'],sensationLabel:'Sensación vulvar (opcional)',sensationHelp:'Anota la sensación en la vulva, independientemente del aspecto observado.',appearanceLabel:'Aspecto observado (varias opciones)',appearanceHelp:'Estas descripciones se guardan por separado de la antigua categoría de moco.'},
+    ar:{bleeding:['لا يوجد','الدورة الشهرية','نزيف خفيف'],mucus:['جاف / غير موجود','لزج','كريمي','مثل بياض البيض (ملاحظة)'],factors:['مرض / حمى','اضطراب النوم','وقت غير معتاد','سفر / تنقّل','كحول','دواء'],sensation:['غير محدد','جافة','رطبة','مبتلة','زَلِقة'],appearance:['لا توجد إفرازات مرئية','سميك','كريمي','مائي','متمدد / مطاطي','شفاف','مائل إلى البياض'],sensationLabel:'الإحساس عند الفرج (اختياري)',sensationHelp:'سجّلي الإحساس عند الفرج بشكل منفصل عن المظهر المرصود.',appearanceLabel:'المظهر المرصود (يمكن اختيار عدة خيارات)',appearanceHelp:'تُحفظ هذه الأوصاف بشكل منفصل عن تصنيف المخاط السابق.'}
   }[lang];
   document.querySelectorAll('#f-bleeding option').forEach((o,i)=>o.textContent=labels.bleeding[i]||o.textContent);
   document.querySelectorAll('#f-mucus option').forEach((o,i)=>o.textContent=labels.mucus[i]||o.textContent);
+  document.querySelectorAll('#f-mucus-sensation option').forEach((o,i)=>o.textContent=labels.sensation[i]||o.textContent);
+  document.querySelectorAll('#mucus-appearance label').forEach((label,i)=>{const input=label.querySelector('input');if(input&&labels.appearance[i])label.lastChild.textContent=' '+labels.appearance[i];});
+  const sensationLabel=document.querySelector('label[for="f-mucus-sensation"]');if(sensationLabel)sensationLabel.textContent=labels.sensationLabel;
+  const sensationHelp=document.querySelector('#f-mucus-sensation + p');if(sensationHelp)sensationHelp.textContent=labels.sensationHelp;
+  const appearanceLegend=document.querySelector('#mucus-appearance')?.parentElement?.querySelector('legend');if(appearanceLegend)appearanceLegend.textContent=labels.appearanceLabel;
+  const appearanceHelp=document.querySelector('#mucus-appearance + p');if(appearanceHelp)appearanceHelp.textContent=labels.appearanceHelp;
   document.querySelectorAll('.factor').forEach((o,i)=>{const label=o.parentElement;if(label&&labels.factors[i])label.lastChild.textContent=' '+labels.factors[i];});
   const s=document.getElementById('save-entry-btn');if(s&&!s.disabled)s.textContent=d.save;
   applyTemperatureInputSettings();
@@ -716,9 +751,26 @@ function applyLanguage(){
 function loadProfile(){if(memProfile!==null)return memProfile;const fallback={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{const v=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(v===null){memProfile=fallback;return memProfile;}if(typeof v!=='object'||Array.isArray(v)||(v.version!==undefined&&v.version!==APP_DATA_VERSION)||('name'in v&&(typeof v.name!=='string'||v.name.length>80))||('goal'in v&&!['observer','apprendre','suivi'].includes(v.goal))||('language'in v&&!['fr','en','es','ar'].includes(v.language))||('unit'in v&&!['c','f'].includes(v.unit)))throw new Error('format');memProfile={version:APP_DATA_VERSION,name:v.name||'',goal:v.goal||'observer',language:v.language||'fr',unit:v.unit||'c'};}catch(e){storageAvailable=false;memProfile=fallback;setStorageStatus('Le profil local est illisible. Tu peux en enregistrer un nouveau dans cette session.');}return memProfile;}
 function renderProfile(){const p=loadProfile();const n=document.getElementById('profile-name'),g=document.getElementById('profile-goal'),l=document.getElementById('profile-language'),u=document.getElementById('profile-unit');if(n)n.value=p.name||'';if(g)g.value=p.goal||'observer';if(l)l.value=p.language||'fr';if(u)u.value=p.unit||'c';applyLanguage();}
 function setProfileStatus(message){const status=document.getElementById('profile-status');if(status)status.textContent=message;}
-function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim(),goal=document.getElementById('profile-goal').value,language=document.getElementById('profile-language').value,unit=document.getElementById('profile-unit').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');document.getElementById('profile-status')?.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');document.getElementById('profile-status')?.focus();return;}if(!['fr','en','es','ar'].includes(language)||!['c','f'].includes(unit)){setProfileStatus('Paramètre de profil invalide.');document.getElementById('profile-status')?.focus();return;}const p={version:APP_DATA_VERSION,name,goal,language,unit};memProfile=p;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré durablement. Il reste disponible pendant cette session.');setStorageStatus('Le profil n’a pas pu être enregistré durablement dans ce navigateur.');}applyLanguage();renderProfile();render();document.getElementById('profile-status')?.focus();}
+function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim(),goal=document.getElementById('profile-goal').value,language=document.getElementById('profile-language').value,unit=document.getElementById('profile-unit').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');document.getElementById('profile-status')?.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');document.getElementById('profile-status')?.focus();return;}if(!['fr','en','es','ar'].includes(language)||!['c','f'].includes(unit)){setProfileStatus('Paramètre de profil invalide.');document.getElementById('profile-status')?.focus();return;}const p={version:APP_DATA_VERSION,name,goal,language,unit};const previous=memProfile;memProfile=p;try{if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');window.symrellaPersistSnapshot({current:loadCurrent(),history:loadHistory(),profile:p,learning:loadLearning()});setProfileStatus('Profil enregistré.');}catch(e){memProfile=previous;storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré. Les données précédentes ont été conservées.');setStorageStatus('La sauvegarde coordonnée a échoué.');}applyLanguage();renderProfile();render();document.getElementById('profile-status')?.focus();}
 function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.entries||[]),...loadCurrent()].forEach(e=>{map[e.date]=e;});return map;}
-function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString(getLanguage()==='ar'?'ar':getLanguage()==='es'?'es':'fr',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();const weekdays=getLanguage()==='en'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:getLanguage()==='ar'?['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']:getLanguage()==='es'?['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];let html=weekdays.map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="'+(getLanguage()==='en'?'View observations for ':getLanguage()==='es'?'Ver las observaciones del ':getLanguage()==='ar'?'عرض ملاحظات ':'Voir les observations du ')+formatDate(key)+'" data-calendar-date="'+key+'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?formatTemperature(e.temp,1):(getLanguage()==='en'?'Observation':getLanguage()==='es'?'Observación':getLanguage()==='ar'?'ملاحظة':'Observation'))+'</span>':'')+'</div>';}grid.innerHTML=html;}
+function dailyClassificationForCalendar(){
+  try {
+    if (!window.symrellaRecalculateCycle || !window.symrellaReadV2Store) return {};
+    window.symrellaRecalculateCycle(null,getLanguage());
+    const cycle=window.symrellaReadV2Store().currentCycle;
+    return Object.fromEntries((cycle.derived?.days||[]).map(day=>[day.date,day]));
+  } catch(error) { return {}; }
+}
+function fertilityStatusLabel(status){
+  const labels={
+    fr:{potentially_fertile:'Fertilité possible',fertile:'Jour fertile',end_pending:'Fin en attente',postovulatory_infertile:'Postovulatoire',indeterminate:'Indéterminé'},
+    en:{potentially_fertile:'Potentially fertile',fertile:'Fertile day',end_pending:'End pending',postovulatory_infertile:'Postovulatory',indeterminate:'Indeterminate'},
+    es:{potentially_fertile:'Fertilidad posible',fertile:'Día fértil',end_pending:'Fin pendiente',postovulatory_infertile:'Postovulatorio',indeterminate:'Indeterminado'},
+    ar:{potentially_fertile:'احتمال الخصوبة',fertile:'يوم خصب',end_pending:'النهاية قيد الانتظار',postovulatory_infertile:'ما بعد الإباضة',indeterminate:'غير محدد'}
+  };
+  return (labels[getLanguage()]||labels.fr)[status]||'';
+}
+function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString(getLanguage()==='ar'?'ar':getLanguage()==='es'?'es':'fr',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar(),classification=dailyClassificationForCalendar();const weekdays=getLanguage()==='en'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:getLanguage()==='ar'?['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']:getLanguage()==='es'?['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];let html=weekdays.map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="'+(getLanguage()==='en'?'View observations for ':getLanguage()==='es'?'Ver las observaciones del ':getLanguage()==='ar'?'عرض ملاحظات ':'Voir les observations du ')+formatDate(key)+'" data-calendar-date="'+key+'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?formatTemperature(e.temp,1):(getLanguage()==='en'?'Observation':getLanguage()==='es'?'Observación':getLanguage()==='ar'?'ملاحظة':'Observation'))+'</span>'+(classification[key]?'<span class="day-meta fertility-status">'+escapeHtml(fertilityStatusLabel(classification[key].status))+'</span>':''):'')+'</div>';}grid.innerHTML=html;}
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
@@ -733,35 +785,34 @@ function showCalendarDetail(date) {
   const notes = entry.notes ? '<br>' + dt('notes') + ' : ' + escapeHtml(entry.notes) : '';
   const time = entry.time ? '<br>' + dt('measurementTime') + ' : ' + escapeHtml(entry.time) : '';
   const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>' + dt('bleeding') + ' : ' + (entry.bleeding === 'regles' ? dt('period') : dt('spotting')) : '';
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes;
+  let fertilityDetail='';
+  try {
+    if (window.symrellaRecalculateCycle && window.symrellaReadV2Store) {
+      window.symrellaRecalculateCycle(null,getLanguage());
+      const day=window.symrellaReadV2Store().currentCycle.derived?.days?.find(item=>item.date===date);
+      if(day) fertilityDetail='<br><strong>'+escapeHtml(fertilityStatusLabel(day.status))+'</strong><br>'+escapeHtml(day.explanation);
+    }
+  } catch(error) {}
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes + fertilityDetail;
   detail.focus();
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
 function clearAllData(){
   if(!confirm(at('clearConfirm'))) return;
-  const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY], previous={};
-  keys.forEach(key => { previous[key]=null; });
   let persistent=true;
   try {
-    keys.forEach(key => { previous[key]=localStorage.getItem(key); });
-    keys.forEach(key => localStorage.removeItem(key));
-  } catch (error) {
-    persistent=false;
-    try {
-      keys.forEach(key => {
-        if (previous[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, previous[key]);
-      });
-    } catch (rollbackError) {}
+    if(!window.symrellaClearAllStores) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaClearAllStores();
+  } catch(error) { persistent=false; }
+  if(persistent) {
+    memCurrent=[]; memHistory=[];
+    memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
+    memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   }
-  memCurrent=[];
-  memHistory=[];
-  memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
-  memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   storageAvailable=persistent;
   setActionStatus(persistent?at('clear'):at('storageSession'));
-  if(!persistent) setStorageStatus('Le navigateur n’a pas permis de modifier durablement les données locales. Les données sont toutefois effacées de la session en cours.');
+  if(!persistent) setStorageStatus('L’effacement n’a pas pu être confirmé. Les données précédentes ont été conservées.');
   document.getElementById('action-status')?.focus();
   renderProfile();renderLearning();renderCalendar();render();
 }
@@ -864,7 +915,7 @@ function isValidDateKey(value) {
 }
 
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!validEntryCollection(value.current)||!Array.isArray(value.history)||value.history.length>MAX_HISTORY_CYCLES)return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))||(p.language!==undefined&&!['fr','en','es','ar'].includes(p.language))||(p.unit!==undefined&&!['c','f'].includes(p.unit))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus(at('importTooLarge'));const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus(at('imported'));const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus(at('importFailed'));const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus(at('importTooLarge'));const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');window.symrellaPersistSnapshot({current:p.current,history:p.history,profile:nextProfile,learning:nextLearning});memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus(at('imported'));const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus(at('importFailed'));const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
 document.addEventListener('click', (event) => {
   const calendarTarget = event.target.closest('[data-calendar-date]');
   if (calendarTarget) {

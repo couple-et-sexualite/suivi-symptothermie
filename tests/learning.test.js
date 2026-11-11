@@ -16,7 +16,7 @@ test('learning progress uses a versioned and validated local model', () => {
   assert.match(page, /const LEARNING_VERSION = 1/);
   assert.match(page, /function validLearning\(value\)/);
   assert.match(page, /localStorage\.getItem\(LEARNING_KEY\)/);
-  assert.match(page, /localStorage\.setItem\(LEARNING_KEY/);
+  assert.match(page, /window\.symrellaPersistSnapshot/);
 });
 
 test('completion, resuming and resetting are implemented', () => {

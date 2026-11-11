@@ -389,6 +389,30 @@
         </select>
         <div id="mucus-help" class="learn-meta">Décris la glaire telle que tu l’observes, sans en déduire automatiquement une phase du cycle.</div>
       </div>
+      <div>
+        <label for="f-mucus-sensation">Sensation vulvaire (facultatif)</label>
+        <select id="f-mucus-sensation">
+          <option value="">Non renseignée</option>
+          <option value="sèche">Sèche</option>
+          <option value="humide">Humide</option>
+          <option value="mouillée">Mouillée</option>
+          <option value="glissante">Glissante</option>
+        </select>
+        <p class="learn-meta">Note la sensation ressentie à la vulve, indépendamment de l’aspect observé.</p>
+      </div>
+      <fieldset style="border:1px solid var(--border);border-radius:10px;padding:10px;">
+        <legend>Aspect observé (plusieurs choix possibles)</legend>
+        <div class="check-grid" id="mucus-appearance">
+          <label><input type="checkbox" value="absent"> Aucun écoulement visible</label>
+          <label><input type="checkbox" value="épais"> Épais</label>
+          <label><input type="checkbox" value="crémeux"> Crémeux</label>
+          <label><input type="checkbox" value="aqueux"> Aqueux</label>
+          <label><input type="checkbox" value="filant"> Filant / élastique</label>
+          <label><input type="checkbox" value="transparent"> Transparent</label>
+          <label><input type="checkbox" value="blanchâtre"> Blanchâtre</label>
+        </div>
+        <p class="learn-meta">Ces descriptions sont conservées séparément de l’ancienne catégorie de glaire.</p>
+      </fieldset>
     </div>
     <details style="margin-bottom:14px; font-size:0.82rem; color:var(--text-muted);">
       <summary style="cursor:pointer; color:var(--blue); font-weight:600;">ℹ️ Que veut dire chaque type ?</summary>
@@ -460,7 +484,7 @@
     <div class="calendar-toolbar"><button id="calendar-prev-btn" class="btn btn-secondary" type="button" data-action="calendar-prev">‹ Mois précédent</button><strong id="calendar-title"></strong><button id="calendar-next-btn" class="btn btn-secondary" type="button" data-action="calendar-next">Mois suivant ›</button></div>
     <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
     <div id="calendar-detail" role="status" aria-live="polite" tabindex="-1" class="notice" style="margin-top:12px;display:none;"></div>
-    <p class="learn-meta" style="margin-top:10px;">Le calendrier affiche uniquement les observations enregistrées. Il ne fournit pas de prédiction ni de conclusion sur la fertilité.</p>
+    <p class="learn-meta" style="margin-top:10px;">Le calendrier présente les observations enregistrées et, lorsqu’il est disponible, le statut quotidien calculé par le moteur SymRella. Tant que l’interprétation complète de la glaire cervicale et la double vérification ne sont pas achevées, ces statuts restent provisoires et ne constituent pas une règle contraceptive.</p>
   </div>
 </section>
 <section id="historique" class="app-section">
@@ -491,6 +515,7 @@
 
 <script src="./app.js?v=2026.10.03-visuals"></script>
 <script src="./rps02-visual-learning.js?v=1.2.13"></script>
+<script type="module" src="./src/symrella-legacy-bridge.mjs"></script>
 
 <footer class="no-print" style="text-align:center;color:var(--text-muted);font-size:.82rem;padding:8px 0 24px;">
   <a href="./privacy.html" style="color:var(--blue);">Politique de confidentialité</a>
