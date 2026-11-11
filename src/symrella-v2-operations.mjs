@@ -1,6 +1,7 @@
 import { validateV2Data } from "./symrella-data-v2.mjs";
 import { V2_STORAGE_KEY } from "./symrella-storage-migration.mjs";
 import { classifyV2Cycle } from "./symrella-v2-classification.mjs";
+import { RPS02_VERSION } from "./rps02-engine.mjs";
 
 const MAX_HISTORY_CYCLES = 200;
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -99,7 +100,7 @@ export function recalculateV2Cycle(storage, cycleId = null, language = "fr") {
     : next.currentCycle;
   if(!cycle) throw new Error("Cycle introuvable.");
   const needsCalculation = cycle.derived?.status === "not_evaluated" ||
-    cycle.derived?.engineVersion !== "0.2.0" ||
+    cycle.derived?.engineVersion !== RPS02_VERSION ||
     cycle.derived?.days?.length !== cycle.observations.length;
   if (!needsCalculation) return data;
   cycle.derived=classifyV2Cycle(cycle,language);
