@@ -126,12 +126,12 @@ function loadCurrent(){
   return memCurrent;
 }
 function setStorageStatus(message){const status=document.getElementById('storage-status');if(status)status.textContent=message;}
-function saveCurrent(entries) {
+function saveCurrent(entries, cervicalObservation = null) {
   const previous = memCurrent;
   memCurrent = entries;
   try {
     if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
-    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()}, {date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance}});
+    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning(),cervicalObservations:cervicalObservation ? [cervicalObservation] : []});
     return true;
   } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); return false; }
 }
@@ -198,7 +198,7 @@ function addEntry() {
       return;
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
-    if (!saveCurrent(entries)) {
+    if (!saveCurrent(entries, {date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance}})) {
       setActionStatus(at('saveFail'));
       return;
     }
