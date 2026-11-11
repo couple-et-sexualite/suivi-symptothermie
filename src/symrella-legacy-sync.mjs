@@ -134,6 +134,24 @@ export function syncLegacySnapshotToV2(storage, snapshot, options = {}) {
     profile: incoming.profile,
     learning: incoming.learning
   };
+  const cervicalUpdates = Array.isArray(options.cervicalObservations)
+    ? options.cervicalObservations
+    : [];
+  for (const update of cervicalUpdates) {
+    if (!update || typeof update.date !== "string" || !update.payload) {
+      throw new TypeError("Une observation cervicale à synchroniser est invalide.");
+    }
+    const cycle = [next.currentCycle, ...next.history].find(item =>
+      item.observations.some(observation => observation.date === update.date)
+    );
+    if (!cycle) throw new Error("Observation introuvable pour cette date.");
+    const observation = cycle.observations.find(item => item.date === update.date);
+    observation.cervicalMucus = {
+      ...observation.cervicalMucus,
+      sensation: update.payload.sensation || null,
+      appearance: Array.isArray(update.payload.appearance) ? update.payload.appearance : []
+    };
+  }
   if (!validateV2Data(next)) {
     throw new Error("La synchronisation produirait une base incohérente ; aucune donnée n’a été modifiée.");
   }
