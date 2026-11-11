@@ -1,35 +1,32 @@
 {
-  "name": "Suivi Symptothermie",
-  "short_name": "Symptothermie",
-  "description": "Application locale de suivi des observations du cycle.",
+  "name": "SymRella — observation du cycle",
+  "short_name": "SymRella",
+  "description": "Application locale d’observation du cycle et d’apprentissage de la symptothermie.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "theme_color": "#173f5f",
-  "background_color": "#fdf6f8",
-  "categories": [
-    "health",
-    "lifestyle"
-  ],
+  "theme_color": "#0b3c78",
+  "background_color": "#f4fafb",
+  "categories": ["health", "lifestyle"],
   "icons": [
     {
       "src": "./icons/icon-192.svg",
-      "sizes": "192x192",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "./icons/icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/symrella-logo.png",
+      "sizes": "910x811",
+      "type": "image/png",
       "purpose": "any"
     }
   ]

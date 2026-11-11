@@ -71,10 +71,14 @@ test('PWA shell and service worker use an explicit allowlist', () => {
   assert.equal(data.scope, './');
   assert.equal(data.display, 'standalone');
   assert.ok(source.includes('navigator.serviceWorker.register("./sw.js")'));
-  assert.ok(serviceWorker.includes("const CACHE_NAME = 'symptothermie-shell-v7'"));
+  assert.ok(serviceWorker.includes("const CACHE_NAME = 'symrella-shell-v10'"));
+  assert.ok(serviceWorker.includes("const APP_SHELL = ['./',"));
   assert.ok(serviceWorker.includes('const CACHEABLE_PATHS'));
+  assert.ok(serviceWorker.includes("new URL(path, self.registration.scope).pathname"));
   assert.ok(serviceWorker.includes('./app.js'));
   assert.ok(serviceWorker.includes('./icons/icon.svg'));
+  assert.ok(serviceWorker.includes('./icons/symrella-logo.png'));
+  assert.ok(data.icons.some(icon => icon.src === './icons/symrella-logo.png' && icon.type === 'image/png'));
 });
 
 test('destructive data operations require explicit confirmation', () => {
