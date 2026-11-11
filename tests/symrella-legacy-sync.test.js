@@ -144,3 +144,39 @@ test("sync generates a unique id when a legacy disturbance id collides with a ri
   assert.ok(ids.includes(collisionId + "-2"));
   assert.equal(updated.disturbances.find(item => item.id === collisionId).note, "Détail riche conservé");
 });
+
+
+test("archiving the current cycle preserves rich cervical observation details", () => {
+  const data = base();
+  const original = data.currentCycle.observations[0];
+  original.cervicalMucus.sensation = "glissante";
+  original.cervicalMucus.appearance = ["filant", "transparent"];
+  original.cervicalMucus.peakQualityCandidate = true;
+  const archivedSnapshot = {
+    current: [],
+    history: [{
+      start: "2026-03-02",
+      end: "2026-03-02",
+      entries: [{
+        date: "2026-03-02", temp: 36.4, mucus: "cremeuse",
+        notes: "Avant", factors: ["sommeil"], bleeding: "aucun", time: "06:30"
+      }]
+    }],
+    profile: { goal: "observer" },
+    learning: { completed: { a: true } }
+  };
+  const store = memoryStorage(data);
+  const result = syncLegacySnapshotToV2(store, archivedSnapshot, {
+    idFactory: (prefix, index) => "archive-" + prefix + "-" + index
+  });
+  const archived = result.history.find(cycle =>
+    cycle.observations.some(item => item.date === "2026-03-02")
+  );
+  assert.ok(archived);
+  const moved = archived.observations.find(item => item.date === "2026-03-02");
+  assert.equal(moved.id, original.id);
+  assert.equal(moved.cervicalMucus.sensation, "glissante");
+  assert.deepEqual(moved.cervicalMucus.appearance, ["filant", "transparent"]);
+  assert.equal(moved.cervicalMucus.peakQualityCandidate, true);
+  assert.deepEqual(result.currentCycle.observations, []);
+});
