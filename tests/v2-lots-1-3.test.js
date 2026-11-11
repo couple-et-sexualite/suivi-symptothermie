@@ -21,7 +21,8 @@ test('calendar is descriptive and uses recorded observations', () => {
   assert.match(page, /id="calendar-grid"/);
   assert.match(page, /function renderCalendar\(\)/);
   assert.match(page, /function changeCalendarMonth\(delta\)/);
-  assert.match(page, /Le calendrier affiche uniquement les observations enregistrées/);
+  assert.match(page, /Le calendrier présente les observations enregistrées et, lorsqu’il est disponible, le statut quotidien calculé par le moteur SymRella/);
+  assert.match(page, /ces statuts restent provisoires et ne constituent pas une règle contraceptive/);
 });
 
 test('profile and privacy data are versioned and local', () => {
