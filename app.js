@@ -132,7 +132,8 @@ function saveCurrent(entries) {
   try {
     if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
     window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning()});
-  } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); }
+    return true;
+  } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); return false; }
 }
 function loadHistory(){if(memHistory!==null)return memHistory;try{const raw=localStorage.getItem(HISTORY_KEY),parsed=raw?JSON.parse(raw):[];if(!Array.isArray(parsed)||parsed.length>MAX_HISTORY_CYCLES||!parsed.every(validStoredHistoryCycle))throw new Error('format');memHistory=parsed;}catch(e){storageAvailable=false;memHistory=[];setStorageStatus('L’historique local est illisible ou incomplet. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');}return memHistory;}
 function saveHistory(hist){
@@ -197,9 +198,19 @@ function addEntry() {
       return;
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
-    saveCurrent(entries);
+    if (!saveCurrent(entries)) {
+      setActionStatus(at('saveFail'));
+      return;
+    }
     if (window.symrellaSaveCervicalObservation) {
-      window.symrellaSaveCervicalObservation(date, { sensation: cervicalSensation, appearance: cervicalAppearance });
+      try {
+        window.symrellaSaveCervicalObservation(date, { sensation: cervicalSensation, appearance: cervicalAppearance });
+      } catch (cervicalError) {
+        console.error('Erreur lors de la sauvegarde des observations cervicales :', cervicalError);
+        setStorageStatus('Les données générales ont été enregistrées, mais les observations cervicales n’ont pas pu être sauvegardées. Réessayez la modification de cette date.');
+        setActionStatus(at('saveFail'));
+        return;
+      }
     }
 
     // Le stockage est effectué avant le rafraîchissement de l'interface.
