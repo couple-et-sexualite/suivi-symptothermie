@@ -294,7 +294,10 @@ function cancelEdit() {
 function deleteEntry(date) {
   if (!confirm(at('deleteConfirm').replace('{date}',formatDate(date)))) return;
   let entries = loadCurrent().filter(e => e.date !== date);
-  saveCurrent(entries);
+  if (!saveCurrent(entries)) {
+    setActionStatus(at('saveFail'));
+    return;
+  }
   setActionStatus(at('deleteObs'));
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
