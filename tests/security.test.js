@@ -36,7 +36,7 @@ test('backup import is bounded, versioned and validated', () => {
   assert.ok(source.includes('value.version!==APP_DATA_VERSION'));
   assert.ok(source.includes('validEntryCollection(value.current)'));
   assert.ok(source.includes('value.history.every(validStoredHistoryCycle)'));
-  assert.ok(source.includes('file.size>2*1024*1024'));
+  assert.ok(app.includes('file.size>10*1024*1024'));
   assert.ok(source.includes('JSON.parse(reader.result)'));
   assert.ok(source.includes('e.notes.length<=2000'));
 });
