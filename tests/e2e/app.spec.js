@@ -254,3 +254,60 @@ test('production GitHub Pages serves and renders all RPS-02 reference images', a
     image.src.includes('/data/rps02-blind-assets/RPS02-A')
   )).toBeTruthy();
 });
+
+
+test('imports a legacy-format backup without discarding richer cervical observations for matching dates', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.locator('#f-date').inputValue();
+
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#mucus-appearance input[value="transparent"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-opening').selectOption('ouvert');
+  await page.locator('#f-cervix-consistency').selectOption('souple');
+  await page.locator('#f-cervix-notes').fill('Donnée cervicale détaillée conservée');
+  await page.locator('#save-entry-btn').click();
+
+  // This is the pre-v2 export envelope: it contains only the classic UI fields.
+  const legacyBackup = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    current: [{
+      date,
+      temp: 36.55,
+      mucus: 'cremeuse',
+      notes: 'Note issue de l’ancienne sauvegarde',
+      factors: ['sommeil'],
+      bleeding: 'aucun',
+      time: '06:45'
+    }],
+    history: [],
+    profile: { version: 2, name: '', goal: 'observer', language: 'fr', unit: 'c' },
+    learning: { version: 1, completed: {}, lastModule: null }
+  };
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({
+    name: 'ancienne-sauvegarde.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(legacyBackup))
+  });
+
+  await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-temp')).toHaveValue('36.55');
+  await expect(page.locator('#f-notes')).toHaveValue('Note issue de l’ancienne sauvegarde');
+  await expect(page.locator('#f-mucus-sensation')).toHaveValue('glissante');
+  await expect(page.locator('#mucus-appearance input[value="filant"]')).toBeChecked();
+  await expect(page.locator('#mucus-appearance input[value="transparent"]')).toBeChecked();
+  await expect(page.locator('#f-cervix-position')).toHaveValue('haut');
+  await expect(page.locator('#f-cervix-opening')).toHaveValue('ouvert');
+  await expect(page.locator('#f-cervix-consistency')).toHaveValue('souple');
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Donnée cervicale détaillée conservée');
+
+  await page.reload();
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Donnée cervicale détaillée conservée');
+});
