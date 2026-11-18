@@ -909,7 +909,24 @@ async function connectThermometer() {
   }
 }
 
-function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus(at('exportEmpty'));return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;const dateLabel=new Date().toISOString().slice(0,10);a.download='SymRella-sauvegarde-'+dateLabel+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus(at('exported'));}
+function exportData(){
+  const current=loadCurrent(),history=loadHistory();
+  try {
+    if(!window.symrellaExportBackup||!window.symrellaReadV2Store) throw new Error('Le module de sauvegarde complète n’est pas prêt.');
+    const v2=window.symrellaReadV2Store();
+    const hasV2Data=v2.currentCycle.observations.length>0||v2.history.some(cycle=>cycle.observations.length>0);
+    if(!current.length&&!history.length&&!hasV2Data){setBackupStatus(at('exportEmpty'));return;}
+    const payload=window.symrellaExportBackup({current,history,profile:loadProfile(),learning:loadLearning()});
+    const blob=new Blob([payload],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;
+    const dateLabel=new Date().toISOString().slice(0,10);
+    a.download='SymRella-sauvegarde-'+dateLabel+'.json';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    setBackupStatus(at('exported'));
+  } catch(error) {
+    setBackupStatus('La sauvegarde complète n’a pas pu être exportée. Aucune donnée n’a été modifiée.');
+  }
+}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value + 'T00:00:00');
@@ -917,7 +934,37 @@ function isValidDateKey(value) {
 }
 
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!validEntryCollection(value.current)||!Array.isArray(value.history)||value.history.length>MAX_HISTORY_CYCLES)return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))||(p.language!==undefined&&!['fr','en','es','ar'].includes(p.language))||(p.unit!==undefined&&!['c','f'].includes(p.unit))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus(at('importTooLarge'));const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');window.symrellaPersistSnapshot({current:p.current,history:p.history,profile:nextProfile,learning:nextLearning});memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus(at('imported'));const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus(at('importFailed'));const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
+function importData(event){
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  if(file.size>10*1024*1024){setBackupStatus(at('importTooLarge'));document.getElementById('backup-status')?.focus();event.target.value='';return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try {
+      const p=JSON.parse(reader.result);
+      if(!p||typeof p!=='object'||Array.isArray(p))throw new Error('format');
+      const isComplete=p.format==='symrella.backup';
+      const legacy=isComplete?p.legacy:p;
+      const legacyPayload=isComplete?{version:APP_DATA_VERSION,exportedAt:p.exportedAt,...legacy}:p;
+      if(!validBackup(legacyPayload)||('learning'in legacyPayload&&legacyPayload.learning!==undefined&&!validLearning(legacyPayload.learning)))throw new Error('format');
+      if(isComplete&&(!window.symrellaImportBackup||!window.symrellaReadV2Store))throw new Error('module');
+      if(!confirm(at('importConfirm')))return;
+      const nextLearning=legacyPayload.learning&&validLearning(legacyPayload.learning)?legacyPayload.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};
+      const nextProfile=legacyPayload.profile&&typeof legacyPayload.profile==='object'?legacyPayload.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
+      if(isComplete) {
+        window.symrellaImportBackup(reader.result);
+      } else {
+        if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');
+        window.symrellaPersistSnapshot({current:legacyPayload.current,history:legacyPayload.history,profile:nextProfile,learning:nextLearning});
+      }
+      memCurrent=legacyPayload.current;memHistory=legacyPayload.history;memLearning=nextLearning;memProfile=nextProfile;
+      storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();
+      setBackupStatus(at('imported'));document.getElementById('backup-status')?.focus();
+    } catch(error) {
+      setBackupStatus(at('importFailed'));document.getElementById('backup-status')?.focus();
+    } finally {event.target.value='';}
+  };
+  reader.readAsText(file);
+}
 document.addEventListener('click', (event) => {
   const calendarTarget = event.target.closest('[data-calendar-date]');
   if (calendarTarget) {
