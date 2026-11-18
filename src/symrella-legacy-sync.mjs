@@ -138,7 +138,7 @@ export function syncLegacySnapshotToV2(storage, snapshot, options = {}) {
   // intentional (the old UI exposes an explicit delete action).
   const next = {
     ...clone(previous),
-    currentCycle: mergeCycle(previous.currentCycle, incoming.currentCycle, { current: true }),
+    // Archiving moves the whole former current cycle into history. Keep the\n    // freshly migrated empty current cycle; reusing the old ID would duplicate\n    // the archived cycle ID and make the resulting v2 database invalid.\n    currentCycle: currentCycleArchived\n      ? clone(incoming.currentCycle)\n      : mergeCycle(previous.currentCycle, incoming.currentCycle, { current: true }),
     history: nextHistory,
     profile: incoming.profile,
     learning: incoming.learning
