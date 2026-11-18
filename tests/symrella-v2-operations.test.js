@@ -5,7 +5,7 @@ import { V2_STORAGE_KEY } from "../src/symrella-storage-migration.mjs";
 import {
   readV2Store, updateV2Observation, deleteV2Observation,
   archiveV2CurrentCycle, deleteV2HistoryCycle,
-  exportV2Store, importV2Store, clearV2Store, recalculateV2Cycle
+  exportV2Store, importV2Store, exportCompleteBackup, importCompleteBackup, clearV2Store, recalculateV2Cycle
 } from "../src/symrella-v2-operations.mjs";
 
 function storage(initial={}) {
@@ -70,6 +70,59 @@ test("export and import round-trip a complete v2 store",()=>{
   const imported=importV2Store(target,backup);
   assert.deepEqual(imported,JSON.parse(backup));
   assert.equal(exportV2Store(target),JSON.stringify(imported,null,2));
+});
+test("complete backup round-trip preserves rich cervical data and the legacy snapshot",()=>{
+  const {data,store}=setup();
+  const observation=data.currentCycle.observations[0];
+  observation.cervicalMucus.sensation="glissante";
+  observation.cervicalMucus.appearance=["transparent","filant"];
+  observation.cervicalMucus.notes="Observation cervicale détaillée";
+  observation.cervix={position:"haute",opening:"fermée",consistency:"souple",notes:"Observation du col"};
+  store.setItem(V2_STORAGE_KEY,JSON.stringify(data));
+  const legacy={current:[
+    {date:"2026-01-02",temp:36.4,mucus:"cremeuse",bleeding:"aucun",notes:"Note A",factors:[],time:"06:30"},
+    {date:"2026-01-03",temp:36.5,mucus:"blanc-oeuf",bleeding:"aucun",notes:"Note B",factors:[],time:"06:35"}
+  ],history:[],profile:null,learning:null};
+  const backup=exportCompleteBackup(store,legacy);
+  const target=storage();
+  const restored=importCompleteBackup(target,backup);
+  assert.deepEqual(restored.currentCycle.observations[0].cervicalMucus,observation.cervicalMucus);
+  assert.deepEqual(restored.currentCycle.observations[0].cervix,observation.cervix);
+  assert.equal(target.getItem("symptothermie_current_cycle"),JSON.stringify(legacy.current));
+  assert.equal(target.getItem("symptothermie_history"),JSON.stringify(legacy.history));
+  assert.deepEqual(JSON.parse(target.getItem(V2_STORAGE_KEY)),data);
+});
+test("invalid complete backup leaves every existing key untouched",()=>{
+  const {store}=setup();
+  const legacy={current:[],history:[],profile:null,learning:null};
+  const backup=JSON.parse(exportCompleteBackup(store,legacy));
+  backup.v2.currentCycle.observations[0].cervix.notes=42;
+  const target=storage({
+    [V2_STORAGE_KEY]:"previous-v2",
+    symptothermie_current_cycle:"previous-current",
+    symptothermie_history:"previous-history",
+    symptothermie_profile:"previous-profile",
+    symptothermie_learning_progress:"previous-learning"
+  });
+  const before=target.snapshot();
+  assert.throws(()=>importCompleteBackup(target,JSON.stringify(backup)),/invalide/);
+  assert.deepEqual(target.snapshot(),before);
+});
+test("failed complete restore rolls back all storage keys",()=>{
+  const {store}=setup();
+  const legacy={current:[],history:[],profile:null,learning:null};
+  const backup=exportCompleteBackup(store,legacy);
+  const target=storage({
+    [V2_STORAGE_KEY]:"previous-v2",
+    symptothermie_current_cycle:"previous-current",
+    symptothermie_history:"previous-history",
+    symptothermie_profile:"previous-profile",
+    symptothermie_learning_progress:"previous-learning"
+  });
+  const before=target.snapshot(),original=target.setItem.bind(target);let writes=0;
+  target.setItem=(key,value)=>{if(++writes===2)throw new Error("quota");original(key,value);};
+  assert.throws(()=>importCompleteBackup(target,backup),/quota/);
+  assert.deepEqual(target.snapshot(),before);
 });
 test("invalid import never overwrites the existing store",()=>{
   const {store}=setup(),before=store.getItem(V2_STORAGE_KEY);
