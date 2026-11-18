@@ -167,6 +167,12 @@ function addEntry() {
     const time = document.getElementById('f-time').value;
     const cervicalSensation = document.getElementById('f-mucus-sensation')?.value || '';
     const cervicalAppearance = [...document.querySelectorAll('#mucus-appearance input:checked')].map(el => el.value);
+    const cervixObservation = {
+      position: document.getElementById('f-cervix-position')?.value || null,
+      opening: document.getElementById('f-cervix-opening')?.value || null,
+      consistency: document.getElementById('f-cervix-consistency')?.value || null,
+      notes: document.getElementById('f-cervix-notes')?.value.trim() || ''
+    };
 
     if (!date) { setActionStatus(at('chooseDate')); return; }
     if (!isValidDateKey(date)) { setActionStatus(at('invalidDate')); return; }
@@ -205,7 +211,7 @@ function addEntry() {
       return;
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
-    if (!saveCurrent(entries, {date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance}})) {
+    if (!saveCurrent(entries, {date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance, cervix: cervixObservation}})) {
       setActionStatus(at('saveFail'));
       return;
     }
@@ -223,6 +229,10 @@ function addEntry() {
     document.getElementById('f-mucus').value = 'sec';
     document.getElementById('f-mucus-sensation').value = '';
     document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
+    document.getElementById('f-cervix-position').value = '';
+    document.getElementById('f-cervix-opening').value = '';
+    document.getElementById('f-cervix-consistency').value = '';
+    document.getElementById('f-cervix-notes').value = '';
     document.getElementById('f-notes').value = '';
     document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
 
@@ -239,6 +249,45 @@ function addEntry() {
   }
 }
 
+function readCervicalObservation(date) {
+  try {
+    const store = window.symrellaReadV2Store?.();
+    const cycle = store && [store.currentCycle, ...store.history].find(item =>
+      item.observations.some(observation => observation.date === date)
+    );
+    return cycle?.observations.find(observation => observation.date === date) || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function cervicalObservationText(date) {
+  const observation = readCervicalObservation(date);
+  if (!observation) return '';
+  const mucus = observation.cervicalMucus || {};
+  const cervix = observation.cervix || {};
+  const parts = [];
+  if (mucus.sensation) parts.push('Sensation vulvaire : ' + escapeHtml(mucus.sensation));
+  if (Array.isArray(mucus.appearance) && mucus.appearance.length) {
+    parts.push('Aspect de la glaire : ' + mucus.appearance.map(escapeHtml).join(', '));
+  }
+  if (cervix.position) parts.push('Position du col : ' + escapeHtml(cervix.position));
+  if (cervix.opening) parts.push('Ouverture du col : ' + escapeHtml(cervix.opening));
+  if (cervix.consistency) parts.push('Consistance du col : ' + escapeHtml(cervix.consistency));
+  if (cervix.notes) parts.push('Notes sur le col : ' + escapeHtml(cervix.notes));
+  return parts.join('<br>');
+}
+
+function renderArchivedCervicalDetails(entries) {
+  const rows = entries.map(entry => {
+    const details = cervicalObservationText(entry.date);
+    return details ? '<li><strong>' + formatDate(entry.date) + '</strong><br>' + details + '</li>' : '';
+  }).filter(Boolean);
+  return rows.length
+    ? '<details class="learn-meta" style="margin-top:8px;"><summary>Observations cervicales détaillées (' + rows.length + ')</summary><ul>' + rows.join('') + '</ul></details>'
+    : '';
+}
+
 function editEntry(date) {
   announceEditStatus('Modification de l’observation du ' + formatDate(date) + '.');
 
@@ -248,14 +297,15 @@ function editEntry(date) {
   document.getElementById('f-temp').value = entry.temp === null ? '' : celsiusToDisplay(entry.temp).toFixed(2);
   document.getElementById('f-time').value = entry.time || '';
   document.getElementById('f-mucus').value = entry.mucus || 'sec';
-  let cervical = null;
-  try {
-    const store = window.symrellaReadV2Store?.();
-    const cycle = store && [store.currentCycle, ...store.history].find(item => item.observations.some(observation => observation.date === date));
-    cervical = cycle?.observations.find(observation => observation.date === date)?.cervicalMucus || null;
-  } catch(error) {}
+  const cervicalRecord = readCervicalObservation(date);
+  const cervical = cervicalRecord?.cervicalMucus || null;
+  const cervix = cervicalRecord?.cervix || null;
   document.getElementById('f-mucus-sensation').value = cervical?.sensation || '';
   document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = Array.isArray(cervical?.appearance) && cervical.appearance.includes(el.value); });
+  document.getElementById('f-cervix-position').value = cervix?.position || '';
+  document.getElementById('f-cervix-opening').value = cervix?.opening || '';
+  document.getElementById('f-cervix-consistency').value = cervix?.consistency || '';
+  document.getElementById('f-cervix-notes').value = cervix?.notes || '';
   document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
@@ -293,6 +343,10 @@ function cancelEdit() {
   const sensation = document.getElementById('f-mucus-sensation');
   if (sensation) sensation.value = '';
   document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
+  ['f-cervix-position','f-cervix-opening','f-cervix-consistency','f-cervix-notes'].forEach(id => {
+    const field = document.getElementById(id);
+    if (field) field.value = '';
+  });
   if (notes) notes.value = '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
   announceEditStatus('Formulaire réinitialisé.');
@@ -493,6 +547,7 @@ function renderHistory() {
     const first = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date))[0];
     const last = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
     const span = first && last ? Math.floor((new Date(last.date+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1 : c.entries.length;
+    const cervicalDetails = renderArchivedCervicalDetails(c.entries);
     return `
     <article class="history-item" aria-labelledby="history-cycle-${i}">
       <div>
@@ -500,6 +555,7 @@ function renderHistory() {
         <div class="learn-meta">${c.entries.length} ${t.obs} · ${temps} ${t.temps} · ${t.covered} : ${span} ${t.days}</div>
         <div class="learn-meta">${mucusCount} ${t.mucus} · ${bleedingCount} ${t.bleeding} · ${completeness}% ${t.complete}</div>
         ${contexts ? '<div class="learn-meta">'+t.context+' '+contexts+' '+t.obs+'</div>' : ''}
+        ${cervicalDetails}
       </div>
       <button type="button" class="btn btn-danger" data-action="delete-history-cycle" data-index="${i}" aria-label="${t.delete} ${t.cycle.toLowerCase()} ${formatDate(c.start)}">${t.delete}</button>
     </article>`;
@@ -795,7 +851,9 @@ function showCalendarDetail(date) {
       if(day) fertilityDetail='<br><strong>'+escapeHtml(fertilityStatusLabel(day.status))+'</strong><br>'+escapeHtml(day.explanation);
     }
   } catch(error) {}
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes + fertilityDetail;
+  const cervicalDetails = cervicalObservationText(date);
+  const cervicalBlock = cervicalDetails ? '<br><strong>Observations cervicales</strong><br>' + cervicalDetails : '';
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes + cervicalBlock + fertilityDetail;
   detail.focus();
 }
 
