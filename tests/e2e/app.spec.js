@@ -127,12 +127,15 @@ test.describe('professional end-to-end and mobile QA', () => {
     expect(download.suggestedFilename()).toMatch(/^SymRella-sauvegarde-\d{4}-\d{2}-\d{2}\.json$/);
   });
 
-  test('exports, clears, and restores a real backup through the UI', async ({ page }) => {
+  test('exports, clears, and restores a real backup including rich cervical observations through the UI', async ({ page }) => {
     await resetApp(page);
     const date = await page.locator('#f-date').inputValue();
     await page.locator('#f-temp').fill('36.50');
     await page.locator('#f-time').fill('07:00');
     await page.locator('#f-mucus').selectOption('cremeuse');
+    await page.locator('#f-mucus-sensation').selectOption('glissante');
+    await page.locator('#mucus-appearance input[value="filant"]').check();
+    await page.locator('#mucus-appearance input[value="transparent"]').check();
     await page.locator('#save-entry-btn').click();
 
     const downloadPromise = page.waitForEvent('download');
@@ -150,6 +153,11 @@ test.describe('professional end-to-end and mobile QA', () => {
     await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
     await expect(page.locator('#today-summary')).toContainText('36.50');
     await expect(page.locator('#calendar-grid [data-calendar-date="' + date + '"]')).toBeVisible();
+
+    await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+    await expect(page.locator('#f-mucus-sensation')).toHaveValue('glissante');
+    await expect(page.locator('#mucus-appearance input[value="filant"]')).toBeChecked();
+    await expect(page.locator('#mucus-appearance input[value="transparent"]')).toBeChecked();
   });
 
   test('critical accessibility issues are absent', async ({ page }) => {
