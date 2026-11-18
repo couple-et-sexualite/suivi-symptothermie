@@ -130,9 +130,9 @@ function validateBackupLegacy(legacy) {
 }
 
 /**
- * Export both the complete v2 database and the legacy UI snapshot.
- * The legacy snapshot keeps older app versions readable; v2 remains the
- * authoritative source for detailed cervical observations.
+ * Export both the complete v2 database and the snapshot consumed by the
+ * current classic-script UI. V2 remains authoritative for detailed cervical
+ * observations that the legacy projection cannot represent.
  */
 export function exportCompleteBackup(storage, legacySnapshot) {
   const data = readV2Store(storage);
