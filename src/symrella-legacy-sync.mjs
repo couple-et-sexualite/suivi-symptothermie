@@ -165,6 +165,15 @@ export function syncLegacySnapshotToV2(storage, snapshot, options = {}) {
       sensation: update.payload.sensation || null,
       appearance: Array.isArray(update.payload.appearance) ? update.payload.appearance : []
     };
+    if (update.payload.cervix && typeof update.payload.cervix === "object" && !Array.isArray(update.payload.cervix)) {
+      observation.cervix = {
+        ...observation.cervix,
+        position: update.payload.cervix.position || null,
+        opening: update.payload.cervix.opening || null,
+        consistency: update.payload.cervix.consistency || null,
+        notes: typeof update.payload.cervix.notes === "string" ? update.payload.cervix.notes.slice(0, 2000) : ""
+      };
+    }
   }
   if (!validateV2Data(next)) {
     throw new Error("La synchronisation produirait une base incohérente ; aucune donnée n’a été modifiée.");
