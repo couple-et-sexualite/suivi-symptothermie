@@ -413,6 +413,41 @@
         </div>
         <p class="learn-meta">Ces descriptions sont conservées séparément de l’ancienne catégorie de glaire.</p>
       </fieldset>
+      <fieldset style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:12px;">
+        <legend>Observation du col de l’utérus (facultatif)</legend>
+        <div class="form-grid">
+          <div>
+            <label for="f-cervix-position">Position du col</label>
+            <select id="f-cervix-position">
+              <option value="">Non renseignée</option>
+              <option value="bas">Bas</option>
+              <option value="moyen">Intermédiaire</option>
+              <option value="haut">Haut</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-cervix-opening">Ouverture du col</label>
+            <select id="f-cervix-opening">
+              <option value="">Non renseignée</option>
+              <option value="fermé">Fermé</option>
+              <option value="entre-ouvert">Entre-ouvert</option>
+              <option value="ouvert">Ouvert</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-cervix-consistency">Consistance du col</label>
+            <select id="f-cervix-consistency">
+              <option value="">Non renseignée</option>
+              <option value="ferme">Ferme</option>
+              <option value="moyenne">Intermédiaire</option>
+              <option value="souple">Souple</option>
+            </select>
+          </div>
+        </div>
+        <label for="f-cervix-notes">Notes sur le col (facultatif)</label>
+        <textarea id="f-cervix-notes" maxlength="2000" placeholder="Décris uniquement ce que tu observes."></textarea>
+        <p class="learn-meta">Ces champs servent à noter tes observations personnelles. Ils ne produisent pas à eux seuls une interprétation automatique.</p>
+      </fieldset>
     </div>
     <details style="margin-bottom:14px; font-size:0.82rem; color:var(--text-muted);">
       <summary style="cursor:pointer; color:var(--blue); font-weight:600;">ℹ️ Que veut dire chaque type ?</summary>
