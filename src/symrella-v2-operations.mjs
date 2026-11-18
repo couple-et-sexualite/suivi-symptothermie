@@ -1,5 +1,5 @@
-import { validateV2Data } from "./symrella-data-v2.mjs";
-import { V2_STORAGE_KEY } from "./symrella-storage-migration.mjs";
+import { migrateLegacyData, validateV2Data } from "./symrella-data-v2.mjs";
+import { LEGACY_STORAGE_KEYS, V2_STORAGE_KEY } from "./symrella-storage-migration.mjs";
 import { classifyV2Cycle } from "./symrella-v2-classification.mjs";
 import { RPS02_VERSION } from "./rps02-engine.mjs";
 
@@ -105,4 +105,102 @@ export function recalculateV2Cycle(storage, cycleId = null, language = "fr") {
   if (!needsCalculation) return data;
   cycle.derived=classifyV2Cycle(cycle,language);
   return commitStore(storage,raw,next);
+}
+
+
+const BACKUP_FORMAT = "symrella.backup";
+const BACKUP_VERSION = 2;
+const BACKUP_KEYS = Object.freeze([V2_STORAGE_KEY, ...Object.values(LEGACY_STORAGE_KEYS)]);
+
+function validateBackupLegacy(legacy) {
+  if (!legacy || typeof legacy !== "object" || Array.isArray(legacy) ||
+      !Array.isArray(legacy.current) || !Array.isArray(legacy.history) ||
+      legacy.history.length > MAX_HISTORY_CYCLES ||
+      !(legacy.profile === null || (typeof legacy.profile === "object" && !Array.isArray(legacy.profile))) ||
+      !(legacy.learning === null || (typeof legacy.learning === "object" && !Array.isArray(legacy.learning)))) {
+    throw new Error("La partie historique de la sauvegarde est invalide.");
+  }
+  migrateLegacyData({
+    current: legacy.current,
+    history: legacy.history,
+    profile: legacy.profile,
+    learning: legacy.learning
+  }, { idFactory: (prefix, index) => `backup-validation-${prefix}-${index}`, migratedAt: null });
+  return true;
+}
+
+/**
+ * Export both the complete v2 database and the legacy UI snapshot.
+ * The legacy snapshot keeps older app versions readable; v2 remains the
+ * authoritative source for detailed cervical observations.
+ */
+export function exportCompleteBackup(storage, legacySnapshot) {
+  const data = readV2Store(storage);
+  const legacy = {
+    current: clone(legacySnapshot?.current),
+    history: clone(legacySnapshot?.history),
+    profile: clone(legacySnapshot?.profile ?? null),
+    learning: clone(legacySnapshot?.learning ?? null)
+  };
+  validateBackupLegacy(legacy);
+  if (JSON.stringify(data.profile) !== JSON.stringify(legacy.profile) ||
+      JSON.stringify(data.learning) !== JSON.stringify(legacy.learning)) {
+    throw new Error("Le profil ou la progression ne correspondent pas à la base v2.");
+  }
+  return JSON.stringify({
+    format: BACKUP_FORMAT,
+    version: BACKUP_VERSION,
+    exportedAt: new Date().toISOString(),
+    legacy,
+    v2: data
+  }, null, 2);
+}
+
+/**
+ * Restore all representations as one transaction. No key is changed until
+ * the complete envelope and both data representations have been validated.
+ */
+export function importCompleteBackup(storage, jsonText) {
+  if (typeof jsonText !== "string") throw new TypeError("La sauvegarde doit être un texte JSON.");
+  let backup;
+  try { backup = JSON.parse(jsonText); }
+  catch { throw new Error("Le fichier de sauvegarde n'est pas un JSON valide."); }
+  if (!backup || typeof backup !== "object" || Array.isArray(backup) ||
+      backup.format !== BACKUP_FORMAT || backup.version !== BACKUP_VERSION ||
+      typeof backup.exportedAt !== "string" || Number.isNaN(Date.parse(backup.exportedAt)) ||
+      !validateV2Data(backup.v2)) {
+    throw new Error("Cette sauvegarde SymRella complète est invalide.");
+  }
+  validateBackupLegacy(backup.legacy);
+  if (JSON.stringify(backup.v2.profile) !== JSON.stringify(backup.legacy.profile) ||
+      JSON.stringify(backup.v2.learning) !== JSON.stringify(backup.legacy.learning)) {
+    throw new Error("Les représentations du profil ou de la progression sont incohérentes.");
+  }
+
+  const legacy = backup.legacy;
+  const values = {
+    [V2_STORAGE_KEY]: JSON.stringify(backup.v2),
+    [LEGACY_STORAGE_KEYS.current]: JSON.stringify(legacy.current),
+    [LEGACY_STORAGE_KEYS.history]: JSON.stringify(legacy.history),
+    [LEGACY_STORAGE_KEYS.profile]: JSON.stringify(legacy.profile),
+    [LEGACY_STORAGE_KEYS.learning]: JSON.stringify(legacy.learning)
+  };
+  const previous = Object.fromEntries(BACKUP_KEYS.map(key => [key, storage.getItem(key)]));
+  try {
+    for (const key of BACKUP_KEYS) storage.setItem(key, values[key]);
+    for (const key of BACKUP_KEYS) {
+      if (storage.getItem(key) !== values[key]) throw new Error("La vérification après restauration a échoué.");
+    }
+    const restored = JSON.parse(storage.getItem(V2_STORAGE_KEY));
+    if (!validateV2Data(restored)) throw new Error("La base v2 restaurée est invalide.");
+    return clone(restored);
+  } catch (error) {
+    for (const key of BACKUP_KEYS) {
+      try {
+        if (previous[key] === null) storage.removeItem(key);
+        else storage.setItem(key, previous[key]);
+      } catch {}
+    }
+    throw error;
+  }
 }
