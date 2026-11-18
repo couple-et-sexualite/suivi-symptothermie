@@ -311,3 +311,49 @@ test('imports a legacy-format backup without discarding richer cervical observat
   await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
   await expect(page.locator('#f-cervix-notes')).toHaveValue('Donnée cervicale détaillée conservée');
 });
+
+test('exports and restores archived cycles with all rich cervical observations', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.locator('#f-date').inputValue();
+  await page.locator('#f-temp').fill('36.45');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#mucus-appearance input[value="transparent"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-opening').selectOption('ouvert');
+  await page.locator('#f-cervix-consistency').selectOption('souple');
+  await page.locator('#f-cervix-notes').fill('Observation archivée à restaurer');
+  await page.locator('#save-entry-btn').click();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+  await expect(page.locator('#history-container details')).toBeVisible();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('[data-action="export-data"]').click();
+  const download = await downloadPromise;
+  const backupPath = await download.path();
+  expect(backupPath).toBeTruthy();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="clear-all-data"]').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles(backupPath);
+  await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
+
+  const archived = page.locator('#history-container details');
+  await expect(archived).toBeVisible();
+  await archived.locator('summary').click();
+  await expect(archived).toContainText('Sensation vulvaire : glissante');
+  await expect(archived).toContainText('Aspect de la glaire : filant, transparent');
+  await expect(archived).toContainText('Position du col : haut');
+  await expect(archived).toContainText('Ouverture du col : ouvert');
+  await expect(archived).toContainText('Consistance du col : souple');
+  await expect(archived).toContainText('Observation archivée à restaurer');
+
+  await page.reload();
+  const restoredArchive = page.locator('#history-container details');
+  await expect(restoredArchive).toBeVisible();
+  await restoredArchive.locator('summary').click();
+  await expect(restoredArchive).toContainText('Observation archivée à restaurer');
+});
