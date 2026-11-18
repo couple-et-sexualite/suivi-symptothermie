@@ -28,5 +28,8 @@ window.symrellaSaveCervicalObservation = (date, payload) => {
     sensation: payload.sensation || null,
     appearance: Array.isArray(payload.appearance) ? payload.appearance : [],
   };
-  return updateV2Observation(window.localStorage, observation.id, { cervicalMucus }, cycle.id);
+  const cervix = payload.cervix && typeof payload.cervix === "object"
+    ? { ...observation.cervix, ...payload.cervix }
+    : observation.cervix;
+  return updateV2Observation(window.localStorage, observation.id, { cervicalMucus, cervix }, cycle.id);
 };
