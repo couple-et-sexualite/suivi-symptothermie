@@ -249,20 +249,22 @@ function addEntry() {
   }
 }
 
-function readCervicalObservation(date) {
+function readCervicalObservation(date, historyIndex = null) {
   try {
     const store = window.symrellaReadV2Store?.();
-    const cycle = store && [store.currentCycle, ...store.history].find(item =>
-      item.observations.some(observation => observation.date === date)
-    );
+    const cycle = Number.isInteger(historyIndex)
+      ? store?.history?.[historyIndex]
+      : store && [store.currentCycle, ...store.history].find(item =>
+          item.observations.some(observation => observation.date === date)
+        );
     return cycle?.observations.find(observation => observation.date === date) || null;
   } catch (error) {
     return null;
   }
 }
 
-function cervicalObservationText(date) {
-  const observation = readCervicalObservation(date);
+function cervicalObservationText(date, historyIndex = null) {
+  const observation = readCervicalObservation(date, historyIndex);
   if (!observation) return '';
   const mucus = observation.cervicalMucus || {};
   const cervix = observation.cervix || {};
@@ -278,9 +280,9 @@ function cervicalObservationText(date) {
   return parts.join('<br>');
 }
 
-function renderArchivedCervicalDetails(entries) {
+function renderArchivedCervicalDetails(entries, historyIndex) {
   const rows = entries.map(entry => {
-    const details = cervicalObservationText(entry.date);
+    const details = cervicalObservationText(entry.date, historyIndex);
     return details ? '<li><strong>' + formatDate(entry.date) + '</strong><br>' + details + '</li>' : '';
   }).filter(Boolean);
   return rows.length
@@ -547,7 +549,7 @@ function renderHistory() {
     const first = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date))[0];
     const last = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
     const span = first && last ? Math.floor((new Date(last.date+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1 : c.entries.length;
-    const cervicalDetails = renderArchivedCervicalDetails(c.entries);
+    const cervicalDetails = renderArchivedCervicalDetails(c.entries, i);
     return `
     <article class="history-item" aria-labelledby="history-cycle-${i}">
       <div>
