@@ -456,3 +456,63 @@ test('renders archived cervical details from their own cycle when dates overlap'
   await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
   await expect(page.locator('#f-cervix-notes')).toHaveValue('Détail propre au cycle actif');
 });
+
+
+test('backup round-trip keeps same-date cervical observations attached to their own cycles', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+  });
+
+  // Save and archive the first observation.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-notes').fill('Glaire et col du cycle archivé');
+  await page.locator('#save-entry-btn').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+
+  // Save a different observation on the same date in the active cycle.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.70');
+  await page.locator('#f-mucus-sensation').selectOption('humide');
+  await page.locator('#f-cervix-position').selectOption('bas');
+  await page.locator('#f-cervix-notes').fill('Glaire et col du cycle actif');
+  await page.locator('#save-entry-btn').click();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('[data-action="export-data"]').click();
+  const download = await downloadPromise;
+  const backupPath = await download.path();
+  expect(backupPath).toBeTruthy();
+
+  // Clear all local stores, then restore only from the exported backup.
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="clear-all-data"]').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles(backupPath);
+  await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
+
+  const archived = page.locator('#history-container .history-item');
+  await archived.locator('details summary').click();
+  await expect(archived).toContainText('Glaire et col du cycle archivé');
+  await expect(archived).toContainText('Position du col : haut');
+  await expect(archived).not.toContainText('Glaire et col du cycle actif');
+
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Glaire et col du cycle actif');
+  await expect(page.locator('#f-cervix-position')).toHaveValue('bas');
+
+  await page.reload();
+  const archivedAfterReload = page.locator('#history-container .history-item');
+  await archivedAfterReload.locator('details summary').click();
+  await expect(archivedAfterReload).toContainText('Glaire et col du cycle archivé');
+  await expect(archivedAfterReload).not.toContainText('Glaire et col du cycle actif');
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Glaire et col du cycle actif');
+});
