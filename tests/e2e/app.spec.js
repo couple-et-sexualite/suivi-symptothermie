@@ -127,12 +127,19 @@ test.describe('professional end-to-end and mobile QA', () => {
     expect(download.suggestedFilename()).toMatch(/^SymRella-sauvegarde-\d{4}-\d{2}-\d{2}\.json$/);
   });
 
-  test('exports, clears, and restores a real backup through the UI', async ({ page }) => {
+  test('exports, clears, and restores a real backup including rich cervical observations through the UI', async ({ page }) => {
     await resetApp(page);
     const date = await page.locator('#f-date').inputValue();
     await page.locator('#f-temp').fill('36.50');
     await page.locator('#f-time').fill('07:00');
     await page.locator('#f-mucus').selectOption('cremeuse');
+    await page.locator('#f-mucus-sensation').selectOption('glissante');
+    await page.locator('#mucus-appearance input[value="filant"]').check();
+    await page.locator('#mucus-appearance input[value="transparent"]').check();
+    await page.locator('#f-cervix-position').selectOption('haut');
+    await page.locator('#f-cervix-opening').selectOption('entre-ouvert');
+    await page.locator('#f-cervix-consistency').selectOption('souple');
+    await page.locator('#f-cervix-notes').fill('Observation cervicale de contrôle');
     await page.locator('#save-entry-btn').click();
 
     const downloadPromise = page.waitForEvent('download');
@@ -150,6 +157,50 @@ test.describe('professional end-to-end and mobile QA', () => {
     await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
     await expect(page.locator('#today-summary')).toContainText('36.50');
     await expect(page.locator('#calendar-grid [data-calendar-date="' + date + '"]')).toBeVisible();
+
+    await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+    await expect(page.locator('#f-mucus-sensation')).toHaveValue('glissante');
+    await expect(page.locator('#mucus-appearance input[value="filant"]')).toBeChecked();
+    await expect(page.locator('#mucus-appearance input[value="transparent"]')).toBeChecked();
+    await expect(page.locator('#f-cervix-position')).toHaveValue('haut');
+    await expect(page.locator('#f-cervix-opening')).toHaveValue('entre-ouvert');
+    await expect(page.locator('#f-cervix-consistency')).toHaveValue('souple');
+    await expect(page.locator('#f-cervix-notes')).toHaveValue('Observation cervicale de contrôle');
+  });
+
+  test('cervical observations remain editable and visible after archiving a cycle', async ({ page }) => {
+    await resetApp(page);
+    const date = await page.locator('#f-date').inputValue();
+    await page.locator('#f-temp').fill('36.40');
+    await page.locator('#f-mucus-sensation').selectOption('glissante');
+    await page.locator('#mucus-appearance input[value="filant"]').check();
+    await page.locator('#f-cervix-position').selectOption('haut');
+    await page.locator('#f-cervix-opening').selectOption('ouvert');
+    await page.locator('#f-cervix-consistency').selectOption('souple');
+    await page.locator('#f-cervix-notes').fill('Col souple observé');
+    await page.locator('#save-entry-btn').click();
+
+    await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+    await expect(page.locator('#f-cervix-position')).toHaveValue('haut');
+    await expect(page.locator('#f-cervix-opening')).toHaveValue('ouvert');
+    await expect(page.locator('#f-cervix-consistency')).toHaveValue('souple');
+    await expect(page.locator('#f-cervix-notes')).toHaveValue('Col souple observé');
+    await page.locator('#f-cervix-position').selectOption('bas');
+    await page.locator('#save-entry-btn').click();
+
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('[data-action="start-new-cycle"]').click();
+    const archived = page.locator('#history-container details');
+    await expect(archived).toBeVisible();
+    await archived.locator('summary').click();
+    await expect(archived).toContainText('Position du col : bas');
+    await expect(archived).toContainText('Ouverture du col : ouvert');
+    await expect(archived).toContainText('Consistance du col : souple');
+    await expect(archived).toContainText('Col souple observé');
+    await page.reload();
+    await expect(page.locator('#history-container details')).toBeVisible();
+    await page.locator('#history-container details summary').click();
+    await expect(page.locator('#history-container')).toContainText('Position du col : bas');
   });
 
   test('critical accessibility issues are absent', async ({ page }) => {
@@ -202,4 +253,266 @@ test('production GitHub Pages serves and renders all RPS-02 reference images', a
     image.naturalHeight > 0 &&
     image.src.includes('/data/rps02-blind-assets/RPS02-A')
   )).toBeTruthy();
+});
+
+
+test('imports a legacy-format backup without discarding richer cervical observations for matching dates', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.locator('#f-date').inputValue();
+
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#mucus-appearance input[value="transparent"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-opening').selectOption('ouvert');
+  await page.locator('#f-cervix-consistency').selectOption('souple');
+  await page.locator('#f-cervix-notes').fill('Donnée cervicale détaillée conservée');
+  await page.locator('#save-entry-btn').click();
+
+  // This is the pre-v2 export envelope: it contains only the classic UI fields.
+  const legacyBackup = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    current: [{
+      date,
+      temp: 36.55,
+      mucus: 'cremeuse',
+      notes: 'Note issue de l’ancienne sauvegarde',
+      factors: ['sommeil'],
+      bleeding: 'aucun',
+      time: '06:45'
+    }],
+    history: [],
+    profile: { version: 2, name: '', goal: 'observer', language: 'fr', unit: 'c' },
+    learning: { version: 1, completed: {}, lastModule: null }
+  };
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({
+    name: 'ancienne-sauvegarde.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(legacyBackup))
+  });
+
+  await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-temp')).toHaveValue('36.55');
+  await expect(page.locator('#f-notes')).toHaveValue('Note issue de l’ancienne sauvegarde');
+  await expect(page.locator('#f-mucus-sensation')).toHaveValue('glissante');
+  await expect(page.locator('#mucus-appearance input[value="filant"]')).toBeChecked();
+  await expect(page.locator('#mucus-appearance input[value="transparent"]')).toBeChecked();
+  await expect(page.locator('#f-cervix-position')).toHaveValue('haut');
+  await expect(page.locator('#f-cervix-opening')).toHaveValue('ouvert');
+  await expect(page.locator('#f-cervix-consistency')).toHaveValue('souple');
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Donnée cervicale détaillée conservée');
+
+  await page.reload();
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Donnée cervicale détaillée conservée');
+});
+
+test('exports and restores archived cycles with all rich cervical observations', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.locator('#f-date').inputValue();
+  await page.locator('#f-temp').fill('36.45');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#mucus-appearance input[value="transparent"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-opening').selectOption('ouvert');
+  await page.locator('#f-cervix-consistency').selectOption('souple');
+  await page.locator('#f-cervix-notes').fill('Observation archivée à restaurer');
+  await page.locator('#save-entry-btn').click();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+  await expect(page.locator('#history-container details')).toBeVisible();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('[data-action="export-data"]').click();
+  const download = await downloadPromise;
+  const backupPath = await download.path();
+  expect(backupPath).toBeTruthy();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="clear-all-data"]').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles(backupPath);
+  await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
+
+  const archived = page.locator('#history-container details');
+  await expect(archived).toBeVisible();
+  await archived.locator('summary').click();
+  await expect(archived).toContainText('Sensation vulvaire : glissante');
+  await expect(archived).toContainText('Aspect de la glaire : filant, transparent');
+  await expect(archived).toContainText('Position du col : haut');
+  await expect(archived).toContainText('Ouverture du col : ouvert');
+  await expect(archived).toContainText('Consistance du col : souple');
+  await expect(archived).toContainText('Observation archivée à restaurer');
+
+  await page.reload();
+  const restoredArchive = page.locator('#history-container details');
+  await expect(restoredArchive).toBeVisible();
+  await restoredArchive.locator('summary').click();
+  await expect(restoredArchive).toContainText('Observation archivée à restaurer');
+});
+
+test('keeps archived observations separate when a later active-cycle entry is edited', async ({ page }) => {
+  await resetApp(page);
+  const dates = await page.evaluate(() => {
+    const format = date => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+    const today = new Date();
+    const previousDay = new Date(today);
+    previousDay.setDate(previousDay.getDate() - 1);
+    return { today: format(today), previousDay: format(previousDay) };
+  });
+
+  // Record and archive the previous day's cycle observation.
+  await page.locator('#f-date').fill(dates.previousDay);
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-opening').selectOption('ouvert');
+  await page.locator('#f-cervix-consistency').selectOption('souple');
+  await page.locator('#f-cervix-notes').fill('Observation conservée dans le cycle archivé');
+  await page.locator('#f-notes').fill('Note du cycle archivé');
+  await page.locator('#save-entry-btn').click();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+  const archived = page.locator('#history-container .history-item');
+  await expect(archived).toHaveCount(1);
+  await archived.locator('details summary').click();
+  await expect(archived).toContainText('Observation conservée dans le cycle archivé');
+
+  // Record today's observation in the new active cycle, then edit it.
+  await page.locator('#f-date').fill(dates.today);
+  await page.locator('#f-temp').fill('36.70');
+  await page.locator('#f-mucus-sensation').selectOption('humide');
+  await page.locator('#f-cervix-position').selectOption('bas');
+  await page.locator('#f-cervix-opening').selectOption('fermé');
+  await page.locator('#f-cervix-consistency').selectOption('ferme');
+  await page.locator('#f-cervix-notes').fill('Observation du cycle actif');
+  await page.locator('#f-notes').fill('Note du cycle actif');
+  await page.locator('#save-entry-btn').click();
+
+  await page.locator('[data-action="edit-entry"][data-date="' + dates.today + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Observation du cycle actif');
+  await page.locator('#f-cervix-notes').fill('Observation active corrigée');
+  await page.locator('#f-notes').fill('Note active corrigée');
+  await page.locator('#save-entry-btn').click();
+
+  await expect(page.locator('#history-container .history-item')).toHaveCount(1);
+  const archivedAfterEdit = page.locator('#history-container .history-item');
+  await archivedAfterEdit.locator('details summary').click();
+  await expect(archivedAfterEdit).toContainText('Observation conservée dans le cycle archivé');
+  await expect(archivedAfterEdit).toContainText('Position du col : haut');
+  await expect(archivedAfterEdit).not.toContainText('Observation active corrigée');
+
+  await page.reload();
+  const persistedArchive = page.locator('#history-container .history-item');
+  await persistedArchive.locator('details summary').click();
+  await expect(persistedArchive).toContainText('Observation conservée dans le cycle archivé');
+  await page.locator('[data-action="edit-entry"][data-date="' + dates.today + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Observation active corrigée');
+  await expect(page.locator('#f-notes')).toHaveValue('Note active corrigée');
+});
+
+
+test('renders archived cervical details from their own cycle when dates overlap', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+  });
+
+  // Archive a rich observation.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-notes').fill('Détail propre au cycle archivé');
+  await page.locator('#save-entry-btn').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+
+  // Add a retroactive active-cycle observation on the same calendar date.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.70');
+  await page.locator('#f-mucus-sensation').selectOption('humide');
+  await page.locator('#f-cervix-position').selectOption('bas');
+  await page.locator('#f-cervix-notes').fill('Détail propre au cycle actif');
+  await page.locator('#save-entry-btn').click();
+
+  const archived = page.locator('#history-container .history-item');
+  await archived.locator('details summary').click();
+  await expect(archived).toContainText('Détail propre au cycle archivé');
+  await expect(archived).not.toContainText('Détail propre au cycle actif');
+
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Détail propre au cycle actif');
+});
+
+
+test('backup round-trip keeps same-date cervical observations attached to their own cycles', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+  });
+
+  // Save and archive the first observation.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-notes').fill('Glaire et col du cycle archivé');
+  await page.locator('#save-entry-btn').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+
+  // Save a different observation on the same date in the active cycle.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.70');
+  await page.locator('#f-mucus-sensation').selectOption('humide');
+  await page.locator('#f-cervix-position').selectOption('bas');
+  await page.locator('#f-cervix-notes').fill('Glaire et col du cycle actif');
+  await page.locator('#save-entry-btn').click();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('[data-action="export-data"]').click();
+  const download = await downloadPromise;
+  const backupPath = await download.path();
+  expect(backupPath).toBeTruthy();
+
+  // Clear all local stores, then restore only from the exported backup.
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="clear-all-data"]').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles(backupPath);
+  await expect(page.locator('#backup-status')).toContainText(/restaur|import/i);
+
+  const archived = page.locator('#history-container .history-item');
+  await archived.locator('details summary').click();
+  await expect(archived).toContainText('Glaire et col du cycle archivé');
+  await expect(archived).toContainText('Position du col : haut');
+  await expect(archived).not.toContainText('Glaire et col du cycle actif');
+
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Glaire et col du cycle actif');
+  await expect(page.locator('#f-cervix-position')).toHaveValue('bas');
+
+  await page.reload();
+  const archivedAfterReload = page.locator('#history-container .history-item');
+  await archivedAfterReload.locator('details summary').click();
+  await expect(archivedAfterReload).toContainText('Glaire et col du cycle archivé');
+  await expect(archivedAfterReload).not.toContainText('Glaire et col du cycle actif');
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Glaire et col du cycle actif');
 });

@@ -65,7 +65,11 @@ function loadLearning() {
   catch (e) { storageAvailable = false; memLearning = {version:LEARNING_VERSION, completed:{}, lastModule:null}; setStorageStatus('La progression pédagogique locale est illisible. Elle a été réinitialisée pour cette session.'); }
   return memLearning;
 }
-function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
+function saveLearning(value) {
+  const previous=memLearning; memLearning=value;
+  try { if(!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.'); window.symrellaPersistSnapshot({current:loadCurrent(),history:loadHistory(),profile:loadProfile(),learning:value}); }
+  catch(e) { memLearning=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. La progression précédente a été conservée.'); }
+}
 function renderLearning() {
   const progress = loadLearning(), completed = Object.keys(progress.completed).length;
   const progressBar = document.getElementById('overall-progress');
@@ -122,12 +126,28 @@ function loadCurrent(){
   return memCurrent;
 }
 function setStorageStatus(message){const status=document.getElementById('storage-status');if(status)status.textContent=message;}
-function saveCurrent(entries) {
+function saveCurrent(entries, cervicalObservation = null) {
+  const previous = memCurrent;
   memCurrent = entries;
-  try { localStorage.setItem(CURRENT_KEY, JSON.stringify(entries)); } catch (e) { storageAvailable = false; setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.'); }
+  try {
+    if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:entries,history:loadHistory(),profile:loadProfile(),learning:loadLearning(),cervicalObservations:cervicalObservation ? [cervicalObservation] : []});
+    return true;
+  } catch (e) { memCurrent=previous; storageAvailable=false; setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.'); return false; }
 }
 function loadHistory(){if(memHistory!==null)return memHistory;try{const raw=localStorage.getItem(HISTORY_KEY),parsed=raw?JSON.parse(raw):[];if(!Array.isArray(parsed)||parsed.length>MAX_HISTORY_CYCLES||!parsed.every(validStoredHistoryCycle))throw new Error('format');memHistory=parsed;}catch(e){storageAvailable=false;memHistory=[];setStorageStatus('L’historique local est illisible ou incomplet. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');}return memHistory;}
-function saveHistory(hist){memHistory=hist;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(hist));}catch(e){storageAvailable=false;setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.');}}
+function saveHistory(hist){
+  const previous=memHistory; memHistory=hist;
+  try {
+    if(!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:loadCurrent(),history:hist,profile:loadProfile(),learning:loadLearning()});
+    return true;
+  } catch(e) {
+    memHistory=previous; storageAvailable=false;
+    setStorageStatus('La sauvegarde coordonnée a échoué. Les données précédentes ont été conservées.');
+    return false;
+  }
+}
 
 document.getElementById('f-date').valueAsDate = new Date();
 document.getElementById('f-date').max = localDateKey();
@@ -145,6 +165,14 @@ function addEntry() {
     const notes = document.getElementById('f-notes').value.trim();
     const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
     const time = document.getElementById('f-time').value;
+    const cervicalSensation = document.getElementById('f-mucus-sensation')?.value || '';
+    const cervicalAppearance = [...document.querySelectorAll('#mucus-appearance input:checked')].map(el => el.value);
+    const cervixObservation = {
+      position: document.getElementById('f-cervix-position')?.value || null,
+      opening: document.getElementById('f-cervix-opening')?.value || null,
+      consistency: document.getElementById('f-cervix-consistency')?.value || null,
+      notes: document.getElementById('f-cervix-notes')?.value.trim() || ''
+    };
 
     if (!date) { setActionStatus(at('chooseDate')); return; }
     if (!isValidDateKey(date)) { setActionStatus(at('invalidDate')); return; }
@@ -183,8 +211,10 @@ function addEntry() {
       return;
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
-    saveCurrent(entries);
-
+    if (!saveCurrent(entries, {date, payload: {sensation: cervicalSensation, appearance: cervicalAppearance, cervix: cervixObservation}})) {
+      setActionStatus(at('saveFail'));
+      return;
+    }
     // Le stockage est effectué avant le rafraîchissement de l'interface.
     // Ainsi, même si un élément visuel rencontre une erreur, l'observation reste sauvegardée.
     render();
@@ -197,6 +227,12 @@ function addEntry() {
     document.getElementById('f-time').value = '';
     document.getElementById('f-bleeding').value = 'aucun';
     document.getElementById('f-mucus').value = 'sec';
+    document.getElementById('f-mucus-sensation').value = '';
+    document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
+    document.getElementById('f-cervix-position').value = '';
+    document.getElementById('f-cervix-opening').value = '';
+    document.getElementById('f-cervix-consistency').value = '';
+    document.getElementById('f-cervix-notes').value = '';
     document.getElementById('f-notes').value = '';
     document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
 
@@ -213,6 +249,47 @@ function addEntry() {
   }
 }
 
+function readCervicalObservation(date, historyIndex = null) {
+  try {
+    const store = window.symrellaReadV2Store?.();
+    const cycle = Number.isInteger(historyIndex)
+      ? store?.history?.[historyIndex]
+      : store && [store.currentCycle, ...store.history].find(item =>
+          item.observations.some(observation => observation.date === date)
+        );
+    return cycle?.observations.find(observation => observation.date === date) || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function cervicalObservationText(date, historyIndex = null) {
+  const observation = readCervicalObservation(date, historyIndex);
+  if (!observation) return '';
+  const mucus = observation.cervicalMucus || {};
+  const cervix = observation.cervix || {};
+  const parts = [];
+  if (mucus.sensation) parts.push('Sensation vulvaire : ' + escapeHtml(mucus.sensation));
+  if (Array.isArray(mucus.appearance) && mucus.appearance.length) {
+    parts.push('Aspect de la glaire : ' + mucus.appearance.map(escapeHtml).join(', '));
+  }
+  if (cervix.position) parts.push('Position du col : ' + escapeHtml(cervix.position));
+  if (cervix.opening) parts.push('Ouverture du col : ' + escapeHtml(cervix.opening));
+  if (cervix.consistency) parts.push('Consistance du col : ' + escapeHtml(cervix.consistency));
+  if (cervix.notes) parts.push('Notes sur le col : ' + escapeHtml(cervix.notes));
+  return parts.join('<br>');
+}
+
+function renderArchivedCervicalDetails(entries, historyIndex) {
+  const rows = entries.map(entry => {
+    const details = cervicalObservationText(entry.date, historyIndex);
+    return details ? '<li><strong>' + formatDate(entry.date) + '</strong><br>' + details + '</li>' : '';
+  }).filter(Boolean);
+  return rows.length
+    ? '<details class="learn-meta" style="margin-top:8px;"><summary>Observations cervicales détaillées (' + rows.length + ')</summary><ul>' + rows.join('') + '</ul></details>'
+    : '';
+}
+
 function editEntry(date) {
   announceEditStatus('Modification de l’observation du ' + formatDate(date) + '.');
 
@@ -222,6 +299,15 @@ function editEntry(date) {
   document.getElementById('f-temp').value = entry.temp === null ? '' : celsiusToDisplay(entry.temp).toFixed(2);
   document.getElementById('f-time').value = entry.time || '';
   document.getElementById('f-mucus').value = entry.mucus || 'sec';
+  const cervicalRecord = readCervicalObservation(date);
+  const cervical = cervicalRecord?.cervicalMucus || null;
+  const cervix = cervicalRecord?.cervix || null;
+  document.getElementById('f-mucus-sensation').value = cervical?.sensation || '';
+  document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = Array.isArray(cervical?.appearance) && cervical.appearance.includes(el.value); });
+  document.getElementById('f-cervix-position').value = cervix?.position || '';
+  document.getElementById('f-cervix-opening').value = cervix?.opening || '';
+  document.getElementById('f-cervix-consistency').value = cervix?.consistency || '';
+  document.getElementById('f-cervix-notes').value = cervix?.notes || '';
   document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
@@ -256,6 +342,13 @@ function cancelEdit() {
   if (time) time.value = '';
   if (bleeding) bleeding.value = 'aucun';
   if (mucus) mucus.value = 'sec';
+  const sensation = document.getElementById('f-mucus-sensation');
+  if (sensation) sensation.value = '';
+  document.querySelectorAll('#mucus-appearance input').forEach(el => { el.checked = false; });
+  ['f-cervix-position','f-cervix-opening','f-cervix-consistency','f-cervix-notes'].forEach(id => {
+    const field = document.getElementById(id);
+    if (field) field.value = '';
+  });
   if (notes) notes.value = '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
   announceEditStatus('Formulaire réinitialisé.');
@@ -264,7 +357,10 @@ function cancelEdit() {
 function deleteEntry(date) {
   if (!confirm(at('deleteConfirm').replace('{date}',formatDate(date)))) return;
   let entries = loadCurrent().filter(e => e.date !== date);
-  saveCurrent(entries);
+  if (!saveCurrent(entries)) {
+    setActionStatus(at('saveFail'));
+    return;
+  }
   setActionStatus(at('deleteObs'));
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
@@ -281,28 +377,16 @@ function startNewCycle() {
     return;
   }
   const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
-  const keys = [CURRENT_KEY, HISTORY_KEY];
-  const previous = { [CURRENT_KEY]: null, [HISTORY_KEY]: null };
   try {
-    keys.forEach(key => { previous[key] = localStorage.getItem(key); });
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
-    localStorage.setItem(CURRENT_KEY, JSON.stringify([]));
+    if (!window.symrellaPersistSnapshot) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaPersistSnapshot({current:[],history:nextHistory,profile:loadProfile(),learning:loadLearning()});
     memHistory = nextHistory;
     memCurrent = [];
     storageAvailable = true;
     setActionStatus(at('newCycle'));
   } catch (error) {
-    try {
-      keys.forEach(key => {
-        if (previous[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, previous[key]);
-      });
-    } catch (rollbackError) {}
-    storageAvailable = false;
-    memHistory = nextHistory;
-    memCurrent = [];
     setActionStatus(at('sessionArchive'));
-    setStorageStatus('Le cycle a été conservé pendant cette session, mais le navigateur n’a pas permis de confirmer la sauvegarde durable.');
+    setStorageStatus('L’archivage n’a pas été confirmé. Les données précédentes ont été conservées.');
   }
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
@@ -314,7 +398,10 @@ function deleteHistoryCycle(idx) {
   if (!cycle) return;
   if (!confirm(at('deleteHistoryConfirm').replace('{start}',formatDate(cycle.start)).replace('{end}',formatDate(cycle.end)))) return;
   hist.splice(idx, 1);
-  saveHistory(hist);
+  if (!saveHistory(hist)) {
+    setActionStatus(at('saveFail'));
+    return;
+  }
   setActionStatus(at('historyDeleted'));
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
@@ -462,6 +549,7 @@ function renderHistory() {
     const first = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date))[0];
     const last = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
     const span = first && last ? Math.floor((new Date(last.date+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1 : c.entries.length;
+    const cervicalDetails = renderArchivedCervicalDetails(c.entries, i);
     return `
     <article class="history-item" aria-labelledby="history-cycle-${i}">
       <div>
@@ -469,6 +557,7 @@ function renderHistory() {
         <div class="learn-meta">${c.entries.length} ${t.obs} · ${temps} ${t.temps} · ${t.covered} : ${span} ${t.days}</div>
         <div class="learn-meta">${mucusCount} ${t.mucus} · ${bleedingCount} ${t.bleeding} · ${completeness}% ${t.complete}</div>
         ${contexts ? '<div class="learn-meta">'+t.context+' '+contexts+' '+t.obs+'</div>' : ''}
+        ${cervicalDetails}
       </div>
       <button type="button" class="btn btn-danger" data-action="delete-history-cycle" data-index="${i}" aria-label="${t.delete} ${t.cycle.toLowerCase()} ${formatDate(c.start)}">${t.delete}</button>
     </article>`;
@@ -702,13 +791,19 @@ function applyLanguage(){
   const buttons=document.querySelectorAll('[data-action="export-data"],[data-action="import-data"],[data-action="clear-all-data"]');if(buttons[0])buttons[0].textContent=d.ui.export;if(buttons[1])buttons[1].textContent=d.ui.import;if(buttons[2])buttons[2].textContent=d.ui.clear;
   const goal=document.getElementById('profile-goal');if(goal)goal.querySelectorAll('option').forEach((o,i)=>{if(d.goals[i])o.textContent=d.goals[i];});
   const labels={
-    fr:{bleeding:['Aucun renseigné','Règles','Spotting (saignement léger)'],mucus:['Sec / absent','Collante','Crémeuse',"Blanc d'œuf (observation)"],factors:['Maladie / fièvre','Sommeil perturbé','Horaire inhabituel','Voyage / déplacement','Alcool','Médicament']},
-    en:{bleeding:['None indicated','Period','Spotting (light bleeding)'],mucus:['Dry / absent','Sticky','Creamy','Egg white (observation)'],factors:['Illness / fever','Disturbed sleep','Unusual schedule','Travel / displacement','Alcohol','Medication']},
-    es:{bleeding:['Ninguno indicado','Regla','Spotting (sangrado leve)'],mucus:['Seco / ausente','Pegajoso','Cremoso',"Clara de huevo (observación)"],factors:['Enfermedad / fiebre','Sueño alterado','Horario inusual','Viaje / desplazamiento','Alcohol','Medicamento']},
-    ar:{bleeding:['لا يوجد','الدورة الشهرية','نزيف خفيف'],mucus:['جاف / غير موجود','لزج','كريمي','مثل بياض البيض (ملاحظة)'],factors:['مرض / حمى','اضطراب النوم','وقت غير معتاد','سفر / تنقّل','كحول','دواء']}
+    fr:{bleeding:['Aucun renseigné','Règles','Spotting (saignement léger)'],mucus:['Sec / absent','Collante','Crémeuse',"Blanc d'œuf (observation)"],factors:['Maladie / fièvre','Sommeil perturbé','Horaire inhabituel','Voyage / déplacement','Alcool','Médicament'],sensation:['Non renseignée','Sèche','Humide','Mouillée','Glissante'],appearance:['Aucun écoulement visible','Épais','Crémeux','Aqueux','Filant / élastique','Transparent','Blanchâtre'],sensationLabel:'Sensation vulvaire (facultatif)',sensationHelp:'Note la sensation ressentie à la vulve, indépendamment de l’aspect observé.',appearanceLabel:'Aspect observé (plusieurs choix possibles)',appearanceHelp:'Ces descriptions sont conservées séparément de l’ancienne catégorie de glaire.'},
+    en:{bleeding:['None indicated','Period','Spotting (light bleeding)'],mucus:['Dry / absent','Sticky','Creamy','Egg white (observation)'],factors:['Illness / fever','Disturbed sleep','Unusual schedule','Travel / displacement','Alcohol','Medication'],sensation:['Not specified','Dry','Moist','Wet','Slippery'],appearance:['No visible discharge','Thick','Creamy','Watery','Stretchy / elastic','Transparent','Whitish'],sensationLabel:'Vulvar sensation (optional)',sensationHelp:'Record the sensation at the vulva separately from the observed appearance.',appearanceLabel:'Observed appearance (select all that apply)',appearanceHelp:'These descriptions are stored separately from the legacy mucus category.'},
+    es:{bleeding:['Ninguno indicado','Regla','Spotting (sangrado leve)'],mucus:['Seco / ausente','Pegajoso','Cremoso',"Clara de huevo (observación)"],factors:['Enfermedad / fiebre','Sueño alterado','Horario inusual','Viaje / desplazamiento','Alcohol','Medicamento'],sensation:['No indicado','Seca','Húmeda','Mojada','Resbaladiza'],appearance:['Sin secreción visible','Espesa','Cremosa','Acuosa','Elástica','Transparente','Blanquecina'],sensationLabel:'Sensación vulvar (opcional)',sensationHelp:'Anota la sensación en la vulva, independientemente del aspecto observado.',appearanceLabel:'Aspecto observado (varias opciones)',appearanceHelp:'Estas descripciones se guardan por separado de la antigua categoría de moco.'},
+    ar:{bleeding:['لا يوجد','الدورة الشهرية','نزيف خفيف'],mucus:['جاف / غير موجود','لزج','كريمي','مثل بياض البيض (ملاحظة)'],factors:['مرض / حمى','اضطراب النوم','وقت غير معتاد','سفر / تنقّل','كحول','دواء'],sensation:['غير محدد','جافة','رطبة','مبتلة','زَلِقة'],appearance:['لا توجد إفرازات مرئية','سميك','كريمي','مائي','متمدد / مطاطي','شفاف','مائل إلى البياض'],sensationLabel:'الإحساس عند الفرج (اختياري)',sensationHelp:'سجّلي الإحساس عند الفرج بشكل منفصل عن المظهر المرصود.',appearanceLabel:'المظهر المرصود (يمكن اختيار عدة خيارات)',appearanceHelp:'تُحفظ هذه الأوصاف بشكل منفصل عن تصنيف المخاط السابق.'}
   }[lang];
   document.querySelectorAll('#f-bleeding option').forEach((o,i)=>o.textContent=labels.bleeding[i]||o.textContent);
   document.querySelectorAll('#f-mucus option').forEach((o,i)=>o.textContent=labels.mucus[i]||o.textContent);
+  document.querySelectorAll('#f-mucus-sensation option').forEach((o,i)=>o.textContent=labels.sensation[i]||o.textContent);
+  document.querySelectorAll('#mucus-appearance label').forEach((label,i)=>{const input=label.querySelector('input');if(input&&labels.appearance[i])label.lastChild.textContent=' '+labels.appearance[i];});
+  const sensationLabel=document.querySelector('label[for="f-mucus-sensation"]');if(sensationLabel)sensationLabel.textContent=labels.sensationLabel;
+  const sensationHelp=document.querySelector('#f-mucus-sensation + p');if(sensationHelp)sensationHelp.textContent=labels.sensationHelp;
+  const appearanceLegend=document.querySelector('#mucus-appearance')?.parentElement?.querySelector('legend');if(appearanceLegend)appearanceLegend.textContent=labels.appearanceLabel;
+  const appearanceHelp=document.querySelector('#mucus-appearance + p');if(appearanceHelp)appearanceHelp.textContent=labels.appearanceHelp;
   document.querySelectorAll('.factor').forEach((o,i)=>{const label=o.parentElement;if(label&&labels.factors[i])label.lastChild.textContent=' '+labels.factors[i];});
   const s=document.getElementById('save-entry-btn');if(s&&!s.disabled)s.textContent=d.save;
   applyTemperatureInputSettings();
@@ -716,9 +811,26 @@ function applyLanguage(){
 function loadProfile(){if(memProfile!==null)return memProfile;const fallback={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{const v=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(v===null){memProfile=fallback;return memProfile;}if(typeof v!=='object'||Array.isArray(v)||(v.version!==undefined&&v.version!==APP_DATA_VERSION)||('name'in v&&(typeof v.name!=='string'||v.name.length>80))||('goal'in v&&!['observer','apprendre','suivi'].includes(v.goal))||('language'in v&&!['fr','en','es','ar'].includes(v.language))||('unit'in v&&!['c','f'].includes(v.unit)))throw new Error('format');memProfile={version:APP_DATA_VERSION,name:v.name||'',goal:v.goal||'observer',language:v.language||'fr',unit:v.unit||'c'};}catch(e){storageAvailable=false;memProfile=fallback;setStorageStatus('Le profil local est illisible. Tu peux en enregistrer un nouveau dans cette session.');}return memProfile;}
 function renderProfile(){const p=loadProfile();const n=document.getElementById('profile-name'),g=document.getElementById('profile-goal'),l=document.getElementById('profile-language'),u=document.getElementById('profile-unit');if(n)n.value=p.name||'';if(g)g.value=p.goal||'observer';if(l)l.value=p.language||'fr';if(u)u.value=p.unit||'c';applyLanguage();}
 function setProfileStatus(message){const status=document.getElementById('profile-status');if(status)status.textContent=message;}
-function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim(),goal=document.getElementById('profile-goal').value,language=document.getElementById('profile-language').value,unit=document.getElementById('profile-unit').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');document.getElementById('profile-status')?.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');document.getElementById('profile-status')?.focus();return;}if(!['fr','en','es','ar'].includes(language)||!['c','f'].includes(unit)){setProfileStatus('Paramètre de profil invalide.');document.getElementById('profile-status')?.focus();return;}const p={version:APP_DATA_VERSION,name,goal,language,unit};memProfile=p;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré durablement. Il reste disponible pendant cette session.');setStorageStatus('Le profil n’a pas pu être enregistré durablement dans ce navigateur.');}applyLanguage();renderProfile();render();document.getElementById('profile-status')?.focus();}
+function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim(),goal=document.getElementById('profile-goal').value,language=document.getElementById('profile-language').value,unit=document.getElementById('profile-unit').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');document.getElementById('profile-status')?.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');document.getElementById('profile-status')?.focus();return;}if(!['fr','en','es','ar'].includes(language)||!['c','f'].includes(unit)){setProfileStatus('Paramètre de profil invalide.');document.getElementById('profile-status')?.focus();return;}const p={version:APP_DATA_VERSION,name,goal,language,unit};const previous=memProfile;memProfile=p;try{if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');window.symrellaPersistSnapshot({current:loadCurrent(),history:loadHistory(),profile:p,learning:loadLearning()});setProfileStatus('Profil enregistré.');}catch(e){memProfile=previous;storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré. Les données précédentes ont été conservées.');setStorageStatus('La sauvegarde coordonnée a échoué.');}applyLanguage();renderProfile();render();document.getElementById('profile-status')?.focus();}
 function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.entries||[]),...loadCurrent()].forEach(e=>{map[e.date]=e;});return map;}
-function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString(getLanguage()==='ar'?'ar':getLanguage()==='es'?'es':'fr',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();const weekdays=getLanguage()==='en'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:getLanguage()==='ar'?['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']:getLanguage()==='es'?['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];let html=weekdays.map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="'+(getLanguage()==='en'?'View observations for ':getLanguage()==='es'?'Ver las observaciones del ':getLanguage()==='ar'?'عرض ملاحظات ':'Voir les observations du ')+formatDate(key)+'" data-calendar-date="'+key+'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?formatTemperature(e.temp,1):(getLanguage()==='en'?'Observation':getLanguage()==='es'?'Observación':getLanguage()==='ar'?'ملاحظة':'Observation'))+'</span>':'')+'</div>';}grid.innerHTML=html;}
+function dailyClassificationForCalendar(){
+  try {
+    if (!window.symrellaRecalculateCycle || !window.symrellaReadV2Store) return {};
+    window.symrellaRecalculateCycle(null,getLanguage());
+    const cycle=window.symrellaReadV2Store().currentCycle;
+    return Object.fromEntries((cycle.derived?.days||[]).map(day=>[day.date,day]));
+  } catch(error) { return {}; }
+}
+function fertilityStatusLabel(status){
+  const labels={
+    fr:{potentially_fertile:'Fertilité possible',fertile:'Jour fertile',end_pending:'Fin en attente',postovulatory_infertile:'Postovulatoire',indeterminate:'Indéterminé'},
+    en:{potentially_fertile:'Potentially fertile',fertile:'Fertile day',end_pending:'End pending',postovulatory_infertile:'Postovulatory',indeterminate:'Indeterminate'},
+    es:{potentially_fertile:'Fertilidad posible',fertile:'Día fértil',end_pending:'Fin pendiente',postovulatory_infertile:'Postovulatorio',indeterminate:'Indeterminado'},
+    ar:{potentially_fertile:'احتمال الخصوبة',fertile:'يوم خصب',end_pending:'النهاية قيد الانتظار',postovulatory_infertile:'ما بعد الإباضة',indeterminate:'غير محدد'}
+  };
+  return (labels[getLanguage()]||labels.fr)[status]||'';
+}
+function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString(getLanguage()==='ar'?'ar':getLanguage()==='es'?'es':'fr',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar(),classification=dailyClassificationForCalendar();const weekdays=getLanguage()==='en'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:getLanguage()==='ar'?['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']:getLanguage()==='es'?['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];let html=weekdays.map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="'+(getLanguage()==='en'?'View observations for ':getLanguage()==='es'?'Ver las observaciones del ':getLanguage()==='ar'?'عرض ملاحظات ':'Voir les observations du ')+formatDate(key)+'" data-calendar-date="'+key+'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?formatTemperature(e.temp,1):(getLanguage()==='en'?'Observation':getLanguage()==='es'?'Observación':getLanguage()==='ar'?'ملاحظة':'Observation'))+'</span>'+(classification[key]?'<span class="day-meta fertility-status">'+escapeHtml(fertilityStatusLabel(classification[key].status))+'</span>':''):'')+'</div>';}grid.innerHTML=html;}
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
@@ -733,35 +845,36 @@ function showCalendarDetail(date) {
   const notes = entry.notes ? '<br>' + dt('notes') + ' : ' + escapeHtml(entry.notes) : '';
   const time = entry.time ? '<br>' + dt('measurementTime') + ' : ' + escapeHtml(entry.time) : '';
   const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>' + dt('bleeding') + ' : ' + (entry.bleeding === 'regles' ? dt('period') : dt('spotting')) : '';
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes;
+  let fertilityDetail='';
+  try {
+    if (window.symrellaRecalculateCycle && window.symrellaReadV2Store) {
+      window.symrellaRecalculateCycle(null,getLanguage());
+      const day=window.symrellaReadV2Store().currentCycle.derived?.days?.find(item=>item.date===date);
+      if(day) fertilityDetail='<br><strong>'+escapeHtml(fertilityStatusLabel(day.status))+'</strong><br>'+escapeHtml(day.explanation);
+    }
+  } catch(error) {}
+  const cervicalDetails = cervicalObservationText(date);
+  const cervicalBlock = cervicalDetails ? '<br><strong>Observations cervicales</strong><br>' + cervicalDetails : '';
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes + cervicalBlock + fertilityDetail;
   detail.focus();
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
 function clearAllData(){
   if(!confirm(at('clearConfirm'))) return;
-  const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY], previous={};
-  keys.forEach(key => { previous[key]=null; });
   let persistent=true;
   try {
-    keys.forEach(key => { previous[key]=localStorage.getItem(key); });
-    keys.forEach(key => localStorage.removeItem(key));
-  } catch (error) {
-    persistent=false;
-    try {
-      keys.forEach(key => {
-        if (previous[key] === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, previous[key]);
-      });
-    } catch (rollbackError) {}
+    if(!window.symrellaClearAllStores) throw new Error('Le stockage coordonné n’est pas prêt.');
+    window.symrellaClearAllStores();
+  } catch(error) { persistent=false; }
+  if(persistent) {
+    memCurrent=[]; memHistory=[];
+    memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
+    memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   }
-  memCurrent=[];
-  memHistory=[];
-  memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
-  memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   storageAvailable=persistent;
   setActionStatus(persistent?at('clear'):at('storageSession'));
-  if(!persistent) setStorageStatus('Le navigateur n’a pas permis de modifier durablement les données locales. Les données sont toutefois effacées de la session en cours.');
+  if(!persistent) setStorageStatus('L’effacement n’a pas pu être confirmé. Les données précédentes ont été conservées.');
   document.getElementById('action-status')?.focus();
   renderProfile();renderLearning();renderCalendar();render();
 }
@@ -856,7 +969,27 @@ async function connectThermometer() {
   }
 }
 
-function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus(at('exportEmpty'));return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;const dateLabel=new Date().toISOString().slice(0,10);a.download='SymRella-sauvegarde-'+dateLabel+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus(at('exported'));}
+function exportData(){
+  const current=loadCurrent(),history=loadHistory();
+  try {
+    if(!window.symrellaPersistSnapshot||!window.symrellaExportBackup||!window.symrellaReadV2Store) throw new Error('Le module de sauvegarde complète n’est pas prêt.');
+    // Reconcile the classic UI snapshot first so profile/learning defaults and
+    // legacy edits are represented in the same complete backup as v2 data.
+    window.symrellaPersistSnapshot({current,history,profile:loadProfile(),learning:loadLearning()});
+    const v2=window.symrellaReadV2Store();
+    const hasV2Data=v2.currentCycle.observations.length>0||v2.history.some(cycle=>cycle.observations.length>0);
+    if(!current.length&&!history.length&&!hasV2Data){setBackupStatus(at('exportEmpty'));return;}
+    const payload=window.symrellaExportBackup({current,history,profile:loadProfile(),learning:loadLearning()});
+    const blob=new Blob([payload],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;
+    const dateLabel=new Date().toISOString().slice(0,10);
+    a.download='SymRella-sauvegarde-'+dateLabel+'.json';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    setBackupStatus(at('exported'));
+  } catch(error) {
+    setBackupStatus('La sauvegarde complète n’a pas pu être exportée. Aucune donnée n’a été modifiée.');
+  }
+}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value + 'T00:00:00');
@@ -864,7 +997,37 @@ function isValidDateKey(value) {
 }
 
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!validEntryCollection(value.current)||!Array.isArray(value.history)||value.history.length>MAX_HISTORY_CYCLES)return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))||(p.language!==undefined&&!['fr','en','es','ar'].includes(p.language))||(p.unit!==undefined&&!['c','f'].includes(p.unit))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus(at('importTooLarge'));const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus(at('imported'));const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus(at('importFailed'));const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
+function importData(event){
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  if(file.size>10*1024*1024){setBackupStatus(at('importTooLarge'));document.getElementById('backup-status')?.focus();event.target.value='';return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try {
+      const p=JSON.parse(reader.result);
+      if(!p||typeof p!=='object'||Array.isArray(p))throw new Error('format');
+      const isComplete=p.format==='symrella.backup';
+      const legacy=isComplete?p.legacy:p;
+      const legacyPayload=isComplete?{version:APP_DATA_VERSION,exportedAt:p.exportedAt,...legacy}:p;
+      if(!validBackup(legacyPayload)||('learning'in legacyPayload&&legacyPayload.learning!==undefined&&!validLearning(legacyPayload.learning)))throw new Error('format');
+      if(isComplete&&(!window.symrellaImportBackup||!window.symrellaReadV2Store))throw new Error('module');
+      if(!confirm(at('importConfirm')))return;
+      const nextLearning=legacyPayload.learning&&validLearning(legacyPayload.learning)?legacyPayload.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};
+      const nextProfile=legacyPayload.profile&&typeof legacyPayload.profile==='object'?legacyPayload.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
+      if(isComplete) {
+        window.symrellaImportBackup(reader.result);
+      } else {
+        if(!window.symrellaPersistSnapshot)throw new Error('Le stockage coordonné n’est pas prêt.');
+        window.symrellaPersistSnapshot({current:legacyPayload.current,history:legacyPayload.history,profile:nextProfile,learning:nextLearning});
+      }
+      memCurrent=legacyPayload.current;memHistory=legacyPayload.history;memLearning=nextLearning;memProfile=nextProfile;
+      storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();
+      setBackupStatus(at('imported'));document.getElementById('backup-status')?.focus();
+    } catch(error) {
+      setBackupStatus(at('importFailed'));document.getElementById('backup-status')?.focus();
+    } finally {event.target.value='';}
+  };
+  reader.readAsText(file);
+}
 document.addEventListener('click', (event) => {
   const calendarTarget = event.target.closest('[data-calendar-date]');
   if (calendarTarget) {
@@ -917,6 +1080,12 @@ renderLearning();
 renderProfile();
 renderCalendar();
 render();
+
+const startupMigrationStatus = window.symrellaStorageMigrationStatus;
+if (startupMigrationStatus?.status === 'blocked') {
+  storageAvailable = false;
+  setStorageStatus('La migration des données locales est bloquée. Les anciennes données sont conservées ; aucune donnée n’a été remplacée. Exporte une sauvegarde avant toute autre manipulation.');
+}
 
 (() => {
   const button = document.getElementById('save-entry-btn');

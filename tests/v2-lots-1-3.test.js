@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+const operations = fs.readFileSync(path.join(__dirname, '..', 'src', 'symrella-v2-operations.mjs'), 'utf8');
 
 test('V2 navigation exposes the six requested areas', () => {
   for (const item of ['Accueil','Graphique','Calendrier','Historique','Apprendre','Profil']) assert.match(page, new RegExp('>' + item + '<'));
@@ -12,7 +13,7 @@ test('V2 navigation exposes the six requested areas', () => {
 test('lots 1-3 recovery keeps local cycle and history storage', () => {
   for (const key of ['symptothermie_current_cycle','symptothermie_history','symptothermie_learning_progress']) assert.ok(page.includes(key));
   assert.match(page, /function loadCurrent\(\)/);
-  assert.match(page, /function saveCurrent\(entries\)/);
+  assert.match(page, /function saveCurrent\(entries(?:, cervicalObservation = null)?\)/);
   assert.match(page, /function loadHistory\(\)/);
   assert.match(page, /function saveHistory\(hist\)/);
 });
@@ -21,7 +22,8 @@ test('calendar is descriptive and uses recorded observations', () => {
   assert.match(page, /id="calendar-grid"/);
   assert.match(page, /function renderCalendar\(\)/);
   assert.match(page, /function changeCalendarMonth\(delta\)/);
-  assert.match(page, /Le calendrier affiche uniquement les observations enregistrées/);
+  assert.match(page, /Le calendrier présente les observations enregistrées et, lorsqu’il est disponible, le statut quotidien calculé par le moteur SymRella/);
+  assert.match(page, /ces statuts restent provisoires et ne constituent pas une règle contraceptive/);
 });
 
 test('profile and privacy data are versioned and local', () => {
@@ -243,7 +245,7 @@ test('la validation du profil limite le nom importé à 80 caractères', () => {
 
 test('le statut de sauvegarde est focalisable après un import', () => {
   assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"[^>]*tabindex="-1"/);
-  assert.match(page, /setBackupStatus\(at\('imported'\)\);const status=document\.getElementById\('backup-status'\);if\(status\)status\.focus\(\)/);
+  assert.match(page, /setBackupStatus\(at\('imported'\)\);document\.getElementById\('backup-status'\)\?\.focus\(\)/);
   assert.match(page, /La sauvegarde n’a pas été importée/);
 });
 
@@ -286,7 +288,7 @@ assert.match(page, /name\.length>80/);
 test('les erreurs de stockage local disposent d’un retour accessible', () => {
   assert.match(page, /id="storage-status"[^>]*role="status"[^>]*aria-live="polite"/);
   assert.match(page, /setStorageStatus\(message\)/);
-  assert.match(page, /n’ont pas pu être enregistrées durablement/);
+  assert.match(page, /La sauvegarde coordonnée a échoué/);
 });
 
 
@@ -303,10 +305,10 @@ test('le graphique trace la ligne de référence sur la valeur calculée', () =>
   assert.doesNotMatch(page, /shift\.coverline/);
 });
 
-test('la date d’export utilise le format ISO UTC produit par toISOString', () => {
-  assert.match(page, /exportedAt=new Date\(\)\.toISOString\(\)/);
-  assert.match(page, /\\d\{4\}-\\d\{2\}-\\d\{2\}T/);
-  assert.match(page, /\\.\\d\{3\}Z/);
+test('la sauvegarde complète horodate son enveloppe au format ISO UTC', () => {
+  assert.match(operations, /exportedAt: new Date\(\)\.toISOString\(\)/);
+  assert.match(operations, /format: BACKUP_FORMAT/);
+  assert.match(operations, /version: BACKUP_VERSION/);
 });
 
 test('le profil local invalide est détecté au chargement', () => {
@@ -319,14 +321,14 @@ test('les statuts d’action et de profil peuvent recevoir le focus après une a
 });
 
 
-test('l’export fonctionne aussi avec des cycles archivés sans cycle courant', () => {
-  assert.match(page, /const history=loadHistory\(\);if\(!current\.length&&!history\.length\)/);
-  assert.match(page, /const payload=\{version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning\(\),profile:loadProfile\(\)\}/);
+test('l’export complet conserve aussi les cycles archivés lorsque le cycle courant est vide', () => {
+  assert.match(page, /v2\.history\.some\(cycle=>cycle\.observations\.length>0\)/);
+  assert.match(operations, /v2: data/);
+  assert.match(operations, /const data = readV2Store\(storage\)/);
 });
 
-test('l’import limite la taille des sauvegardes', () => {
-  assert.match(page, /file\.size>2\*1024\*1024/);
-  assert.match(page, /taille maximale autorisée de 2 Mo/);
+test('l’import limite la taille des sauvegardes complètes à 10 Mo', () => {
+  assert.match(page, /file\.size>10\*1024\*1024/);
 });
 
 test('la progression pédagogique importée vérifie aussi le dernier module', () => {
@@ -355,20 +357,24 @@ test('le panneau de leçon possède un nom accessible', () => {
 });
 
 
-test('l’import valide la progression pédagogique avant toute écriture', () => {
-  assert.match(page, /!validBackup\(p\)\|\|\('learning'in p&&p\.learning!==undefined&&!validLearning\(p\.learning\)\)/);
+test('la sauvegarde complète valide la progression pédagogique avant toute écriture', () => {
+  assert.match(operations, /function validateBackupLegacy\(legacy\)/);
+  assert.match(operations, /learning: legacy\.learning/);
+  assert.match(operations, /validateBackupLegacy\(backup\.legacy\)/);
 });
 
-test('l’import sauvegarde les anciennes données avant les écritures et prévoit un rollback', () => {
-  assert.match(page, /const keys=\[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY\],previous=\{\}/);
-  assert.match(page, /localStorage\.setItem\(CURRENT_KEY,JSON\.stringify\(p\.current\)\)/);
-  assert.match(page, /localStorage\.setItem\(HISTORY_KEY,JSON\.stringify\(p\.history\)\)/);
-assert.match(page, /previous\[key\]===null.*localStorage\.removeItem\(key\)/);
+test('l’import d’une sauvegarde complète passe par la restauration transactionnelle', () => {
+  assert.match(page, /window\.symrellaImportBackup\(reader\.result\)/);
+  assert.match(operations, /export function importCompleteBackup\(storage, jsonText\)/);
+  assert.match(operations, /for \(const key of BACKUP_KEYS\) storage\.setItem/);
+  assert.match(operations, /if \(previous\[key\] === null\) storage\.removeItem/);
 });
 
-test('l’import ne met à jour les caches mémoire qu’après les écritures réussies', () => {
-  assert.match(page, /memCurrent=p\.current;memHistory=p\.history;memLearning=nextLearning;memProfile=nextProfile/);
-  assert.match(page, /Sauvegarde importée avec succès/);
+test('les caches mémoire ne sont actualisés qu’après la restauration réussie', () => {
+  const restore = page.indexOf('window.symrellaImportBackup(reader.result)');
+  const update = page.indexOf('memCurrent=legacyPayload.current;memHistory=legacyPayload.history;memLearning=nextLearning;memProfile=nextProfile');
+  assert.ok(restore >= 0 && update > restore);
+  assert.match(page, /setBackupStatus\(at\('imported'\)\)/);
 });
 
 test('la page possède une description adaptée au référencement et à la confidentialité', () => {

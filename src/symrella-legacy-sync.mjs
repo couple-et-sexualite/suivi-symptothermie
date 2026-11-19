@@ -1,0 +1,194 @@
+import { migrateLegacyData, validateV2Data } from "./symrella-data-v2.mjs";
+import { V2_STORAGE_KEY } from "./symrella-storage-migration.mjs";
+
+const clone = value => JSON.parse(JSON.stringify(value));
+const LEGACY_TO_DISTURBANCE = Object.freeze({
+  maladie: "illness", sommeil: "sleep", horaire: "unusual_time",
+  voyage: "travel", alcool: "alcohol", medicament: "medication"
+});
+const DISTURBANCE_TO_LEGACY = Object.freeze(Object.fromEntries(
+  Object.entries(LEGACY_TO_DISTURBANCE).map(([legacy, type]) => [type, legacy])
+));
+
+function mergeObservation(previous, incoming) {
+  if (!previous) return clone(incoming);
+  const next = clone(previous);
+  next.bleeding.level = incoming.bleeding.level;
+  next.generalNotes = incoming.generalNotes;
+  next.temperature.valueC = incoming.temperature.valueC;
+  next.temperature.measuredAt = incoming.temperature.measuredAt;
+
+  const requestedFactors = new Set(
+    incoming.disturbances.map(item => DISTURBANCE_TO_LEGACY[item.type]).filter(Boolean)
+  );
+  const incomingIds = new Set(incoming.disturbances
+    .filter(item => DISTURBANCE_TO_LEGACY[item.type])
+    .map(item => `${previous.id}-legacy-${item.type}`));
+  const kept = next.disturbances.filter(item => {
+    const legacyFactor = DISTURBANCE_TO_LEGACY[item.type];
+    const collidingRichRecord = incomingIds.has(item.id) &&
+      typeof item.note === "string" && item.note.trim().length > 0;
+    return !legacyFactor || requestedFactors.has(legacyFactor) || collidingRichRecord;
+  });
+  const keptLegacy = new Set(kept.map(item => DISTURBANCE_TO_LEGACY[item.type]).filter(Boolean));
+  for (const item of incoming.disturbances) {
+    const factor = DISTURBANCE_TO_LEGACY[item.type];
+    if (factor && !keptLegacy.has(factor)) {
+      const baseId = `${previous.id}-legacy-${item.type}`;
+      const usedIds = new Set(next.disturbances.map(existing => existing.id));
+      let id = baseId;
+      let suffix = 2;
+      while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
+      kept.push({ ...clone(item), id });
+      keptLegacy.add(factor);
+    }
+  }
+  next.disturbances = kept;
+  next.temperature.disturbanceIds = kept.map(item => item.id);
+
+  if (next.cervicalMucus.legacyCategory !== incoming.cervicalMucus.legacyCategory) {
+    next.cervicalMucus.legacyCategory = incoming.cervicalMucus.legacyCategory;
+    next.cervicalMucus.peakQualityCandidate = null;
+  }
+  return next;
+}
+
+function mergeCycle(previous, incoming, { current = false } = {}) {
+  if (!previous) return clone(incoming);
+  const previousByDate = new Map(previous.observations.map(item => [item.date, item]));
+  const observations = incoming.observations.map(item =>
+    mergeObservation(previousByDate.get(item.date), item)
+  );
+  return {
+    ...clone(previous),
+    startDate: current ? previous.startDate : incoming.startDate,
+    endDate: current ? previous.endDate : incoming.endDate,
+    observations,
+    derived: {
+      engineVersion: null, rulesetId: null, calculatedAt: null,
+      status: "not_evaluated", days: []
+    },
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function cycleKey(cycle) {
+  return `${cycle.startDate || ""}|${cycle.endDate || ""}`;
+}
+
+function findMatchingHistoryCycle(candidates, incoming) {
+  const exact = candidates.find(cycle => cycleKey(cycle) === cycleKey(incoming));
+  if (exact) return exact;
+  const incomingDates = new Set(incoming.observations.map(item => item.date));
+  let best = null;
+  let bestOverlap = 0;
+  for (const candidate of candidates) {
+    const overlap = candidate.observations.reduce(
+      (count, item) => count + (incomingDates.has(item.date) ? 1 : 0), 0
+    );
+    if (overlap > bestOverlap) {
+      best = candidate;
+      bestOverlap = overlap;
+    }
+  }
+  return bestOverlap > 0 ? best : null;
+}
+
+/**
+ * Reconcile a complete legacy UI snapshot into the v2 store.
+ * Existing detailed observations are retained by date; unsupported destructive
+ * projections are rejected rather than silently flattening newer data.
+ */
+export function syncLegacySnapshotToV2(storage, snapshot, options = {}) {
+  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) ||
+      !Array.isArray(snapshot.current) || !Array.isArray(snapshot.history)) {
+    throw new TypeError("La sauvegarde complète de l’ancienne interface est invalide.");
+  }
+  const { current = [], history = [], profile = null, learning = null } = snapshot;
+  const incoming = migrateLegacyData(
+    { current, history, profile, learning },
+    { idFactory: options.idFactory, migratedAt: null }
+  );
+  const raw = storage.getItem(V2_STORAGE_KEY);
+  if (raw === null) throw new Error("La base SymRella v2 n’est pas initialisée.");
+  let previous;
+  try { previous = JSON.parse(raw); } catch {
+    throw new Error("La base SymRella v2 est illisible ; aucune modification effectuée.");
+  }
+  if (!validateV2Data(previous)) {
+    throw new Error("La base SymRella v2 est invalide ; aucune modification effectuée.");
+  }
+
+  const unmatchedHistory = previous.history.slice();
+  let currentCycleArchived = false;
+  const nextHistory = incoming.history.map(cycle => {
+    let match = findMatchingHistoryCycle(unmatchedHistory, cycle);
+    if (match) {
+      unmatchedHistory.splice(unmatchedHistory.indexOf(match), 1);
+    } else if (!currentCycleArchived) {
+      // The legacy UI archives the current cycle by moving its entries into
+      // history. Match that new history record against the previous current
+      // cycle so richer cervical and measurement details survive the move.
+      match = findMatchingHistoryCycle([previous.currentCycle], cycle);
+      if (match) currentCycleArchived = true;
+    }
+    return mergeCycle(match, cycle);
+  });
+  // If an archived cycle disappears from the legacy snapshot, deletion is
+  // intentional (the old UI exposes an explicit delete action).
+  const next = {
+    ...clone(previous),
+    // Archiving moves the whole former current cycle into history. Keep the
+    // freshly migrated empty current cycle; reusing the old ID would duplicate
+    // the archived cycle ID and make the resulting v2 database invalid.
+    currentCycle: currentCycleArchived
+      ? clone(incoming.currentCycle)
+      : mergeCycle(previous.currentCycle, incoming.currentCycle, { current: true }),
+    history: nextHistory,
+    profile: incoming.profile,
+    learning: incoming.learning
+  };
+  const cervicalUpdates = Array.isArray(options.cervicalObservations)
+    ? options.cervicalObservations
+    : [];
+  for (const update of cervicalUpdates) {
+    if (!update || typeof update.date !== "string" || !update.payload) {
+      throw new TypeError("Une observation cervicale à synchroniser est invalide.");
+    }
+    const cycle = [next.currentCycle, ...next.history].find(item =>
+      item.observations.some(observation => observation.date === update.date)
+    );
+    if (!cycle) throw new Error("Observation introuvable pour cette date.");
+    const observation = cycle.observations.find(item => item.date === update.date);
+    observation.cervicalMucus = {
+      ...observation.cervicalMucus,
+      sensation: update.payload.sensation || null,
+      appearance: Array.isArray(update.payload.appearance) ? update.payload.appearance : []
+    };
+    if (update.payload.cervix && typeof update.payload.cervix === "object" && !Array.isArray(update.payload.cervix)) {
+      observation.cervix = {
+        ...observation.cervix,
+        position: update.payload.cervix.position || null,
+        opening: update.payload.cervix.opening || null,
+        consistency: update.payload.cervix.consistency || null,
+        notes: typeof update.payload.cervix.notes === "string" ? update.payload.cervix.notes.slice(0, 2000) : ""
+      };
+    }
+  }
+  if (!validateV2Data(next)) {
+    throw new Error("La synchronisation produirait une base incohérente ; aucune donnée n’a été modifiée.");
+  }
+
+  const serialized = JSON.stringify(next);
+  try {
+    storage.setItem(V2_STORAGE_KEY, serialized);
+    const check = storage.getItem(V2_STORAGE_KEY);
+    if (check !== serialized || !validateV2Data(JSON.parse(check))) {
+      throw new Error("La vérification après synchronisation a échoué.");
+    }
+    return JSON.parse(check);
+  } catch (error) {
+    try { storage.setItem(V2_STORAGE_KEY, raw); } catch {}
+    throw error;
+  }
+}

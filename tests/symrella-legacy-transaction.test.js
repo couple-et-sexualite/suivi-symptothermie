@@ -75,3 +75,35 @@ test("invalid full snapshot changes no stored value", () => {
   }));
   assert.deepEqual(store.snapshot(), before);
 });
+
+
+test("cervical observations are persisted in the same complete transaction", () => {
+  const store = storage();
+  const input = snapshot();
+  input.cervicalObservations = [{
+    date: "2026-04-03",
+    payload: { sensation: "glissante", appearance: ["filant", "transparent"] }
+  }];
+  const result = commitLegacySnapshot(store, input, {
+    idFactory: (prefix, index) => "cervical-" + prefix + "-" + index
+  });
+  const observation = result.currentCycle.observations[0];
+  assert.equal(observation.cervicalMucus.sensation, "glissante");
+  assert.deepEqual(observation.cervicalMucus.appearance, ["filant", "transparent"]);
+});
+
+test("invalid cervical observation rolls back v2 and legacy mirrors", () => {
+  const store = storage();
+  commitLegacySnapshot(store, snapshot(), {
+    idFactory: (prefix, index) => "rollback-" + prefix + "-" + index
+  });
+  const before = store.snapshot();
+  const invalid = snapshot();
+  invalid.current[0].temp = 37;
+  invalid.cervicalObservations = [{
+    date: "2026-04-03",
+    payload: { sensation: "x".repeat(81), appearance: ["filant"] }
+  }];
+  assert.throws(() => commitLegacySnapshot(store, invalid), /incohérente/);
+  assert.deepEqual(store.snapshot(), before);
+});

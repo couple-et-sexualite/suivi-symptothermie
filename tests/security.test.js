@@ -11,7 +11,7 @@ const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const source = page + '\n' + app;
 
 test('application JavaScript is external and protected by same-origin CSP', () => {
-  assert.match(page, /<script src="\.\/app\.js(?:\?[^"']*)?"><\/script>/);
+  assert.match(page, /<script\b(?=[^>]*\bsrc="\.\/app\.js(?:\?[^"']*)?")(?=[^>]*\bdefer\b)[^>]*><\/script>/);
   assert.ok(!/<script(?![^>]*src=)[^>]*>/i.test(page));
   assert.ok(page.includes('Content-Security-Policy'));
   assert.ok(page.includes("script-src 'self'"));
@@ -36,7 +36,7 @@ test('backup import is bounded, versioned and validated', () => {
   assert.ok(source.includes('value.version!==APP_DATA_VERSION'));
   assert.ok(source.includes('validEntryCollection(value.current)'));
   assert.ok(source.includes('value.history.every(validStoredHistoryCycle)'));
-  assert.ok(source.includes('file.size>2*1024*1024'));
+  assert.ok(app.includes('file.size>10*1024*1024'));
   assert.ok(source.includes('JSON.parse(reader.result)'));
   assert.ok(source.includes('e.notes.length<=2000'));
 });
