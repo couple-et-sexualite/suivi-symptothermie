@@ -24,6 +24,7 @@
 
   function isValidCervicalObservation(item) {
     if (!isPlainObject(item) || item.source !== 'rps02') return false;
+    if ('photo' in item || 'photoDataUrl' in item || 'image' in item) return false;
     if (typeof item.id !== 'string' || item.id.length < 1 || item.id.length > 120) return false;
     if (!isIsoDate(item.observedAt)) return false;
     if (!isPlainObject(item.observations)) return false;
@@ -44,9 +45,20 @@
       value.every(isValidCervicalObservation);
   }
 
+  function resolveCervicalObservations(backup, current) {
+    if (!isPlainObject(backup)) return null;
+    if (!Object.prototype.hasOwnProperty.call(backup, 'cervicalObservations')) {
+      return isValidCervicalObservations(current) ? current : [];
+    }
+    return isValidCervicalObservations(backup.cervicalObservations)
+      ? backup.cervicalObservations
+      : null;
+  }
+
   root.SymRellaCervicalBackup = Object.freeze({
     MAX_OBSERVATIONS,
     isValidCervicalObservation,
-    isValidCervicalObservations
+    isValidCervicalObservations,
+    resolveCervicalObservations
   });
 })(globalThis);
