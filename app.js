@@ -972,7 +972,10 @@ async function connectThermometer() {
 function exportData(){
   const current=loadCurrent(),history=loadHistory();
   try {
-    if(!window.symrellaExportBackup||!window.symrellaReadV2Store) throw new Error('Le module de sauvegarde complète n’est pas prêt.');
+    if(!window.symrellaPersistSnapshot||!window.symrellaExportBackup||!window.symrellaReadV2Store) throw new Error('Le module de sauvegarde complète n’est pas prêt.');
+    // Reconcile the classic UI snapshot first so profile/learning defaults and
+    // legacy edits are represented in the same complete backup as v2 data.
+    window.symrellaPersistSnapshot({current,history,profile:loadProfile(),learning:loadLearning()});
     const v2=window.symrellaReadV2Store();
     const hasV2Data=v2.currentCycle.observations.length>0||v2.history.some(cycle=>cycle.observations.length>0);
     if(!current.length&&!history.length&&!hasV2Data){setBackupStatus(at('exportEmpty'));return;}
