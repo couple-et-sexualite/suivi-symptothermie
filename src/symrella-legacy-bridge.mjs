@@ -1,6 +1,12 @@
 import { commitLegacySnapshot } from "./symrella-legacy-transaction.mjs";
+import { migrateBrowserStorage } from "./symrella-storage-migration.mjs";
 import { clearV2Store, exportCompleteBackup, importCompleteBackup, recalculateV2Cycle, readV2Store, updateV2Observation } from "./symrella-v2-operations.mjs";
 
+// Migrate existing local data before the classic UI reads or exports it.
+// The migration is additive: legacy keys remain intact and an existing v2
+// database is never overwritten.
+const startupMigration = migrateBrowserStorage(window.localStorage);
+window.symrellaStorageMigrationStatus = startupMigration;
 window.symrellaPersistSnapshot = (snapshot, cervicalObservation = null) =>
   commitLegacySnapshot(window.localStorage, {
     ...snapshot,
