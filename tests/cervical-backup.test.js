@@ -42,12 +42,23 @@ test('rejects invalid or incomplete cervical values', () => {
   assert.equal(validator.isValidCervicalObservations([invalid]), false);
 });
 
-test('rejects personal image data and malformed timestamps', () => {
-  assert.equal(validator.isValidCervicalObservation(observation({ photoDataUrl: 'data:image/png;base64,abc' })), true);
-  assert.equal(validator.isValidCervicalObservation(observation({ observedAt: 'yesterday' })), false);
+test('does not include personal image data in backup records', () => {
+  assert.equal(validator.isValidCervicalObservation(observation({ photoDataUrl: 'data:image/png;base64,abc' })), false);
+  assert.equal(validator.isValidCervicalObservation(observation({ photo: 'private-image' })), false);
 });
 
 test('accepts an empty list for older backups and rejects oversized collections', () => {
   assert.equal(validator.isValidCervicalObservations([]), true);
   assert.equal(validator.isValidCervicalObservations(new Array(validator.MAX_OBSERVATIONS + 1).fill(observation())), false);
+});
+
+test('older backups preserve cervical observations already present on this device', () => {
+  const current = [observation()];
+  assert.equal(validator.resolveCervicalObservations({ version: 2 }, current), current);
+});
+
+test('a newer backup explicitly replaces cervical observations, including with an empty list', () => {
+  const current = [observation()];
+  assert.equal(validator.resolveCervicalObservations({ cervicalObservations: [] }, current).length, 0);
+  assert.equal(validator.resolveCervicalObservations({ cervicalObservations: [observation()] }, []).length, 1);
 });
