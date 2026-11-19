@@ -42,6 +42,7 @@ export function commitLegacySnapshot(storage, snapshot, options = {}) {
     }
 
     const v2 = syncLegacySnapshotToV2(storage, snapshot, options);
+    storage.setItem(V2_STORAGE_KEY, JSON.stringify(v2));
     const legacy = serializeSnapshot(snapshot);
     for (const [key, value] of Object.entries(legacy)) storage.setItem(key, value);
 
