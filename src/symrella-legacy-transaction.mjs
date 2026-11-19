@@ -16,9 +16,33 @@ function serializeSnapshot(snapshot) {
   };
 }
 
+function rollbackAndVerify(storage, previous) {
+  const failures = [];
+  for (const key of ALL_KEYS) {
+    try {
+      if (previous[key] === null) storage.removeItem(key);
+      else storage.setItem(key, previous[key]);
+    } catch (error) {
+      failures.push({ key, phase: "restore", error });
+    }
+  }
+
+  for (const key of ALL_KEYS) {
+    try {
+      if (storage.getItem(key) !== previous[key]) {
+        failures.push({ key, phase: "verify", error: new Error("La valeur précédente n’a pas été rétablie.") });
+      }
+    } catch (error) {
+      failures.push({ key, phase: "verify", error });
+    }
+  }
+  return failures;
+}
+
 /**
  * Atomically persist one complete legacy-UI snapshot and its v2 counterpart.
- * Both representations are rolled back if any write or readback fails.
+ * Both representations are rolled back and read back if any write fails.
+ * A failed or unverifiable rollback is exposed to the caller.
  * The caller must pass the complete in-memory state, not a partial update.
  */
 export function commitLegacySnapshot(storage, snapshot, options = {}) {
@@ -42,6 +66,7 @@ export function commitLegacySnapshot(storage, snapshot, options = {}) {
     }
 
     const v2 = syncLegacySnapshotToV2(storage, snapshot, options);
+    storage.setItem(V2_STORAGE_KEY, JSON.stringify(v2));
     const legacy = serializeSnapshot(snapshot);
     for (const [key, value] of Object.entries(legacy)) storage.setItem(key, value);
 
@@ -55,11 +80,10 @@ export function commitLegacySnapshot(storage, snapshot, options = {}) {
     }
     return v2;
   } catch (error) {
-    for (const key of ALL_KEYS) {
-      try {
-        if (previous[key] === null) storage.removeItem(key);
-        else storage.setItem(key, previous[key]);
-      } catch {}
+    const rollbackFailures = rollbackAndVerify(storage, previous);
+    if (rollbackFailures.length) {
+      error.rollbackFailed = true;
+      error.rollbackFailures = rollbackFailures.map(({ key, phase }) => ({ key, phase }));
     }
     throw error;
   }

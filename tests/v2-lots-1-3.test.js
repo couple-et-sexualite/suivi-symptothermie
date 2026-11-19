@@ -243,7 +243,8 @@ test('la validation du profil limite le nom importé à 80 caractères', () => {
 
 test('le statut de sauvegarde est focalisable après un import', () => {
   assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"[^>]*tabindex="-1"/);
-  assert.match(page, /setBackupStatus\(at\('imported'\)\);const status=document\.getElementById\('backup-status'\);if\(status\)status\.focus\(\)/);
+  assert.match(page, /setBackupStatus\(at\('imported'\)\)/);
+  assert.match(page, /if\(status\)status\.focus\(\)/);
   assert.match(page, /La sauvegarde n’a pas été importée/);
 });
 
@@ -269,8 +270,9 @@ test('les actions courantes disposent d’un statut accessible', () => {
 
 
 test('l’export vérifie la présence d’une observation et nettoie le lien de téléchargement', () => {
-assert.match(page, /function exportData\(\)/);
-  assert.match(page, /document\.body\.appendChild\(a\);a\.click\(\);a\.remove\(\)/);
+  assert.match(page, /function exportData\(\)/);
+  assert.match(page, /document\.body\.appendChild\(a\);\s*a\.click\(\);\s*a\.remove\(\)/);
+  assert.match(page, /setTimeout\(\(\)=>URL\.revokeObjectURL\(url\),0\)/);
   assert.match(page, /setBackupStatus\(at\('exported'\)\)/);
 });
 
@@ -291,10 +293,10 @@ test('les erreurs de stockage local disposent d’un retour accessible', () => {
 
 
 test('le chargement du stockage local vérifie les structures de base', () => {
-assert.match(page, /JSON\.parse\(raw\)/);
-assert.match(page, /!Array\.isArray\(parsed\)/);
-  assert.match(page, /Une nouvelle saisie peut être enregistrée dans cette session/);
-  assert.match(page, /utilise-la pour récupérer tes données/);
+  assert.match(page, /JSON\.parse\(raw\)/);
+  assert.match(page, /!validEntryCollection\(parsed\)/);
+  assert.match(page, /unreadableBackupKeys\.add\(CURRENT_KEY\)/);
+  assert.match(page, /Une sauvegarde valide peut permettre de les récupérer/);
 });
 
 
@@ -320,8 +322,9 @@ test('les statuts d’action et de profil peuvent recevoir le focus après une a
 
 
 test('l’export fonctionne aussi avec des cycles archivés sans cycle courant', () => {
-  assert.match(page, /const history=loadHistory\(\);if\(!current\.length&&!history\.length\)/);
-  assert.match(page, /const payload=\{version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning\(\),profile:loadProfile\(\)\}/);
+  assert.match(page, /const current=loadCurrent\(\),history=loadHistory\(\)/);
+  assert.match(page, /const cervicalObservations=loadCervicalObservations\(\)/);
+  assert.match(page, /cervicalObservations,rps02VisualProgress/);
 });
 
 test('l’import limite la taille des sauvegardes', () => {
@@ -360,14 +363,18 @@ test('l’import valide la progression pédagogique avant toute écriture', () =
 });
 
 test('l’import sauvegarde les anciennes données avant les écritures et prévoit un rollback', () => {
-  assert.match(page, /const keys=\[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY\],previous=\{\}/);
-  assert.match(page, /localStorage\.setItem\(CURRENT_KEY,JSON\.stringify\(p\.current\)\)/);
-  assert.match(page, /localStorage\.setItem\(HISTORY_KEY,JSON\.stringify\(p\.history\)\)/);
-assert.match(page, /previous\[key\]===null.*localStorage\.removeItem\(key\)/);
+  const backupHelper = fs.readFileSync(path.join(__dirname, '..', 'cervical-backup.js'), 'utf8');
+  assert.match(page, /SymRellaCervicalBackup\.writeStorageTransaction\(localStorage,\{/);
+  assert.match(page, /\[CURRENT_KEY\]:JSON\.stringify\(p\.current\)/);
+  assert.match(page, /\[HISTORY_KEY\]:JSON\.stringify\(p\.history\)/);
+  assert.match(backupHelper, /const previous = Object\.create\(null\)/);
+  assert.match(backupHelper, /const journal = JSON\.stringify\(\{ version: 1, state: .pending./);
+  assert.match(backupHelper, /failure\.rollbackFailed = rollbackFailed/);
 });
 
 test('l’import ne met à jour les caches mémoire qu’après les écritures réussies', () => {
-  assert.match(page, /memCurrent=p\.current;memHistory=p\.history;memLearning=nextLearning;memProfile=nextProfile/);
+  assert.match(page, /writeStorageTransaction\(localStorage,[\s\S]*?\}\);\s*unreadableBackupKeys\.clear\(\)/);
+  assert.match(page, /memCurrent=p\.current;\s*memHistory=p\.history;\s*memLearning=nextLearning;\s*memProfile=nextProfile/);
   assert.match(page, /Sauvegarde importée avec succès/);
 });
 
