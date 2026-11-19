@@ -108,6 +108,18 @@ test.describe('SymRella — sauvegarde et restauration cervicales', () => {
       cervical: JSON.parse(localStorage.getItem('symrella_cervical_observations_v1'))
     }));
     expect(restored).toEqual(expected);
+    await page.locator('#backup-status').evaluate(status => { status.textContent = ''; });
+    await expect(page.locator('#backup-status')).toBeEmpty();
+    await page.once('dialog', dialog => dialog.accept());
+    await page.locator('#import-data').setInputFiles(backupPath);
+    await expect(page.locator('#backup-status')).toContainText(/importée avec succès|imported successfully/i);
+    const restoredAgain = await page.evaluate(() => ({
+      current: JSON.parse(localStorage.getItem('symptothermie_current_cycle')),
+      history: JSON.parse(localStorage.getItem('symptothermie_history')),
+      cervical: JSON.parse(localStorage.getItem('symrella_cervical_observations_v1'))
+    }));
+    expect(restoredAgain).toEqual(expected);
+    expect(restoredAgain.cervical.map(record => record.id)).toEqual(expected.cervical.map(record => record.id));
   });
 
   test('a legacy backup keeps cervical observations and RPS-02 progress already on device', async ({ page }) => {
