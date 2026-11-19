@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
 
-  const MAX_OBSERVATIONS = 3700;
+  const MAX_OBSERVATIONS = 1000;
   const VALUES = Object.freeze({
     sensation: ['unknown', 'dry', 'smooth', 'lubricative', 'moist', 'wet'],
     appearance: ['unknown', 'sticky', 'creamy', 'watery', 'gel', 'stretchy', 'mixed'],
@@ -19,7 +19,7 @@
   function isIsoDate(value) {
     return typeof value === 'string' &&
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) &&
-      !Number.isNaN(Date.parse(value));
+      !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value;
   }
 
   function isValidCervicalObservation(item) {
