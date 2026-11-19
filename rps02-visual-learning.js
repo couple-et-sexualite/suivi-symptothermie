@@ -17,7 +17,8 @@
     step: 1,
     visualChoice: null,
     photoSelected: false,
-    progressKey: 'symrella_rps02_visual_progress_v2'
+    progressKey: 'symrella_rps02_visual_progress_v2',
+    savedObservationAt: null
   };
 
   const card = document.createElement('section');
@@ -166,6 +167,7 @@
       <h3>5. Ce que vos réponses peuvent évoquer</h3>
       <div id="rps02-final" class="notice"></div>
       <div id="rps02-interpretation" class="notice" aria-live="polite"></div>
+      <p id="rps02-save-status" class="learn-meta" role="status" aria-live="polite"></p>
       <p class="learn-meta">Ce repère est pédagogique : il s'appuie sur vos observations déclarées, pas sur la reconnaissance automatique d'une photo. Il ne confirme pas à lui seul une ovulation et ne remplace pas l'interprétation d'une série d'observations du cycle.</p>
       <button class="btn btn-secondary" type="button" id="rps02-restart">Recommencer</button>
     </section>
@@ -442,11 +444,43 @@
       'Exercice terminé. Voici ce que tes réponses évoquent dans une perspective pédagogique :';
     card.querySelector('#rps02-interpretation').innerHTML =
       `<strong>${esc(interpretation.title)}</strong><p>${esc(interpretation.body)}</p><p>${esc(interpretation.detail)}</p>`;
+
+    const saveStatus = card.querySelector('#rps02-save-status');
+    if (state.savedObservationAt) return;
+    try {
+      const backup = window.SymRellaCervicalBackup;
+      if (!backup) throw new Error('validator-unavailable');
+      const key = 'symrella_cervical_observations_v1';
+      const raw = localStorage.getItem(key);
+      const previous = raw ? JSON.parse(raw) : [];
+      if (!backup.isValidCervicalObservations(previous)) throw new Error('invalid-existing-data');
+      const record = {
+        id: 'rps02-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10),
+        source: 'rps02',
+        observedAt: new Date().toISOString(),
+        observations: {
+          sensation: selected('sensation'),
+          appearance: selected('appearance'),
+          transparency: selected('transparency'),
+          stretch: selected('stretch')
+        },
+        visualChoice: state.visualChoice,
+        interpretation
+      };
+      const next = [...previous, record].slice(-backup.MAX_OBSERVATIONS);
+      if (!backup.isValidCervicalObservations(next)) throw new Error('invalid-new-data');
+      localStorage.setItem(key, JSON.stringify(next));
+      state.savedObservationAt = record.observedAt;
+      if (saveStatus) saveStatus.textContent = 'Vos caractéristiques cervicales descriptives ont été enregistrées localement et seront incluses dans la prochaine sauvegarde. Les photos personnelles ne sont jamais enregistrées.';
+    } catch (error) {
+      if (saveStatus) saveStatus.textContent = 'Cette observation n’a pas pu être enregistrée durablement. Elle reste affichée pendant cette session ; ne rechargez pas la page avant d’avoir réessayé.';
+    }
   };
 
   card.querySelector('#rps02-restart').addEventListener('click', () => {
     state.visualChoice = null;
     state.photoSelected = false;
+    state.savedObservationAt = null;
     card.querySelectorAll('.rps02-options button,.rps02-photo-example').forEach(button => button.setAttribute('aria-pressed','false'));
     updateCompareAction();
     photo.value = '';
