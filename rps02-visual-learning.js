@@ -438,6 +438,11 @@
   });
 
   const completeProgress = () => {
+    const saveStatus = card.querySelector('#rps02-save-status');
+    if (window.symRellaEnsureStorageRecovered && !window.symRellaEnsureStorageRecovered()) {
+      if (saveStatus) saveStatus.textContent = 'Une restauration précédente est incomplète. Les données de récupération sont conservées; rétablissez l’accès au stockage avant de continuer.';
+      return;
+    }
     try { localStorage.setItem(state.progressKey, '1'); } catch (error) { /* local-first best effort */ }
     const interpretation = buildInterpretation();
     card.querySelector('#rps02-final').textContent =
@@ -445,7 +450,6 @@
     card.querySelector('#rps02-interpretation').innerHTML =
       `<strong>${esc(interpretation.title)}</strong><p>${esc(interpretation.body)}</p><p>${esc(interpretation.detail)}</p>`;
 
-    const saveStatus = card.querySelector('#rps02-save-status');
     if (state.savedObservationAt) return;
     try {
       const backup = window.SymRellaCervicalBackup;
@@ -467,8 +471,12 @@
         visualChoice: state.visualChoice,
         interpretation
       };
-      const next = [...previous, record].slice(-backup.MAX_OBSERVATIONS);
-      if (!backup.isValidCervicalObservations(next)) throw new Error('invalid-new-data');
+      const next = backup.appendCervicalObservation(previous, record);
+      if (!next && previous.length >= backup.MAX_OBSERVATIONS) {
+        if (saveStatus) saveStatus.textContent = 'La limite de conservation de 1 000 observations est atteinte. Exportez la sauvegarde avant de pouvoir enregistrer une nouvelle observation.';
+        return;
+      }
+      if (!next || !backup.isValidCervicalObservations(next)) throw new Error('invalid-new-data');
       localStorage.setItem(key, JSON.stringify(next));
       state.savedObservationAt = record.observedAt;
       if (saveStatus) saveStatus.textContent = 'Vos caractéristiques cervicales descriptives ont été enregistrées localement et seront incluses dans la prochaine sauvegarde. Les photos personnelles ne sont jamais enregistrées.';
