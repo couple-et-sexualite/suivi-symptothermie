@@ -18,7 +18,6 @@ const CURRENT_KEY = 'symptothermie_current_cycle';
 const HISTORY_KEY = 'symptothermie_history';
 const CERVICAL_KEY = 'symrella_cervical_observations_v1';
 const RPS02_PROGRESS_KEY = 'symrella_rps02_visual_progress_v2';
-const RPS02_PROGRESS_KEY = 'symrella_rps02_visual_progress_v2';
 const LEARNING_KEY = 'symptothermie_learning_progress';
 const LEARNING_VERSION = 1;
 const MODULE_TRANSLATIONS={
