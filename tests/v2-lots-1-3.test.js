@@ -320,8 +320,8 @@ test('les statuts d’action et de profil peuvent recevoir le focus après une a
 
 
 test('l’export fonctionne aussi avec des cycles archivés sans cycle courant', () => {
-  assert.match(page, /const history=loadHistory\(\);if\(!current\.length&&!history\.length\)/);
-  assert.match(page, /const payload=\{version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning\(\),profile:loadProfile\(\)\}/);
+  assert.match(page, /const history=loadHistory\(\);const cervicalObservations=loadCervicalObservations\(\);const rps02VisualProgress=loadRps02Progress\(\)/);
+  assert.match(page, /cervicalObservations,rps02VisualProgress/);
 });
 
 test('l’import limite la taille des sauvegardes', () => {
@@ -360,7 +360,7 @@ test('l’import valide la progression pédagogique avant toute écriture', () =
 });
 
 test('l’import sauvegarde les anciennes données avant les écritures et prévoit un rollback', () => {
-  assert.match(page, /const keys=\[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY\],previous=\{\}/);
+  assert.match(page, /const keys=\[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY,CERVICAL_KEY,RPS02_PROGRESS_KEY\],previous=\{\}/);
   assert.match(page, /localStorage\.setItem\(CURRENT_KEY,JSON\.stringify\(p\.current\)\)/);
   assert.match(page, /localStorage\.setItem\(HISTORY_KEY,JSON\.stringify\(p\.history\)\)/);
 assert.match(page, /previous\[key\]===null.*localStorage\.removeItem\(key\)/);
