@@ -419,3 +419,40 @@ test('keeps archived observations separate when a later active-cycle entry is ed
   await expect(page.locator('#f-cervix-notes')).toHaveValue('Observation active corrigée');
   await expect(page.locator('#f-notes')).toHaveValue('Note active corrigée');
 });
+
+
+test('renders archived cervical details from their own cycle when dates overlap', async ({ page }) => {
+  await resetApp(page);
+  const date = await page.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+  });
+
+  // Archive a rich observation.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.40');
+  await page.locator('#f-mucus-sensation').selectOption('glissante');
+  await page.locator('#mucus-appearance input[value="filant"]').check();
+  await page.locator('#f-cervix-position').selectOption('haut');
+  await page.locator('#f-cervix-notes').fill('Détail propre au cycle archivé');
+  await page.locator('#save-entry-btn').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-action="start-new-cycle"]').click();
+
+  // Add a retroactive active-cycle observation on the same calendar date.
+  await page.locator('#f-date').fill(date);
+  await page.locator('#f-temp').fill('36.70');
+  await page.locator('#f-mucus-sensation').selectOption('humide');
+  await page.locator('#f-cervix-position').selectOption('bas');
+  await page.locator('#f-cervix-notes').fill('Détail propre au cycle actif');
+  await page.locator('#save-entry-btn').click();
+
+  const archived = page.locator('#history-container .history-item');
+  await archived.locator('details summary').click();
+  await expect(archived).toContainText('Détail propre au cycle archivé');
+  await expect(archived).not.toContainText('Détail propre au cycle actif');
+
+  await page.locator('[data-action="edit-entry"][data-date="' + date + '"]').click();
+  await expect(page.locator('#f-cervix-notes')).toHaveValue('Détail propre au cycle actif');
+});
