@@ -1081,6 +1081,12 @@ renderProfile();
 renderCalendar();
 render();
 
+const startupMigrationStatus = window.symrellaStorageMigrationStatus;
+if (startupMigrationStatus?.status === 'blocked') {
+  storageAvailable = false;
+  setStorageStatus('La migration des données locales est bloquée. Les anciennes données sont conservées ; aucune donnée n’a été remplacée. Exporte une sauvegarde avant toute autre manipulation.');
+}
+
 (() => {
   const button = document.getElementById('save-entry-btn');
   const status = document.getElementById('entry-action-status');
