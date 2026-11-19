@@ -390,7 +390,7 @@ test('keeps archived observations separate when a later active-cycle entry is ed
   // Record today's observation in the new active cycle, then edit it.
   await page.locator('#f-date').fill(dates.today);
   await page.locator('#f-temp').fill('36.70');
-  await page.locator('#f-mucus-sensation').selectOption('collante');
+  await page.locator('#f-mucus-sensation').selectOption('humide');
   await page.locator('#f-cervix-position').selectOption('bas');
   await page.locator('#f-cervix-opening').selectOption('fermé');
   await page.locator('#f-cervix-consistency').selectOption('ferme');
